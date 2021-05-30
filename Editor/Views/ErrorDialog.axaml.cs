@@ -4,7 +4,8 @@ using Avalonia.Markup.Xaml;
 
 namespace Editor.Views
 {
-    public class ErrorWindow : Window
+    // ReSharper disable once PartialTypeWithSinglePart
+    public partial class ErrorWindow : Window
     {
         public ErrorWindow()
         {

@@ -9,6 +9,7 @@ using ReactiveUI;
 
 namespace Editor.Views
 {
+    // ReSharper disable once PartialTypeWithSinglePart
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
         public MainWindow()

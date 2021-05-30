@@ -3,7 +3,8 @@ using Avalonia.Markup.Xaml;
 
 namespace Editor.Views
 {
-    public class RsiStateView : UserControl
+    // ReSharper disable once PartialTypeWithSinglePart
+    public partial class RsiStateView : UserControl
     {
         public RsiStateView()
         {

@@ -7,8 +7,10 @@
              x:Class="Editor.Views.RsiItemView">
     <ScrollViewer>
         <StackPanel>
-            <views:RsiFramesView Name="Frames" Content="{Binding Frames}"/>
-            <ListBox Name="States" Items="{Binding States}" SelectedItem="{Binding SelectedState}" MaxHeight="480">
+            <Panel Height="120">
+                <views:RsiFramesView Name="Frames" Content="{Binding Frames}"/>
+            </Panel>
+            <ListBox Name="States" Items="{Binding States}" SelectedItem="{Binding SelectedState}" Height="480">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel/>

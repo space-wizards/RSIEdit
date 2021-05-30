@@ -38,5 +38,14 @@ namespace Editor.ViewModels
             get => _frames;
             set => this.RaiseAndSetIfChanged(ref _frames, value);
         }
+
+        public int Delete(RsiStateViewModel stateVm)
+        {
+            Item.States.Remove(stateVm.State);
+
+            var index = States.IndexOf(stateVm);
+            States.Remove(stateVm);
+            return index;
+        }
     }
 }
