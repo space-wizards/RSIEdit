@@ -13,10 +13,10 @@
                 <MenuItem Header="New"/>
                 <MenuItem Header="Open" Command="{Binding Open}"/>
                 <MenuItem Header="Save" Command="{Binding Save}"/>
-                <MenuItem Header="Save As"/>
+                <MenuItem Header="Save As" Command="{Binding SaveAs}"/>
                 <Separator/>
                 <MenuItem Header="Import DMI"/>
-                <MenuItem Header="Re-open Last Folder" Command="{Binding ReOpenLast}"/>
+                <MenuItem Header="Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
                 <MenuItem Header="Preferences"/>
             </MenuItem>

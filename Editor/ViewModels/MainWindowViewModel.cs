@@ -13,7 +13,9 @@ namespace Editor.ViewModels
     {
         private RsiItemViewModel? _rsi;
 
-        public string? LastOpenedFolder { get; private set; }
+        private string? LastOpenedFolder { get; set; }
+
+        private string? SaveFolder { get; set; }
 
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
 
@@ -74,6 +76,7 @@ namespace Editor.ViewModels
 
             Rsi = new RsiItemViewModel(rsi);
             LastOpenedFolder = folder;
+            SaveFolder = null;
         }
 
         public async void Open()
@@ -87,19 +90,8 @@ namespace Editor.ViewModels
             OpenFolder(folder);
         }
 
-        public async void Save()
+        private async void SaveRsi(string path)
         {
-            if (Rsi == null)
-            {
-                return;
-            }
-
-            var path = await SaveRsiDialog.Handle(Unit.Default);
-            if (string.IsNullOrEmpty(path))
-            {
-                return;
-            }
-
             var metaJsonPath = $"{path}{Path.DirectorySeparatorChar}meta.json";
             await File.WriteAllTextAsync(metaJsonPath, string.Empty);
 
@@ -112,6 +104,34 @@ namespace Editor.ViewModels
             {
                 state.Image.Save($"{path}{Path.DirectorySeparatorChar}{state.Name}.png");
             }
+        }
+
+        public async void Save()
+        {
+            if (Rsi == null)
+            {
+                return;
+            }
+
+            if (SaveFolder == null)
+            {
+                SaveAs();
+                return;
+            }
+
+            SaveRsi(SaveFolder);
+        }
+
+        public async void SaveAs()
+        {
+            var path = await SaveRsiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            SaveRsi(path);
+            SaveFolder = path;
         }
 
         public void ReOpenLast()
