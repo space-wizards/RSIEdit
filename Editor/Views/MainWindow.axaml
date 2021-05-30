@@ -16,7 +16,7 @@
                 <MenuItem Header="Save As"/>
                 <Separator/>
                 <MenuItem Header="Import DMI"/>
-                <MenuItem Header="Re-import Last DMI"/>
+                <MenuItem Header="Re-open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
                 <MenuItem Header="Preferences"/>
             </MenuItem>

@@ -13,6 +13,8 @@ namespace Editor.ViewModels
     {
         private RsiItemViewModel? _rsi;
 
+        public string? LastOpenedFolder { get; private set; }
+
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
 
         public Interaction<Unit, string> SaveRsiDialog { get; } = new();
@@ -31,14 +33,8 @@ namespace Editor.ViewModels
             private set => this.RaiseAndSetIfChanged(ref _rsi, value);
         }
 
-        public async void Open()
+        private async void OpenFolder(string folder)
         {
-            var folder = await OpenRsiDialog.Handle(Unit.Default);
-            if (string.IsNullOrEmpty(folder))
-            {
-                return;
-            }
-
             var metaJsonFiles = Directory.GetFiles(folder, "meta.json");
 
             if (metaJsonFiles.Length == 0)
@@ -77,6 +73,18 @@ namespace Editor.ViewModels
             }
 
             Rsi = new RsiItemViewModel(rsi);
+            LastOpenedFolder = folder;
+        }
+
+        public async void Open()
+        {
+            var folder = await OpenRsiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(folder))
+            {
+                return;
+            }
+
+            OpenFolder(folder);
         }
 
         public async void Save()
@@ -103,6 +111,14 @@ namespace Editor.ViewModels
             foreach (var state in Rsi.Item.States)
             {
                 state.Image.Save($"{path}{Path.DirectorySeparatorChar}{state.Name}.png");
+            }
+        }
+
+        public void ReOpenLast()
+        {
+            if (LastOpenedFolder != null)
+            {
+                OpenFolder(LastOpenedFolder);
             }
         }
 
