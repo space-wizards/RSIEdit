@@ -1,17 +1,34 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Editor.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Editor.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Editor.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Editor">
-
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+        Title="RSI Editor">
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Name="Menu">
+            <MenuItem Header="File">
+                <MenuItem Header="New"/>
+                <MenuItem Header="Open" Command="{Binding Open}"/>
+                <MenuItem Header="Save"/>
+                <MenuItem Header="Save As"/>
+                <Separator/>
+                <MenuItem Header="Import DMI"/>
+                <MenuItem Header="Re-import Last DMI"/>
+                <Separator/>
+                <MenuItem Header="Preferences"/>
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Header="Undo"/>
+                <MenuItem Header="Redo"/>
+                <Separator/>
+                <MenuItem Header="1 direction"/>
+                <MenuItem Header="4 directions"/>
+                <MenuItem Header="8 directions"/>
+            </MenuItem>
+        </Menu>
+        <views:RsiItemView DockPanel.Dock="Bottom" Name="RsiItemView" Content="{Binding Rsi}"/>
+    </DockPanel>
 </Window>

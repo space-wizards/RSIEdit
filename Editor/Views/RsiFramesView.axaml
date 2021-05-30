@@ -1,0 +1,33 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Editor.Views.RsiFramesView">
+    <StackPanel Orientation="Horizontal" Spacing="24" Margin="12 0 0 0">
+        <StackPanel Orientation="Vertical">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding South}" />
+            </Panel>
+            <TextBlock Text="South" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding North}" />
+            </Panel>
+            <TextBlock Text="North" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding East}" />
+            </Panel>
+            <TextBlock Text="East" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding West}" />
+            </Panel>
+            <TextBlock Text="West" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

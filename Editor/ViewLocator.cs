@@ -16,7 +16,7 @@ namespace Editor
 
             if (type != null)
             {
-                return (Control)Activator.CreateInstance(type)!;
+                return (Control) Activator.CreateInstance(type)!;
             }
             else
             {
