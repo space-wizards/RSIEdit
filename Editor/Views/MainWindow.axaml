@@ -24,9 +24,9 @@
                 <MenuItem Header="Undo" Command="{Binding Undo}"/>
                 <MenuItem Header="Redo" Command="{Binding Redo}"/>
                 <Separator/>
-                <MenuItem Header="1 direction"/>
-                <MenuItem Header="4 directions"/>
-                <MenuItem Header="8 directions"/>
+                <MenuItem Header="1 direction" Command="{Binding Directions}" CommandParameter="1"/>
+                <MenuItem Header="4 directions" Command="{Binding Directions}" CommandParameter="4"/>
+                <MenuItem Header="8 directions" Command="{Binding Directions}" CommandParameter="8"/>
             </MenuItem>
         </Menu>
         <views:RsiItemView DockPanel.Dock="Bottom" Name="RsiItemView" Content="{Binding Rsi}"/>

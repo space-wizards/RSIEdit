@@ -27,7 +27,7 @@ namespace Editor.Models.RSI
         public Bitmap Image { get; internal set; }
 
         [JsonPropertyName("directions")]
-        public RsiStateDirections Directions { get; }
+        public RsiStateDirections Directions { get; set; }
 
         [JsonPropertyName("delays")]
         public List<List<float>>? Delays { get; }

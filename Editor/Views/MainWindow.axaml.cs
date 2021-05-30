@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using Editor.Models.RSI;
 using Editor.ViewModels;
 using Editor.Views.RsiItemCommands;
 using ReactiveUI;
@@ -31,6 +32,7 @@ namespace Editor.Views
                 d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
                 d.Add(ViewModel!.UndoAction.RegisterHandler(DoUndo));
                 d.Add(ViewModel!.RedoAction.RegisterHandler(DoRedo));
+                d.Add(ViewModel!.DirectionsAction.RegisterHandler(DoChangeDirections));
             });
         }
 
@@ -120,6 +122,17 @@ namespace Editor.Views
             }
 
             ViewModel.Rsi.ReselectState(arg.Input);
+        }
+
+        private void DoChangeDirections(InteractionContext<RsiStateDirections, Unit> interaction)
+        {
+            if (ViewModel?.Rsi?.SelectedState == null)
+            {
+                return;
+            }
+
+            ViewModel.Rsi.SelectedState.State.Directions = interaction.Input;
+            interaction.SetOutput(Unit.Default);
         }
     }
 }

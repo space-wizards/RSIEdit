@@ -23,6 +23,8 @@ namespace Editor.ViewModels
 
         public Interaction<int, Unit> RedoAction { get; } = new();
 
+        public Interaction<RsiStateDirections, Unit> DirectionsAction { get; } = new();
+
         public RsiItemViewModel? Rsi
         {
             get => _rsi;
@@ -117,6 +119,14 @@ namespace Editor.ViewModels
             if (Rsi != null && Rsi.TryRedoDelete(out var index))
             {
                 await RedoAction.Handle(index);
+            }
+        }
+
+        public async void Directions(int amount)
+        {
+            if (Rsi != null)
+            {
+                await DirectionsAction.Handle((RsiStateDirections) amount);
             }
         }
     }
