@@ -61,7 +61,14 @@ namespace Editor.ViewModels
 
             foreach (var state in rsi.States)
             {
-                var bitmap = new Bitmap($"{folder}{Path.DirectorySeparatorChar}{state.Name}.png");
+                var statePath = $"{folder}{Path.DirectorySeparatorChar}{state.Name}.png";
+
+                if (!File.Exists(statePath))
+                {
+                    await ErrorDialog.Handle(new ErrorWindowViewModel($"Missing state found in meta.json:\n{statePath}"));
+                }
+
+                var bitmap = new Bitmap(statePath);
                 state.Image = bitmap;
             }
 
@@ -76,7 +83,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async  void Redo()
+        public async void Redo()
         {
             if (Rsi != null && Rsi.TryRedoDelete(out var index))
             {
