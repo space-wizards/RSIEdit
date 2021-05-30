@@ -92,9 +92,24 @@ namespace Editor.Views
             });
         }
 
-        public void DoNewRsi()
+        public async void DoNewRsi()
         {
-            if (ViewModel != null)
+            if (ViewModel == null)
+            {
+                return;
+            }
+
+            if (ViewModel.Rsi != null)
+            {
+                var newVm = new NewRsiWindowViewModel();
+                var confirmed = await new NewRsiWindow {ViewModel = newVm}.ShowDialog<bool>(this);
+
+                if (confirmed)
+                {
+                    ViewModel.Rsi = new RsiItemViewModel();
+                }
+            }
+            else
             {
                 ViewModel.Rsi = new RsiItemViewModel();
             }
