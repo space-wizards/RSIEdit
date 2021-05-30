@@ -18,8 +18,11 @@ namespace Editor.Views
 #if DEBUG
             this.AttachDevTools();
 #endif
-            this.WhenActivated(d => d(ViewModel!.OpenRsiDialog.RegisterHandler(DoShowOpenRsiDialog)));
-            this.WhenActivated(d => d(ViewModel!.ErrorDialog.RegisterHandler(DoShowErrorAsync)));
+            this.WhenActivated(d =>
+            {
+                d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoShowOpenRsiDialog));
+                d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowErrorAsync));
+            });
         }
 
         private void InitializeComponent()

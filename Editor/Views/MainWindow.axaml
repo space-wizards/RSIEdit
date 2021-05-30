@@ -21,8 +21,8 @@
                 <MenuItem Header="Preferences"/>
             </MenuItem>
             <MenuItem Header="Edit">
-                <MenuItem Header="Undo"/>
-                <MenuItem Header="Redo"/>
+                <MenuItem Header="Undo" Command="{Binding Undo}"/>
+                <MenuItem Header="Redo" Command="{Binding Redo}"/>
                 <Separator/>
                 <MenuItem Header="1 direction"/>
                 <MenuItem Header="4 directions"/>

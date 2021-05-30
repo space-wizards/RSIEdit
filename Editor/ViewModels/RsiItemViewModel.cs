@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using Editor.Models.RSI;
 using ReactiveUI;
 
@@ -6,6 +7,9 @@ namespace Editor.ViewModels
 {
     public class RsiItemViewModel : ViewModelBase
     {
+        private const int DeletedBufferSize = 50;
+        private const int RestoredBufferSize = 50;
+
         private RsiStateViewModel? _selectedState;
         private RsiFramesViewModel? _frames;
 
@@ -39,13 +43,46 @@ namespace Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _frames, value);
         }
 
-        public int Delete(RsiStateViewModel stateVm)
+        private CircularBuffer<(RsiStateViewModel model, int index)> Deleted { get; } = new(DeletedBufferSize);
+
+        private CircularBuffer<RsiStateViewModel> Restored { get; } = new(RestoredBufferSize);
+
+        public bool TryDelete(RsiStateViewModel stateVm, [NotNullWhen(true)] out int index)
         {
             Item.States.Remove(stateVm.State);
 
-            var index = States.IndexOf(stateVm);
-            States.Remove(stateVm);
-            return index;
+            index = States.IndexOf(stateVm);
+            var removed = States.Remove(stateVm);
+
+            if (!removed)
+            {
+                return false;
+            }
+
+            Deleted.PushFront((stateVm, index));
+            return true;
+        }
+
+        public bool TryRestore()
+        {
+            if (!Deleted.TryTakeFront(out var element))
+            {
+                return false;
+            }
+
+            var (model, index) = element;
+
+            Item.States.Insert(index, model.State);
+            States.Insert(index, model);
+
+            Restored.PushFront(model);
+            return true;
+        }
+
+        public bool TryRedoDelete()
+        {
+            return Restored.TryTakeFront(out var element) &&
+                   TryDelete(element, out _);
         }
     }
 }

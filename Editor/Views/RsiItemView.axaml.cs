@@ -47,7 +47,11 @@ namespace Editor.Views
                 }
 
                 var vm = view.ViewModel;
-                var index = vm.Delete(vm.SelectedState);
+
+                if (!vm.TryDelete(vm.SelectedState, out var index))
+                {
+                    return;
+                }
 
                 if (vm.States.Count > index)
                 {

@@ -17,6 +17,10 @@ namespace Editor.ViewModels
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
+        public Interaction<Unit, Unit> UndoAction { get; } = new();
+
+        public Interaction<Unit, Unit> RedoAction { get; } = new();
+
         public RsiItemViewModel? Rsi
         {
             get => _rsi;
@@ -62,6 +66,16 @@ namespace Editor.ViewModels
             }
 
             Rsi = new RsiItemViewModel(rsi);
+        }
+
+        public void Undo()
+        {
+            Rsi?.TryRestore();
+        }
+
+        public void Redo()
+        {
+            Rsi?.TryRedoDelete();
         }
     }
 }
