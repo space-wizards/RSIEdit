@@ -17,14 +17,14 @@ namespace Editor.ViewModels
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
-        public Interaction<Unit, Unit> UndoAction { get; } = new();
+        public Interaction<RsiStateViewModel, Unit> UndoAction { get; } = new();
 
-        public Interaction<Unit, Unit> RedoAction { get; } = new();
+        public Interaction<int, Unit> RedoAction { get; } = new();
 
         public RsiItemViewModel? Rsi
         {
             get => _rsi;
-            set => this.RaiseAndSetIfChanged(ref _rsi, value);
+            private set => this.RaiseAndSetIfChanged(ref _rsi, value);
         }
 
         public async void Open()
@@ -68,14 +68,20 @@ namespace Editor.ViewModels
             Rsi = new RsiItemViewModel(rsi);
         }
 
-        public void Undo()
+        public async void Undo()
         {
-            Rsi?.TryRestore();
+            if (Rsi != null && Rsi.TryRestore(out var selected))
+            {
+                await UndoAction.Handle(selected);
+            }
         }
 
-        public void Redo()
+        public async  void Redo()
         {
-            Rsi?.TryRedoDelete();
+            if (Rsi != null && Rsi.TryRedoDelete(out var index))
+            {
+                await RedoAction.Handle(index);
+            }
         }
     }
 }

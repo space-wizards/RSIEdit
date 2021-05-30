@@ -59,14 +59,20 @@ namespace Editor.ViewModels
                 return false;
             }
 
+            if (SelectedState == stateVm)
+            {
+                SelectedState = null;
+            }
+
             Deleted.PushFront((stateVm, index));
             return true;
         }
 
-        public bool TryRestore()
+        public bool TryRestore([NotNullWhen(true)] out RsiStateViewModel? restored)
         {
             if (!Deleted.TryTakeFront(out var element))
             {
+                restored = null;
                 return false;
             }
 
@@ -76,13 +82,36 @@ namespace Editor.ViewModels
             States.Insert(index, model);
 
             Restored.PushFront(model);
+            restored = model;
             return true;
         }
 
-        public bool TryRedoDelete()
+        public bool TryRedoDelete([NotNullWhen(true)] out int index)
         {
+            index = -1;
+
             return Restored.TryTakeFront(out var element) &&
-                   TryDelete(element, out _);
+                   TryDelete(element, out index);
+        }
+
+        public void ReselectState(int deletedIndex)
+        {
+            int? nextSelectedState = null;
+
+            // Select either the next or previous one
+            if (States.Count > deletedIndex)
+            {
+                nextSelectedState = deletedIndex;
+            }
+            else if (States.Count == deletedIndex && States.Count > 0)
+            {
+                nextSelectedState = deletedIndex - 1;
+            }
+
+            if (nextSelectedState != null)
+            {
+                SelectedState = States[nextSelectedState.Value];
+            }
         }
     }
 }

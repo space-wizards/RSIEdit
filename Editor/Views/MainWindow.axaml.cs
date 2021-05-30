@@ -27,7 +27,9 @@ namespace Editor.Views
             this.WhenActivated(d =>
             {
                 d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoShowOpenRsiDialog));
-                d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowErrorAsync));
+                d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
+                d.Add(ViewModel!.UndoAction.RegisterHandler(DoUndo));
+                d.Add(ViewModel!.RedoAction.RegisterHandler(DoRedo));
             });
         }
 
@@ -84,10 +86,31 @@ namespace Editor.Views
             interaction.SetOutput(folder);
         }
 
-        private async Task DoShowErrorAsync(InteractionContext<ErrorWindowViewModel, Unit> interaction)
+        private async Task DoShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
         {
             var dialog = new ErrorWindow {DataContext = interaction.Input};
             await dialog.ShowDialog(this);
+        }
+
+        private void DoUndo(InteractionContext<RsiStateViewModel, Unit> arg)
+        {
+            if (ViewModel?.Rsi == null)
+            {
+                return;
+            }
+
+            var restoredModel = arg.Input;
+            ViewModel.Rsi.SelectedState = restoredModel;
+        }
+
+        private void DoRedo(InteractionContext<int, Unit> arg)
+        {
+            if (ViewModel?.Rsi == null)
+            {
+                return;
+            }
+
+            ViewModel.Rsi.ReselectState(arg.Input);
         }
     }
 }

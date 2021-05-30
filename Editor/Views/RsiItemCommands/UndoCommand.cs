@@ -12,7 +12,17 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            (parameter as MainWindow)?.ViewModel?.Rsi?.TryRestore();
+            if (parameter is not MainWindow {ViewModel: {Rsi: { }}} window)
+            {
+                return;
+            }
+
+            var rsi = window.ViewModel.Rsi;
+
+            if (rsi.TryRestore(out var restored))
+            {
+                rsi.SelectedState = restored;
+            }
         }
 
         public event EventHandler? CanExecuteChanged;
