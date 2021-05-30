@@ -25,9 +25,21 @@ namespace Editor.Views.RsiItemCommands
                 return;
             }
 
+            int? nextSelectedState = null;
+
+            // Select either the next or previous one
             if (vm.States.Count > index)
             {
-                vm.SelectedState = vm.States[index];
+                nextSelectedState = index;
+            }
+            else if (vm.States.Count == index && vm.States.Count > 0)
+            {
+                nextSelectedState = index - 1;
+            }
+
+            if (nextSelectedState != null)
+            {
+                vm.SelectedState = vm.States[nextSelectedState.Value];
                 FocusManager.Instance.Focus(view);
             }
         }
