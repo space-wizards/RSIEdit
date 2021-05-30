@@ -17,6 +17,8 @@ namespace Editor.ViewModels
 
         private string? SaveFolder { get; set; }
 
+        public Interaction<Unit, Unit> NewRsiAction { get; } = new();
+
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
 
         public Interaction<Unit, string> SaveRsiDialog { get; } = new();
@@ -32,7 +34,12 @@ namespace Editor.ViewModels
         public RsiItemViewModel? Rsi
         {
             get => _rsi;
-            private set => this.RaiseAndSetIfChanged(ref _rsi, value);
+            set => this.RaiseAndSetIfChanged(ref _rsi, value);
+        }
+
+        public async void New()
+        {
+            await NewRsiAction.Handle(Unit.Default);
         }
 
         private async void OpenFolder(string folder)

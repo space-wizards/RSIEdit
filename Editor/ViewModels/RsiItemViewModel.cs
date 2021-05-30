@@ -13,6 +13,10 @@ namespace Editor.ViewModels
         private RsiStateViewModel? _selectedState;
         private RsiFramesViewModel? _frames;
 
+        public RsiItemViewModel() : this(new RsiItem())
+        {
+        }
+
         public RsiItemViewModel(RsiItem item)
         {
             Item = item;

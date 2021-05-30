@@ -10,7 +10,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Name="Menu">
             <MenuItem Header="File">
-                <MenuItem Header="New"/>
+                <MenuItem Header="New" Command="{Binding New}"/>
                 <MenuItem Header="Open" Command="{Binding Open}"/>
                 <MenuItem Header="Save" Command="{Binding Save}"/>
                 <MenuItem Header="Save As" Command="{Binding SaveAs}"/>

@@ -6,6 +6,8 @@ namespace Editor.Models.RSI
 {
     public class RsiItem
     {
+        private const int CurrentRsiVersion = 1;
+
         [JsonConstructor]
         public RsiItem(
             int version,
@@ -22,7 +24,7 @@ namespace Editor.Models.RSI
         }
 
         public RsiItem(
-            int version,
+            int version = CurrentRsiVersion,
             int x = 32,
             int y = 32,
             IEnumerable<RsiState>? states = null,

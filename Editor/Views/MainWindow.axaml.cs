@@ -15,6 +15,7 @@ namespace Editor.Views
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
+        private readonly NewCommand _newCommand = new();
         private readonly DeleteStateCommand _deleteStateCommand = new();
         private readonly UndoCommand _undoCommand = new();
         private readonly RedoCommand _redoCommand = new();
@@ -27,6 +28,7 @@ namespace Editor.Views
 #endif
             this.WhenActivated(d =>
             {
+                d.Add(ViewModel!.NewRsiAction.RegisterHandler(DoNewRsi));
                 d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoOpenRsi));
                 d.Add(ViewModel!.SaveRsiDialog.RegisterHandler(DoSaveRsi));
                 d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
@@ -39,6 +41,14 @@ namespace Editor.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+
+            var newGesture = new KeyGesture(Key.N, KeyModifiers.Control);
+            var newBinding = new KeyBinding
+            {
+                Command = _newCommand,
+                CommandParameter = this,
+                Gesture = newGesture
+            };
 
             var deleteGesture = new KeyGesture(Key.Delete);
             var deleteBinding = new KeyBinding
@@ -74,11 +84,26 @@ namespace Editor.Views
 
             KeyBindings.AddRange(new[]
             {
+                newBinding,
                 deleteBinding,
                 undoBinding,
                 redoBinding,
                 redoBindingAlternative
             });
+        }
+
+        public void DoNewRsi()
+        {
+            if (ViewModel != null)
+            {
+                ViewModel.Rsi = new RsiItemViewModel();
+            }
+        }
+
+        private void DoNewRsi(InteractionContext<Unit, Unit> interaction)
+        {
+            DoNewRsi();
+            interaction.SetOutput(Unit.Default);
         }
 
         private async Task DoOpenRsi(InteractionContext<Unit, string> interaction)
@@ -101,27 +126,30 @@ namespace Editor.Views
         {
             var dialog = new ErrorWindow {DataContext = interaction.Input};
             await dialog.ShowDialog(this);
+            interaction.SetOutput(Unit.Default);
         }
 
-        private void DoUndo(InteractionContext<RsiStateViewModel, Unit> arg)
+        private void DoUndo(InteractionContext<RsiStateViewModel, Unit> interaction)
         {
             if (ViewModel?.Rsi == null)
             {
                 return;
             }
 
-            var restoredModel = arg.Input;
+            var restoredModel = interaction.Input;
             ViewModel.Rsi.SelectedState = restoredModel;
+            interaction.SetOutput(Unit.Default);
         }
 
-        private void DoRedo(InteractionContext<int, Unit> arg)
+        private void DoRedo(InteractionContext<int, Unit> interaction)
         {
             if (ViewModel?.Rsi == null)
             {
                 return;
             }
 
-            ViewModel.Rsi.ReselectState(arg.Input);
+            ViewModel.Rsi.ReselectState(interaction.Input);
+            interaction.SetOutput(Unit.Default);
         }
 
         private void DoChangeDirections(InteractionContext<RsiStateDirections, Unit> interaction)
