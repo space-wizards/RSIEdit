@@ -23,6 +23,7 @@ namespace Editor.Models.RSI
         [JsonPropertyName("name")]
         public string Name { get; }
 
+        [JsonIgnore]
         public Bitmap Image { get; internal set; }
 
         [JsonPropertyName("directions")]

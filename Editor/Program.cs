@@ -18,7 +18,7 @@ namespace Editor
             }
             catch (Exception e)
             {
-                Logger.Sink.Log(LogEventLevel.Fatal, "MAIN", null,e.ToString());
+                Logger.Sink.Log(LogEventLevel.Fatal, "MAIN", null, e.ToString());
             }
         }
 

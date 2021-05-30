@@ -12,7 +12,7 @@
             <MenuItem Header="File">
                 <MenuItem Header="New"/>
                 <MenuItem Header="Open" Command="{Binding Open}"/>
-                <MenuItem Header="Save"/>
+                <MenuItem Header="Save" Command="{Binding Save}"/>
                 <MenuItem Header="Save As"/>
                 <Separator/>
                 <MenuItem Header="Import DMI"/>

@@ -26,7 +26,8 @@ namespace Editor.Views
 #endif
             this.WhenActivated(d =>
             {
-                d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoShowOpenRsiDialog));
+                d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoOpenRsi));
+                d.Add(ViewModel!.SaveRsiDialog.RegisterHandler(DoSaveRsi));
                 d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
                 d.Add(ViewModel!.UndoAction.RegisterHandler(DoUndo));
                 d.Add(ViewModel!.RedoAction.RegisterHandler(DoRedo));
@@ -78,9 +79,17 @@ namespace Editor.Views
             });
         }
 
-        private async Task DoShowOpenRsiDialog(InteractionContext<Unit, string> interaction)
+        private async Task DoOpenRsi(InteractionContext<Unit, string> interaction)
         {
             var dialog = new OpenFolderDialog {Title = "Open RSI"};
+            var folder = await dialog.ShowAsync(this);
+
+            interaction.SetOutput(folder);
+        }
+
+        private async Task DoSaveRsi(InteractionContext<Unit, string> interaction)
+        {
+            var dialog = new OpenFolderDialog {Title = "Save RSI"};
             var folder = await dialog.ShowAsync(this);
 
             interaction.SetOutput(folder);

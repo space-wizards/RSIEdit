@@ -15,6 +15,8 @@ namespace Editor.ViewModels
 
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
 
+        public Interaction<Unit, string> SaveRsiDialog { get; } = new();
+
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
         public Interaction<RsiStateViewModel, Unit> UndoAction { get; } = new();
@@ -73,6 +75,33 @@ namespace Editor.ViewModels
             }
 
             Rsi = new RsiItemViewModel(rsi);
+        }
+
+        public async void Save()
+        {
+            if (Rsi == null)
+            {
+                return;
+            }
+
+            var path = await SaveRsiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            var metaJsonPath = $"{path}{Path.DirectorySeparatorChar}meta.json";
+            await File.WriteAllTextAsync(metaJsonPath, string.Empty);
+
+            var metaJsonFile = File.OpenWrite(metaJsonPath);
+            await JsonSerializer.SerializeAsync(metaJsonFile, Rsi.Item);
+            await metaJsonFile.FlushAsync();
+            await metaJsonFile.DisposeAsync();
+
+            foreach (var state in Rsi.Item.States)
+            {
+                state.Image.Save($"{path}{Path.DirectorySeparatorChar}{state.Name}.png");
+            }
         }
 
         public async void Undo()
