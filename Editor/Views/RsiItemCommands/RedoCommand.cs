@@ -12,12 +12,7 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            if (parameter is not RsiItemView {ViewModel: {SelectedState: { }}} view)
-            {
-                return;
-            }
-
-            view.ViewModel.TryRedoDelete();
+            (parameter as MainWindow)?.ViewModel?.Rsi?.TryRedoDelete();
         }
 
         public event EventHandler? CanExecuteChanged;

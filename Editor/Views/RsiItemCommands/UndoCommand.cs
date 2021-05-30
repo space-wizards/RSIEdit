@@ -12,12 +12,7 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            if (parameter is not RsiItemView {ViewModel: {SelectedState: { }}} view)
-            {
-                return;
-            }
-
-            view.ViewModel.TryRestore();
+            (parameter as MainWindow)?.ViewModel?.Rsi?.TryRestore();
         }
 
         public event EventHandler? CanExecuteChanged;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Input;
-using Avalonia.Input;
 
 namespace Editor.Views.RsiItemCommands
 {
@@ -13,12 +12,12 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            if (parameter is not RsiItemView {ViewModel: {SelectedState: { }}} view)
+            if (parameter is not MainWindow {ViewModel: {Rsi: {SelectedState: { }}}} view)
             {
                 return;
             }
 
-            var vm = view.ViewModel;
+            var vm = view.ViewModel.Rsi;
 
             if (!vm.TryDelete(vm.SelectedState, out var index))
             {
@@ -40,7 +39,6 @@ namespace Editor.Views.RsiItemCommands
             if (nextSelectedState != null)
             {
                 vm.SelectedState = vm.States[nextSelectedState.Value];
-                FocusManager.Instance.Focus(view);
             }
         }
 
