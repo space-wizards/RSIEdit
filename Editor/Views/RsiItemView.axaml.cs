@@ -1,9 +1,8 @@
-using System;
-using System.Windows.Input;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using Editor.ViewModels;
+using Editor.Views.RsiItemCommands;
 
 namespace Editor.Views
 {
@@ -11,6 +10,8 @@ namespace Editor.Views
     public partial class RsiItemView : ReactiveUserControl<RsiItemViewModel>
     {
         private readonly DeleteStateCommand _deleteStateCommand = new();
+        private readonly UndoCommand _undoCommand = new();
+        private readonly RedoCommand _redoCommand = new();
 
         public RsiItemView()
         {
@@ -21,46 +22,45 @@ namespace Editor.Views
         {
             AvaloniaXamlLoader.Load(this);
 
-            var gesture = new KeyGesture(Key.Delete);
-            var binding = new KeyBinding
+            var deleteGesture = new KeyGesture(Key.Delete);
+            var deleteBinding = new KeyBinding
             {
                 Command = _deleteStateCommand,
                 CommandParameter = this,
-                Gesture = gesture
+                Gesture = deleteGesture
             };
 
-            KeyBindings.Add(binding);
-        }
-
-        private class DeleteStateCommand : ICommand
-        {
-            public bool CanExecute(object? parameter)
+            var undoGesture = new KeyGesture(Key.Z, KeyModifiers.Control);
+            var undoBinding = new KeyBinding
             {
-                return true;
-            }
+                Command = _undoCommand,
+                CommandParameter = this,
+                Gesture = undoGesture
+            };
 
-            public void Execute(object? parameter)
+            var redoGesture = new KeyGesture(Key.Y, KeyModifiers.Control);
+            var redoBinding = new KeyBinding
             {
-                if (parameter is not RsiItemView {ViewModel: {SelectedState: { }}} view)
-                {
-                    return;
-                }
+                Command = _redoCommand,
+                CommandParameter = this,
+                Gesture = redoGesture
+            };
 
-                var vm = view.ViewModel;
+            var redoGestureAlternative = new KeyGesture(Key.Z, KeyModifiers.Control | KeyModifiers.Shift);
+            var redoBindingAlternative = new KeyBinding
+            {
+                Command = _redoCommand,
+                CommandParameter = this,
+                Gesture = redoGestureAlternative
+            };
 
-                if (!vm.TryDelete(vm.SelectedState, out var index))
-                {
-                    return;
-                }
-
-                if (vm.States.Count > index)
-                {
-                    vm.SelectedState = vm.States[index];
-                    FocusManager.Instance.Focus(view);
-                }
-            }
-
-            public event EventHandler? CanExecuteChanged;
+            KeyBindings.AddRange(new[]
+            {
+                deleteBinding,
+                undoBinding,
+                redoBinding,
+                redoBindingAlternative
+            });
         }
     }
 }
