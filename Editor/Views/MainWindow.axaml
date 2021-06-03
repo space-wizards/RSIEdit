@@ -15,7 +15,7 @@
                 <MenuItem Header="Save" Command="{Binding Save}"/>
                 <MenuItem Header="Save As" Command="{Binding SaveAs}"/>
                 <Separator/>
-                <!-- <MenuItem Header="Import DMI" Command="{Binding Import}"/> -->
+                <MenuItem Header="Import DMI" Command="{Binding Import}"/>
                 <MenuItem Header="Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
                 <MenuItem Header="Preferences"/>

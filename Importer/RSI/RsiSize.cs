@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Editor.Models.RSI
+namespace Importer.RSI
 {
-    public class RsiSize
+    public record RsiSize
     {
         public RsiSize(int x, int y)
         {

@@ -13,17 +13,13 @@ namespace Editor.ViewModels
         private RsiStateViewModel? _selectedState;
         private RsiFramesViewModel? _frames;
 
-        public RsiItemViewModel() : this(new RsiItem())
+        public RsiItemViewModel(RsiItem? item = null)
         {
-        }
+            Item = item ?? new RsiItem();
 
-        public RsiItemViewModel(RsiItem item)
-        {
-            Item = item;
-
-            foreach (var state in Item.States)
+            foreach (var image in Item.Images)
             {
-                States.Add(new RsiStateViewModel(state));
+                States.Add(new RsiStateViewModel(image));
             }
         }
 
@@ -37,7 +33,7 @@ namespace Editor.ViewModels
             set
             {
                 this.RaiseAndSetIfChanged(ref _selectedState, value);
-                Frames = value == null ? null : new RsiFramesViewModel(value.State);
+                Frames = value == null ? null : new RsiFramesViewModel(value.Bitmap, value.Bitmap, value.Bitmap, value.Bitmap); // TODO
             }
         }
 
@@ -53,7 +49,7 @@ namespace Editor.ViewModels
 
         public bool TryDelete(RsiStateViewModel stateVm, [NotNullWhen(true)] out int index)
         {
-            Item.States.Remove(stateVm.State);
+            Item.RemoveState(stateVm.State);
 
             index = States.IndexOf(stateVm);
             var removed = States.Remove(stateVm);
@@ -82,7 +78,7 @@ namespace Editor.ViewModels
 
             var (model, index) = element;
 
-            Item.States.Insert(index, model.State);
+            Item.InsertState(index, model.Image);
             States.Insert(index, model);
 
             Restored.PushFront(model);

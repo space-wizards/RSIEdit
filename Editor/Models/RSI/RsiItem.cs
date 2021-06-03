@@ -1,62 +1,80 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using Avalonia.Media.Imaging;
+using Importer.RSI;
 
 namespace Editor.Models.RSI
 {
     public class RsiItem
     {
-        private const int CurrentRsiVersion = 1;
+        private readonly List<RsiImage> _images;
 
-        [JsonConstructor]
-        public RsiItem(
-            int version,
-            RsiSize size,
-            List<RsiState>? states = null,
-            string license = "",
-            string copyright = "")
+        public RsiItem(Rsi? rsi = null)
         {
-            Version = version;
-            Size = size;
-            States = states ?? new List<RsiState>();
-            License = license;
-            Copyright = copyright;
+            Rsi = rsi ?? new Rsi();
+            _images = new List<RsiImage>(new RsiImage[Rsi.States.Count]);
         }
 
-        public RsiItem(
-            int version = CurrentRsiVersion,
-            int x = 32,
-            int y = 32,
-            IEnumerable<RsiState>? states = null,
-            string license = "",
-            string copyright = "")
-            : this(version, new RsiSize(x, y), states?.ToList(), license, copyright)
+        private Rsi Rsi { get; }
+
+        public double Version => Rsi.Version;
+
+        public RsiSize Size => Rsi.Size;
+
+        public IReadOnlyList<RsiImage> Images => _images;
+
+        public string? License => Rsi.License;
+
+        public string? Copyright => Rsi.Copyright;
+
+        public bool TryLoadImages(string folder, [NotNullWhen(false)] out string? error)
         {
+            foreach (var state in Rsi.States)
+            {
+                var statePath = $"{folder}{Path.DirectorySeparatorChar}{state.Name}.png";
+
+                if (!File.Exists(statePath))
+                {
+                    error = $"Missing state found in meta.json:\n{statePath}";
+                    return false;
+                }
+
+                var bitmap = new Bitmap(statePath);
+                var image = new RsiImage(state, bitmap);
+                _images.Add(image);
+            }
+
+            error = null;
+            return true;
         }
 
-        public RsiItem(
-            int version,
-            int size,
-            IEnumerable<RsiState>? states = null,
-            string license = "",
-            string copyright = "")
-            : this(version, new RsiSize(size, size), states?.ToList(), license, copyright)
+        public void LoadImage(int index, Bitmap image)
         {
+            var state = Rsi.States[index];
+            _images[index] = new RsiImage(state, image);
         }
 
-        [JsonPropertyName("version")]
-        public int Version { get; }
+        public void InsertState(int index, RsiImage image)
+        {
+            Rsi.States.Insert(index, image.State);
+            _images.Insert(index, image);
+        }
 
-        [JsonPropertyName("size")]
-        public RsiSize Size { get; }
+        public void RemoveState(int index)
+        {
+            Rsi.States.RemoveAt(index);
+            _images.RemoveAt(index);
+        }
 
-        [JsonPropertyName("states")]
-        public List<RsiState> States { get; }
+        public void RemoveState(RsiState state)
+        {
+            var index = Rsi.States.IndexOf(state);
 
-        [JsonPropertyName("license")]
-        public string? License { get; }
-
-        [JsonPropertyName("copyright")]
-        public string? Copyright { get; }
+            if (index != -1)
+            {
+                RemoveState(index);
+            }
+        }
     }
 }

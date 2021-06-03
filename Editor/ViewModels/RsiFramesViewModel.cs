@@ -1,23 +1,23 @@
 ﻿using Avalonia.Media.Imaging;
-using Editor.Models.RSI;
 
 namespace Editor.ViewModels
 {
     public class RsiFramesViewModel : ViewModelBase
     {
-        public RsiFramesViewModel(RsiState state)
+        public RsiFramesViewModel(Bitmap south, Bitmap north, Bitmap east, Bitmap west)
         {
-            State = state;
+            South = south;
+            North = north;
+            East = east;
+            West = west;
         }
 
-        public RsiState State { get; }
+        public Bitmap South { get; }
 
-        public Bitmap South => State.Image;
+        public Bitmap North { get; }
 
-        public Bitmap North => State.Image;
+        public Bitmap East { get; }
 
-        public Bitmap East => State.Image;
-
-        public Bitmap West => State.Image;
+        public Bitmap West { get; }
     }
 }

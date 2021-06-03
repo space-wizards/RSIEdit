@@ -1,19 +1,22 @@
 ﻿using Avalonia.Media.Imaging;
 using Editor.Models.RSI;
+using Importer.RSI;
 
 namespace Editor.ViewModels
 {
     public class RsiStateViewModel : ViewModelBase
     {
-        public RsiStateViewModel(RsiState state)
+        public RsiStateViewModel(RsiImage image)
         {
-            State = state;
+            Image = image;
         }
 
-        internal RsiState State { get; }
+        public RsiImage Image { get; }
+
+        public RsiState State => Image.State;
 
         public string Name => State.Name;
 
-        public Bitmap Image => State.Image;
+        public Bitmap Bitmap => Image.Bitmap;
     }
 }

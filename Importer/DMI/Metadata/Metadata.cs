@@ -25,7 +25,7 @@ namespace Importer.DMI.Metadata
         public Rsi ToRsi()
         {
             var rsiStates = States.Select(s => s.ToRsiState()).ToList();
-            return new Rsi(Width, Height, rsiStates);
+            return new Rsi(Rsi.CurrentRsiVersion, Width, Height, rsiStates);
         }
     }
 }

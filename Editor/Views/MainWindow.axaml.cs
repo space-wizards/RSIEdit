@@ -6,9 +6,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
-using Editor.Models.RSI;
 using Editor.ViewModels;
 using Editor.Views.RsiItemCommands;
+using Importer.DMI;
 using ReactiveUI;
 
 namespace Editor.Views
@@ -185,7 +185,7 @@ namespace Editor.Views
             interaction.SetOutput(Unit.Default);
         }
 
-        private void DoChangeDirections(InteractionContext<RsiStateDirections, Unit> interaction)
+        private void DoChangeDirections(InteractionContext<DirectionTypes, Unit> interaction)
         {
             if (ViewModel?.Rsi?.SelectedState == null)
             {

@@ -180,6 +180,7 @@ namespace Importer.DMI.Metadata
 
                 if (key == "state")
                 {
+                    Index--;
                     break;
                 }
             }

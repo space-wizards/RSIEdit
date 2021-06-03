@@ -3,8 +3,11 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Editor.Models.RSI;
+using Importer.DMI;
+using Importer.DMI.Metadata;
 using ReactiveUI;
 
 namespace Editor.ViewModels
@@ -13,7 +16,9 @@ namespace Editor.ViewModels
     {
         private RsiItemViewModel? _rsi;
 
-        private string? LastOpenedFolder { get; set; }
+        private MetadataParser DmiParser { get; } = new();
+
+        private string? LastOpenedElement { get; set; }
 
         private string? SaveFolder { get; set; }
 
@@ -31,7 +36,7 @@ namespace Editor.ViewModels
 
         public Interaction<int, Unit> RedoAction { get; } = new();
 
-        public Interaction<RsiStateDirections, Unit> DirectionsAction { get; } = new();
+        public Interaction<DirectionTypes, Unit> DirectionsAction { get; } = new();
 
         public RsiItemViewModel? Rsi
         {
@@ -44,9 +49,9 @@ namespace Editor.ViewModels
             await NewRsiAction.Handle(Unit.Default);
         }
 
-        private async void OpenFolder(string folder)
+        private async Task OpenRsi(string folderPath)
         {
-            var metaJsonFiles = Directory.GetFiles(folder, "meta.json");
+            var metaJsonFiles = Directory.GetFiles(folderPath, "meta.json");
 
             if (metaJsonFiles.Length == 0)
             {
@@ -70,21 +75,13 @@ namespace Editor.ViewModels
                 return;
             }
 
-            foreach (var state in rsi.States)
+            if (!rsi.TryLoadImages(folderPath, out var error))
             {
-                var statePath = $"{folder}{Path.DirectorySeparatorChar}{state.Name}.png";
-
-                if (!File.Exists(statePath))
-                {
-                    await ErrorDialog.Handle(new ErrorWindowViewModel($"Missing state found in meta.json:\n{statePath}"));
-                }
-
-                var bitmap = new Bitmap(statePath);
-                state.Image = bitmap;
+                await ErrorDialog.Handle(new ErrorWindowViewModel(error));
             }
 
             Rsi = new RsiItemViewModel(rsi);
-            LastOpenedFolder = folder;
+            LastOpenedElement = folderPath;
             SaveFolder = null;
         }
 
@@ -96,11 +93,16 @@ namespace Editor.ViewModels
                 return;
             }
 
-            OpenFolder(folder);
+            await OpenRsi(folder);
         }
 
-        private async void SaveRsi(string path)
+        private async Task SaveRsi(string path)
         {
+            if (Rsi == null)
+            {
+                return;
+            }
+
             var metaJsonPath = $"{path}{Path.DirectorySeparatorChar}meta.json";
             await File.WriteAllTextAsync(metaJsonPath, string.Empty);
 
@@ -109,13 +111,13 @@ namespace Editor.ViewModels
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
-            foreach (var state in Rsi.Item.States)
+            foreach (var image in Rsi.Item.Images)
             {
-                state.Image.Save($"{path}{Path.DirectorySeparatorChar}{state.Name}.png");
+                image.Bitmap.Save($"{path}{Path.DirectorySeparatorChar}{image.State.Name}.png");
             }
         }
 
-        public async void Save()
+        public async Task Save()
         {
             if (Rsi == null)
             {
@@ -124,14 +126,14 @@ namespace Editor.ViewModels
 
             if (SaveFolder == null)
             {
-                SaveAs();
+                await SaveAs();
                 return;
             }
 
-            SaveRsi(SaveFolder);
+            await SaveRsi(SaveFolder);
         }
 
-        public async void SaveAs()
+        public async Task SaveAs()
         {
             var path = await SaveRsiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(path))
@@ -139,11 +141,32 @@ namespace Editor.ViewModels
                 return;
             }
 
-            SaveRsi(path);
+            await SaveRsi(path);
             SaveFolder = path;
         }
 
-        public async void Import()
+        private async Task ImportDmi(string filePath)
+        {
+            if (!DmiParser.TryGetFileMetadata(filePath, out var metadata, out var parseError))
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel(parseError.Message));
+                return;
+            }
+
+            var rsi = metadata.ToRsi();
+            var rsiItem = new RsiItem(metadata.ToRsi());
+
+            await foreach (var (stream, index) in rsi.LoadStreams(filePath))
+            {
+                rsiItem.LoadImage(index, new Bitmap(stream));
+            }
+
+            Rsi = new RsiItemViewModel(rsiItem);
+            LastOpenedElement = filePath;
+            SaveFolder = null;
+        }
+
+        public async Task Import()
         {
             var file = await ImportDmiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(file))
@@ -151,14 +174,21 @@ namespace Editor.ViewModels
                 return;
             }
 
-            // TODO
+            await ImportDmi(file);
         }
 
-        public void ReOpenLast()
+        public async Task ReOpenLast()
         {
-            if (LastOpenedFolder != null)
+            if (LastOpenedElement != null)
             {
-                OpenFolder(LastOpenedFolder);
+                if (File.GetAttributes(LastOpenedElement).HasFlag(FileAttributes.Directory))
+                {
+                    await OpenRsi(LastOpenedElement);
+                }
+                else
+                {
+                    await ImportDmi(LastOpenedElement);
+                }
             }
         }
 
@@ -182,7 +212,7 @@ namespace Editor.ViewModels
         {
             if (Rsi != null)
             {
-                await DirectionsAction.Handle((RsiStateDirections) amount);
+                await DirectionsAction.Handle((DirectionTypes) amount);
             }
         }
     }
