@@ -16,7 +16,7 @@ namespace Editor.Models.RSI
             _images = new List<RsiImage>(new RsiImage[Rsi.States.Count]);
         }
 
-        private Rsi Rsi { get; }
+        public Rsi Rsi { get; }
 
         public double Version => Rsi.Version;
 

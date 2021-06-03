@@ -110,7 +110,7 @@ namespace Editor.ViewModels
             await File.WriteAllTextAsync(metaJsonPath, string.Empty);
 
             var metaJsonFile = File.OpenWrite(metaJsonPath);
-            await JsonSerializer.SerializeAsync(metaJsonFile, Rsi.Item);
+            await JsonSerializer.SerializeAsync(metaJsonFile, Rsi.Item.Rsi);
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
