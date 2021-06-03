@@ -6,12 +6,13 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Editor.Views.MainWindow"
         Icon="/Assets/logo.ico"
-        Title="RSI Editor">
+        Title="RSI Editor"
+        DragDrop.AllowDrop="True">
     <DockPanel>
         <Menu DockPanel.Dock="Top" Name="Menu">
             <MenuItem Header="File">
                 <MenuItem Header="New" Command="{Binding New}"/>
-                <MenuItem Header="Open RSI" Command="{Binding Open}"/>
+                <MenuItem Header="Open" Command="{Binding Open}"/>
                 <MenuItem Header="Save" Command="{Binding Save}"/>
                 <MenuItem Header="Save As" Command="{Binding SaveAs}"/>
                 <Separator/>

@@ -8,6 +8,7 @@ using Avalonia.Media.Imaging;
 using Editor.Models.RSI;
 using Importer.DMI;
 using Importer.DMI.Metadata;
+using Importer.RSI;
 using ReactiveUI;
 
 namespace Editor.ViewModels
@@ -49,25 +50,25 @@ namespace Editor.ViewModels
             await NewRsiAction.Handle(Unit.Default);
         }
 
-        private async Task OpenRsi(string folderPath)
+        public async Task OpenRsi(string folderPath)
         {
             var metaJsonFiles = Directory.GetFiles(folderPath, "meta.json");
 
             if (metaJsonFiles.Length == 0)
             {
-                await ErrorDialog.Handle(new ErrorWindowViewModel("No meta.json found in folder"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"No meta.json found in folder\n{folderPath}"));
                 return;
             }
 
             if (metaJsonFiles.Length > 1)
             {
-                await ErrorDialog.Handle(new ErrorWindowViewModel("More than one meta.json found in folder"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"More than one meta.json found in folder\n{folderPath}"));
                 return;
             }
 
             var metaJson = metaJsonFiles.Single();
             var stream = File.OpenRead(metaJson);
-            var rsi = await JsonSerializer.DeserializeAsync<RsiItem>(stream);
+            var rsi = await JsonSerializer.DeserializeAsync<Rsi>(stream);
 
             if (rsi == null)
             {
@@ -75,12 +76,14 @@ namespace Editor.ViewModels
                 return;
             }
 
-            if (!rsi.TryLoadImages(folderPath, out var error))
+            var rsiItem = new RsiItem(rsi);
+
+            if (!rsiItem.TryLoadImages(folderPath, out var error))
             {
                 await ErrorDialog.Handle(new ErrorWindowViewModel(error));
             }
 
-            Rsi = new RsiItemViewModel(rsi);
+            Rsi = new RsiItemViewModel(rsiItem);
             LastOpenedElement = folderPath;
             SaveFolder = null;
         }
@@ -145,7 +148,7 @@ namespace Editor.ViewModels
             SaveFolder = path;
         }
 
-        private async Task ImportDmi(string filePath)
+        public async Task ImportDmi(string filePath)
         {
             if (!DmiParser.TryGetFileMetadata(filePath, out var metadata, out var parseError))
             {

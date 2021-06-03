@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia;
@@ -38,7 +40,12 @@ namespace Editor.Views
                 d.Add(ViewModel!.DirectionsAction.RegisterHandler(DoChangeDirections));
                 d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
             });
+
+            RsiItemView = this.Find<RsiItemView>("RsiItemView");
+            AddHandler(DragDrop.DropEvent, DropEvent);
         }
+
+        private RsiItemView RsiItemView { get; }
 
         private void InitializeComponent()
         {
@@ -94,6 +101,19 @@ namespace Editor.Views
             });
         }
 
+        private async Task<bool> TryOpenRsiConfirmationPopup(string text)
+        {
+            if (ViewModel?.Rsi == null)
+            {
+                return true;
+            }
+
+            var newVm = new NewRsiWindowViewModel(text);
+            var confirmed = await new NewRsiWindow() {ViewModel = newVm}.ShowDialog<bool>(this);
+
+            return confirmed;
+        }
+
         public async void DoNewRsi()
         {
             if (ViewModel == null)
@@ -101,17 +121,7 @@ namespace Editor.Views
                 return;
             }
 
-            if (ViewModel.Rsi != null)
-            {
-                var newVm = new NewRsiWindowViewModel();
-                var confirmed = await new NewRsiWindow {ViewModel = newVm}.ShowDialog<bool>(this);
-
-                if (confirmed)
-                {
-                    ViewModel.Rsi = new RsiItemViewModel();
-                }
-            }
-            else
+            if (await TryOpenRsiConfirmationPopup("Are you sure you want to create a new RSI?"))
             {
                 ViewModel.Rsi = new RsiItemViewModel();
             }
@@ -201,6 +211,36 @@ namespace Editor.Views
             var dialog = new ErrorWindow {DataContext = interaction.Input};
             await dialog.ShowDialog(this);
             interaction.SetOutput(Unit.Default);
+        }
+
+        private async void DropEvent(object? sender, DragEventArgs e)
+        {
+            var files = e.Data.GetFileNames();
+            if (ViewModel == null || files == null)
+            {
+                return;
+            }
+
+            var file = files.ToArray()[0];
+            if (File.GetAttributes(file).HasFlag(FileAttributes.Directory))
+            {
+                if (await TryOpenRsiConfirmationPopup("Are you sure you want to open a new RSI?"))
+                {
+                    await ViewModel.OpenRsi(file);
+                }
+
+                return;
+            }
+
+            if (!file.EndsWith(".dmi"))
+            {
+                return;
+            }
+
+            if (await TryOpenRsiConfirmationPopup("Are you sure you want to import a new DMI?"))
+            {
+                await ViewModel.ImportDmi(file);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media.Imaging;
 using Editor.Models.RSI;
 using Importer.RSI;
+using Microsoft.Toolkit.Diagnostics;
 
 namespace Editor.ViewModels
 {
@@ -8,6 +9,7 @@ namespace Editor.ViewModels
     {
         public RsiStateViewModel(RsiImage image)
         {
+            Guard.IsNotNull(image, "image");
             Image = image;
         }
 

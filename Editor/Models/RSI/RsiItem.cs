@@ -30,8 +30,9 @@ namespace Editor.Models.RSI
 
         public bool TryLoadImages(string folder, [NotNullWhen(false)] out string? error)
         {
-            foreach (var state in Rsi.States)
+            for (var i = 0; i < Rsi.States.Count; i++)
             {
+                var state = Rsi.States[i];
                 var statePath = $"{folder}{Path.DirectorySeparatorChar}{state.Name}.png";
 
                 if (!File.Exists(statePath))
@@ -42,7 +43,7 @@ namespace Editor.Models.RSI
 
                 var bitmap = new Bitmap(statePath);
                 var image = new RsiImage(state, bitmap);
-                _images.Add(image);
+                _images[i] = image;
             }
 
             error = null;

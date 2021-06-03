@@ -6,6 +6,19 @@ namespace Editor.ViewModels
 {
     public class NewRsiWindowViewModel : ViewModelBase
     {
+        private string _text;
+
+        public NewRsiWindowViewModel(string text)
+        {
+            _text = text;
+        }
+
+        public string Text
+        {
+            get => _text;
+            set => this.RaiseAndSetIfChanged(ref _text, value);
+        }
+
         public Interaction<Unit, Unit> ConfirmAction { get; } = new();
 
         public Interaction<Unit, Unit> DeclineAction { get; } = new();
