@@ -11,6 +11,7 @@ namespace Editor.ViewModels
         private const int RestoredBufferSize = 50;
 
         private RsiStateViewModel? _selectedState;
+        private bool _hasStateSelected;
         private RsiFramesViewModel? _frames;
 
         public RsiItemViewModel(RsiItem? item = null)
@@ -33,8 +34,24 @@ namespace Editor.ViewModels
             set
             {
                 this.RaiseAndSetIfChanged(ref _selectedState, value);
-                Frames = value == null ? null : new RsiFramesViewModel(value.Bitmap, value.Bitmap, value.Bitmap, value.Bitmap); // TODO
+
+                if (value == null)
+                {
+                    HasStateSelected = false;
+                    Frames = null;
+                }
+                else
+                {
+                    Frames = new RsiFramesViewModel(value.Bitmap, value.Bitmap, value.Bitmap, value.Bitmap); // TODO
+                    HasStateSelected = true;
+                }
             }
+        }
+
+        public bool HasStateSelected
+        {
+            get => _hasStateSelected;
+            set => this.RaiseAndSetIfChanged(ref _hasStateSelected, value);
         }
 
         public RsiFramesViewModel? Frames
@@ -46,6 +63,19 @@ namespace Editor.ViewModels
         private CircularBuffer<(RsiStateViewModel model, int index)> Deleted { get; } = new(DeletedBufferSize);
 
         private CircularBuffer<RsiStateViewModel> Restored { get; } = new(RestoredBufferSize);
+
+        public void DeleteSelectedState()
+        {
+            if (_selectedState == null)
+            {
+                return;
+            }
+
+            if (TryDelete(_selectedState, out var index))
+            {
+                ReselectState(index);
+            }
+        }
 
         public bool TryDelete(RsiStateViewModel stateVm, [NotNullWhen(true)] out int index)
         {

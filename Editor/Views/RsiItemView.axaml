@@ -11,6 +11,13 @@
                 <views:RsiFramesView Name="Frames" Content="{Binding Frames}"/>
             </Panel>
             <ListBox Name="States" Items="{Binding States}" SelectedItem="{Binding SelectedState}" Height="480">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Add new state" Command="{Binding New}"/>
+                        <MenuItem Header="Import PNG" Command="{Binding New}"/>
+                        <MenuItem Header="Delete" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteSelectedState}" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel/>
