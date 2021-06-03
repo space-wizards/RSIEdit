@@ -8,6 +8,6 @@
         <Panel>
             <Image Height="96" Width="96" Source="{Binding Bitmap}" />
         </Panel>
-        <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" MaxWidth="96" />
+        <TextBox Text="{Binding Name, Mode=TwoWay}" HorizontalAlignment="Center" MaxWidth="96" />
     </StackPanel>
 </UserControl>

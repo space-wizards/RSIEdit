@@ -17,7 +17,11 @@ namespace Editor.ViewModels
 
         public RsiState State => Image.State;
 
-        public string Name => State.Name;
+        public string Name
+        {
+            get => State.Name;
+            set => State.Name = value;
+        }
 
         public Bitmap Bitmap => Image.Bitmap;
     }
