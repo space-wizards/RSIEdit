@@ -23,6 +23,8 @@ namespace Editor.ViewModels
 
         public Interaction<Unit, string> SaveRsiDialog { get; } = new();
 
+        public Interaction<Unit, string> ImportDmiDialog { get; } = new();
+
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
         public Interaction<RsiStateViewModel, Unit> UndoAction { get; } = new();
@@ -139,6 +141,17 @@ namespace Editor.ViewModels
 
             SaveRsi(path);
             SaveFolder = path;
+        }
+
+        public async void Import()
+        {
+            var file = await ImportDmiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(file))
+            {
+                return;
+            }
+
+            // TODO
         }
 
         public void ReOpenLast()

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia;
@@ -31,10 +32,11 @@ namespace Editor.Views
                 d.Add(ViewModel!.NewRsiAction.RegisterHandler(DoNewRsi));
                 d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoOpenRsi));
                 d.Add(ViewModel!.SaveRsiDialog.RegisterHandler(DoSaveRsi));
-                d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
+                d.Add(ViewModel!.ImportDmiDialog.RegisterHandler(DoImportDmi));
                 d.Add(ViewModel!.UndoAction.RegisterHandler(DoUndo));
                 d.Add(ViewModel!.RedoAction.RegisterHandler(DoRedo));
                 d.Add(ViewModel!.DirectionsAction.RegisterHandler(DoChangeDirections));
+                d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
             });
         }
 
@@ -137,11 +139,27 @@ namespace Editor.Views
             interaction.SetOutput(folder);
         }
 
-        private async Task DoShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
+        private async Task DoImportDmi(InteractionContext<Unit, string> interaction)
         {
-            var dialog = new ErrorWindow {DataContext = interaction.Input};
-            await dialog.ShowDialog(this);
-            interaction.SetOutput(Unit.Default);
+            var dialog = new OpenFileDialog
+            {
+                Title = "Import DMI",
+                AllowMultiple = false,
+                Filters = new List<FileDialogFilter>
+                {
+                    new()
+                    {
+                        Name = "DMI Files",
+                        Extensions = new List<string>
+                        {
+                            "dmi"
+                        }
+                    }
+                }
+            };
+            var files = await dialog.ShowAsync(this);
+
+            interaction.SetOutput(files.Length > 0 ? files[0] : string.Empty);
         }
 
         private void DoUndo(InteractionContext<RsiStateViewModel, Unit> interaction)
@@ -175,6 +193,13 @@ namespace Editor.Views
             }
 
             ViewModel.Rsi.SelectedState.State.Directions = interaction.Input;
+            interaction.SetOutput(Unit.Default);
+        }
+
+        private async Task DoShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
+        {
+            var dialog = new ErrorWindow {DataContext = interaction.Input};
+            await dialog.ShowDialog(this);
             interaction.SetOutput(Unit.Default);
         }
     }

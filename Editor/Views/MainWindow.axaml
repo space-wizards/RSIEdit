@@ -11,11 +11,11 @@
         <Menu DockPanel.Dock="Top" Name="Menu">
             <MenuItem Header="File">
                 <MenuItem Header="New" Command="{Binding New}"/>
-                <MenuItem Header="Open" Command="{Binding Open}"/>
+                <MenuItem Header="Open RSI" Command="{Binding Open}"/>
                 <MenuItem Header="Save" Command="{Binding Save}"/>
                 <MenuItem Header="Save As" Command="{Binding SaveAs}"/>
                 <Separator/>
-                <MenuItem Header="Import DMI"/>
+                <!-- <MenuItem Header="Import DMI" Command="{Binding Import}"/> -->
                 <MenuItem Header="Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
                 <MenuItem Header="Preferences"/>
