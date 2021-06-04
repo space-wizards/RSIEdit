@@ -64,11 +64,15 @@ namespace Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _title, value);
         }
 
+        public bool Modified { get; private set; }
+
         public string? SaveFolder { get; set; }
 
         public Interaction<Unit, string> ImportPngInteraction { get; } = new();
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
+
+        public Interaction<RsiItemViewModel, Unit> CloseInteraction { get; } = new();
 
         public RsiItem Item { get; }
 
@@ -138,6 +142,7 @@ namespace Editor.ViewModels
             var vm = new RsiStateViewModel(image);
 
             AddState(vm);
+            Modified = true;
         }
 
         public async Task ImportPng()
@@ -176,6 +181,7 @@ namespace Editor.ViewModels
             SelectedState.Image.Bitmap.Dispose();
             SelectedState.Image.Bitmap = png;
             RefreshFrames();
+            Modified = true;
         }
 
         public void DeleteSelectedState()
@@ -191,10 +197,16 @@ namespace Editor.ViewModels
             }
         }
 
+        public async Task Close()
+        {
+            await CloseInteraction.Handle(this);
+        }
+
         public void AddState(RsiStateViewModel vm)
         {
             Item.AddState(vm.Image);
             States.Add(vm);
+            Modified = true;
         }
 
         public bool TryDelete(RsiStateViewModel stateVm, [NotNullWhen(true)] out int index)
@@ -215,6 +227,7 @@ namespace Editor.ViewModels
             }
 
             Deleted.PushFront((stateVm, index));
+            Modified = true;
             return true;
         }
 
@@ -264,11 +277,6 @@ namespace Editor.ViewModels
             }
         }
 
-        public void Dispose()
-        {
-            _emptyStream.Dispose();
-        }
-
         private void RefreshFrames()
         {
             if (SelectedState == null)
@@ -280,6 +288,11 @@ namespace Editor.ViewModels
             Frames.North = SelectedState.Image.Bitmap;
             Frames.East = SelectedState.Image.Bitmap;
             Frames.West = SelectedState.Image.Bitmap;
+        }
+
+        public void Dispose()
+        {
+            _emptyStream.Dispose();
         }
     }
 }

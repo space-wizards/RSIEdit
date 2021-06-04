@@ -7,9 +7,9 @@ using ReactiveUI;
 
 namespace Editor.Views
 {
-    public class NewRsiWindow : ReactiveWindow<NewRsiWindowViewModel>
+    public class ConfirmationWindow : ReactiveWindow<ConfirmationWindowViewModel>
     {
-        public NewRsiWindow()
+        public ConfirmationWindow()
         {
             InitializeComponent();
 #if DEBUG

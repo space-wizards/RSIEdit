@@ -52,6 +52,14 @@ namespace Editor.ViewModels
             CurrentOpenRsi = vm;
         }
 
+        public void CloseRsi(RsiItemViewModel vm)
+        {
+            if (OpenRsis.Remove(vm) && CurrentOpenRsi == vm)
+            {
+                CurrentOpenRsi = null;
+            }
+        }
+
         public async void New()
         {
             await NewRsiAction.Handle(Unit.Default);
@@ -63,7 +71,7 @@ namespace Editor.ViewModels
 
             if (metaJsonFiles.Length == 0)
             {
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"No meta.json found in folder\n{folderPath}\nIs it an RSI?"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"No meta.json found in folder\n{folderPath}\n\nIs it an RSI?"));
                 return;
             }
 
@@ -77,7 +85,7 @@ namespace Editor.ViewModels
             var stream = File.OpenRead(metaJson);
             var rsi = await JsonSerializer.DeserializeAsync<Rsi>(stream);
 
-            if (rsi == null)
+            if (rsi is not {Size: {}})
             {
                 await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading meta.json"));
                 return;

@@ -36,7 +36,7 @@
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>
-                            <Button DockPanel.Dock="Right" Content="X"/>
+                            <Button DockPanel.Dock="Right" Command="{Binding Close}" Content="X"/>
                             <TextBlock Text="{Binding Title}"/>
                         </DockPanel>
                     </DataTemplate>

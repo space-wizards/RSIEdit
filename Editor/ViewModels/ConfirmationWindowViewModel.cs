@@ -4,11 +4,11 @@ using ReactiveUI;
 
 namespace Editor.ViewModels
 {
-    public class NewRsiWindowViewModel : ViewModelBase
+    public class ConfirmationWindowViewModel : ViewModelBase
     {
         private string _text;
 
-        public NewRsiWindowViewModel(string text)
+        public ConfirmationWindowViewModel(string text)
         {
             _text = text;
         }

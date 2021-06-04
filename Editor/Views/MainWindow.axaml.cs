@@ -42,6 +42,9 @@ namespace Editor.Views
 
             ShowErrorEvent.AddClassHandler<MainWindow>(OnShowError);
             OpenFileEvent.AddClassHandler<MainWindow>(OnOpenFile);
+            AskConfirmationEvent.AddClassHandler<MainWindow>(OnAskConfirmation);
+            CloseRsiEvent.AddClassHandler<MainWindow>(OnCloseRsi);
+            GetMainWindowEvent.AddClassHandler<MainWindow>(OnGetMainWindow);
             AddHandler(DragDrop.DropEvent, DropEvent);
         }
 
@@ -50,6 +53,15 @@ namespace Editor.Views
 
         public static RoutedEvent<OpenFileDialogEvent> OpenFileEvent { get; } =
             RoutedEvent.Register<MainWindow, OpenFileDialogEvent>(nameof(OpenFileEvent), RoutingStrategies.Bubble);
+
+        public static RoutedEvent<AskConfirmationEvent> AskConfirmationEvent { get; } =
+            RoutedEvent.Register<MainWindow, AskConfirmationEvent>(nameof(AskConfirmationEvent), RoutingStrategies.Bubble);
+
+        public static RoutedEvent<CloseRsiEvent> CloseRsiEvent { get; } =
+            RoutedEvent.Register<MainWindow, CloseRsiEvent>(nameof(CloseRsiEvent), RoutingStrategies.Bubble);
+
+        public static RoutedEvent<GetMainWindowEvent> GetMainWindowEvent { get; } =
+            RoutedEvent.Register<MainWindow, GetMainWindowEvent>(nameof(GetMainWindowEvent), RoutingStrategies.Bubble);
 
         private NewCommand NewCommand { get; } = new();
 
@@ -113,15 +125,15 @@ namespace Editor.Views
             });
         }
 
-        private async Task<bool> TryOpenRsiConfirmationPopup(string text)
+        private async Task<bool> TryOpenConfirmation(string text, bool modified = true)
         {
-            if (ViewModel?.CurrentOpenRsi == null)
+            if (!modified || ViewModel?.CurrentOpenRsi == null)
             {
                 return true;
             }
 
-            var newVm = new NewRsiWindowViewModel(text);
-            var confirmed = await new NewRsiWindow() {ViewModel = newVm}.ShowDialog<bool>(this);
+            var newVm = new ConfirmationWindowViewModel(text);
+            var confirmed = await new ConfirmationWindow() {ViewModel = newVm}.ShowDialog<bool>(this);
 
             return confirmed;
         }
@@ -133,7 +145,7 @@ namespace Editor.Views
                 return;
             }
 
-            if (await TryOpenRsiConfirmationPopup("Are you sure you want to create a new RSI?"))
+            if (await TryOpenConfirmation("Are you sure you want to create a new RSI?"))
             {
                 ViewModel.CurrentOpenRsi = new RsiItemViewModel();
             }
@@ -231,38 +243,38 @@ namespace Editor.Views
             }
 
             var files = fileNames.ToArray();
-            if (files.Length == 0)
-            {
-                return;
-            }
+            var rsiDmiToOpen = new List<string>();
 
-            var firstFile = files[0];
-            if (File.GetAttributes(firstFile).HasFlag(FileAttributes.Directory))
+            foreach (var file in files)
             {
-                if (await TryOpenRsiConfirmationPopup("Are you sure you want to open a new RSI?"))
+                if (File.GetAttributes(file).HasFlag(FileAttributes.Directory))
                 {
-                    await ViewModel.OpenRsi(firstFile);
+                    rsiDmiToOpen.Add(file);
+                    continue;
                 }
 
-                return;
+                switch (Path.GetExtension(file))
+                {
+                    case ".dmi":
+                        rsiDmiToOpen.Add(file);
+                        break;
+                    case ".png":
+                        ViewModel.CurrentOpenRsi?.CreateNewState(file);
+                        break;
+                }
             }
 
-            switch (Path.GetExtension(firstFile))
+            foreach (var rsiOrDmi in rsiDmiToOpen)
             {
-                case ".dmi":
-                    if (await TryOpenRsiConfirmationPopup("Are you sure you want to import a new DMI?"))
-                    {
-                        await ViewModel.ImportDmi(firstFile);
-                    }
-
-                    break;
-                case ".png":
-                    foreach (var file in files)
-                    {
-                        ViewModel.CurrentOpenRsi?.CreateNewState(file);
-                    }
-
-                    break;
+                switch (Path.GetExtension(rsiOrDmi))
+                {
+                    case ".dmi":
+                        await ViewModel.ImportDmi(rsiOrDmi);
+                        break;
+                    default:
+                        await ViewModel.OpenRsi(rsiOrDmi);
+                        break;
+                }
             }
         }
 
@@ -276,6 +288,25 @@ namespace Editor.Views
         {
             var files = args.Dialog.ShowAsync(window).Result;
             args.Files = files;
+        }
+
+        private void OnAskConfirmation(MainWindow window, AskConfirmationEvent args)
+        {
+            var dialog = new ConfirmationWindow {DataContext = args.ViewModel};
+            args.Confirmed = dialog.ShowDialog<bool>(this).Result;
+        }
+
+        private async void OnCloseRsi(MainWindow window, CloseRsiEvent args)
+        {
+            if (ViewModel != null && await TryOpenConfirmation("Are you sure you want to close the current RSI without saving?", args.ViewModel.Modified))
+            {
+                ViewModel?.CloseRsi(args.ViewModel);
+            }
+        }
+
+        private void OnGetMainWindow(MainWindow window, GetMainWindowEvent args)
+        {
+            args.MainWindow = window;
         }
     }
 }
