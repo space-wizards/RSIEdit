@@ -46,10 +46,10 @@ namespace Editor.ViewModels
 
         public Interaction<DirectionTypes, Unit> DirectionsAction { get; } = new();
 
-        private void AddOpenRsi(RsiItemViewModel vm)
+        private void AddRsi(RsiItemViewModel vm)
         {
             OpenRsis.Add(vm);
-            CurrentOpenRsi ??= vm;
+            CurrentOpenRsi = vm;
         }
 
         public async void New()
@@ -93,7 +93,7 @@ namespace Editor.ViewModels
             var name = Path.GetFileName(folderPath);
             var rsiVm = new RsiItemViewModel(name, rsiItem) {SaveFolder = folderPath};
 
-            AddOpenRsi(rsiVm);
+            AddRsi(rsiVm);
             LastOpenedElement = folderPath;
         }
 
@@ -181,7 +181,7 @@ namespace Editor.ViewModels
             var name = Path.GetFileNameWithoutExtension(filePath);
             var rsiVm = new RsiItemViewModel(name, rsiItem) {SaveFolder = null};
 
-            AddOpenRsi(rsiVm);
+            AddRsi(rsiVm);
             LastOpenedElement = filePath;
         }
 
