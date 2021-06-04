@@ -92,7 +92,10 @@ namespace Editor.ViewModels
                 await ErrorDialog.Handle(new ErrorWindowViewModel(error));
             }
 
-            AddOpenRsi(new RsiItemViewModel(rsiItem));
+            var name = Path.GetFileName(folderPath);
+            var rsiVm = new RsiItemViewModel(name, rsiItem);
+
+            AddOpenRsi(rsiVm);
             LastOpenedElement = folderPath;
             SaveFolder = null; // TODO move to rsi
         }
@@ -173,7 +176,10 @@ namespace Editor.ViewModels
                 rsiItem.LoadImage(index, new Bitmap(stream));
             }
 
-            AddOpenRsi(new RsiItemViewModel(rsiItem));
+            var name = Path.GetFileNameWithoutExtension(filePath);
+            var rsiVm = new RsiItemViewModel(name, rsiItem);
+
+            AddOpenRsi(rsiVm);
             LastOpenedElement = filePath;
             SaveFolder = null;
         }

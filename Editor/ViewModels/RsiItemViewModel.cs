@@ -22,11 +22,14 @@ namespace Editor.ViewModels
 
         private readonly MemoryStream _emptyStream = new();
         private readonly Bitmap _blankFrame;
+
         private RsiStateViewModel? _selectedState;
         private bool _hasStateSelected;
+        private string _title;
 
-        public RsiItemViewModel(RsiItem? item = null)
+        public RsiItemViewModel(string title = "New Rsi", RsiItem? item = null)
         {
+            _title = title;
             Item = item ?? new RsiItem();
 
             foreach (var image in Item.Images)
@@ -55,7 +58,11 @@ namespace Editor.ViewModels
             }
         }
 
-        public string Title { get; } = "Rsi"; // TODO
+        public string Title
+        {
+            get => _title;
+            set => this.RaiseAndSetIfChanged(ref _title, value);
+        }
 
         public Interaction<Unit, string> ImportPngInteraction { get; } = new();
 
