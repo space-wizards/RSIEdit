@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -6,6 +7,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
+using Editor.Models;
 using Editor.Models.RSI;
 using Importer.DMI;
 using Importer.DMI.Metadata;
@@ -17,6 +19,31 @@ namespace Editor.ViewModels
     public class MainWindowViewModel : ViewModelBase
     {
         private RsiItemViewModel? _currentOpenRsi;
+
+        public MainWindowViewModel()
+        {
+            var filePath = "preferences.json";
+
+            if (File.Exists(filePath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(filePath);
+                    Preferences = JsonSerializer.Deserialize<Preferences>(json) ?? new Preferences();
+                }
+                catch (Exception)
+                {
+                    Preferences = new Preferences();
+                    File.WriteAllText(filePath, string.Empty);
+                }
+            }
+            else
+            {
+                Preferences = new Preferences();
+            }
+        }
+
+        public Preferences Preferences { get; }
 
         private MetadataParser DmiParser { get; } = new();
 
@@ -37,6 +64,8 @@ namespace Editor.ViewModels
         public Interaction<Unit, string> SaveRsiDialog { get; } = new();
 
         public Interaction<Unit, string> ImportDmiDialog { get; } = new();
+
+        public Interaction<Unit, Unit> PreferencesAction { get; } = new();
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
@@ -103,7 +132,12 @@ namespace Editor.ViewModels
             }
 
             var name = Path.GetFileName(folderPath);
-            var rsiVm = new RsiItemViewModel(name, rsiItem) {SaveFolder = folderPath};
+            var rsiVm = new RsiItemViewModel(name, rsiItem)
+            {
+                SaveFolder = folderPath,
+                License = Preferences.DefaultLicense,
+                Copyright = Preferences.DefaultCopyright
+            };
 
             AddRsi(rsiVm);
             LastOpenedElement = folderPath;
@@ -191,7 +225,12 @@ namespace Editor.ViewModels
             }
 
             var name = Path.GetFileNameWithoutExtension(filePath);
-            var rsiVm = new RsiItemViewModel(name, rsiItem) {SaveFolder = null};
+            var rsiVm = new RsiItemViewModel(name, rsiItem)
+            {
+                SaveFolder = null,
+                License = Preferences.DefaultLicense,
+                Copyright = Preferences.DefaultCopyright
+            };
 
             AddRsi(rsiVm);
             LastOpenedElement = filePath;
@@ -221,6 +260,11 @@ namespace Editor.ViewModels
                     await ImportDmi(LastOpenedElement);
                 }
             }
+        }
+
+        public async Task OpenPreferences()
+        {
+            await PreferencesAction.Handle(Unit.Default);
         }
 
         public async Task Undo()

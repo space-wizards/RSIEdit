@@ -28,7 +28,7 @@ namespace Editor.ViewModels
         private RsiStateViewModel? _selectedState;
         private bool _hasStateSelected;
         private string _title;
-        private ComboBoxItem _selectedLicense;
+        private ComboBoxItem? _selectedLicense;
 
         public RsiItemViewModel(string title = "New Rsi", RsiItem? item = null)
         {
@@ -146,12 +146,18 @@ namespace Editor.ViewModels
             }
         }
 
-        public ComboBoxItem SelectedLicense
+        public ComboBoxItem? SelectedLicense
         {
             get => _selectedLicense;
             set
             {
                 this.RaiseAndSetIfChanged(ref _selectedLicense, value);
+
+                if (value == null)
+                {
+                    License = null;
+                    return;
+                }
 
                 var valueLicense = (string) value.Content;
 

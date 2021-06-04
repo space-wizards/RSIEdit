@@ -34,6 +34,7 @@ namespace Editor.Views
                 d.Add(vm.OpenRsiDialog.RegisterHandler(OpenRsi));
                 d.Add(vm.SaveRsiDialog.RegisterHandler(SaveRsi));
                 d.Add(vm.ImportDmiDialog.RegisterHandler(ImportDmi));
+                d.Add(vm.PreferencesAction.RegisterHandler(OpenPreferences));
                 d.Add(vm.UndoAction.RegisterHandler(Undo));
                 d.Add(vm.RedoAction.RegisterHandler(Redo));
                 d.Add(vm.DirectionsAction.RegisterHandler(ChangeDirections));
@@ -47,6 +48,7 @@ namespace Editor.Views
             AskConfirmationEvent.AddClassHandler<MainWindow>(OnAskConfirmation);
             CloseRsiEvent.AddClassHandler<MainWindow>(OnCloseRsi);
             GetMainWindowEvent.AddClassHandler<MainWindow>(OnGetMainWindow);
+
             AddHandler(DragDrop.DropEvent, DropEvent);
         }
 
@@ -149,7 +151,11 @@ namespace Editor.Views
 
             if (await TryOpenConfirmation("Are you sure you want to create a new RSI?"))
             {
-                ViewModel.CurrentOpenRsi = new RsiItemViewModel();
+                ViewModel.CurrentOpenRsi = new RsiItemViewModel
+                {
+                    License = ViewModel.Preferences.DefaultLicense,
+                    Copyright = ViewModel.Preferences.DefaultCopyright
+                };
             }
         }
 
@@ -193,6 +199,20 @@ namespace Editor.Views
             var files = await dialog.ShowAsync(this);
 
             interaction.SetOutput(files.Length > 0 ? files[0] : string.Empty);
+        }
+
+        private async Task OpenPreferences(InteractionContext<Unit, Unit> arg)
+        {
+            if (ViewModel == null)
+            {
+                return;
+            }
+
+            var vm = new PreferencesWindowViewModel(ViewModel.Preferences);
+            var dialog = new PreferencesWindow() {DataContext = vm};
+            await dialog.ShowDialog(this);
+
+            arg.SetOutput(Unit.Default);
         }
 
         private void Undo(InteractionContext<RsiStateViewModel, Unit> interaction)
