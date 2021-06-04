@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -15,13 +16,21 @@ namespace Editor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private RsiItemViewModel? _rsi;
+        private RsiItemViewModel? _currentOpenRsi;
 
         private MetadataParser DmiParser { get; } = new();
 
         private string? LastOpenedElement { get; set; }
 
         private string? SaveFolder { get; set; }
+
+        private ObservableCollection<RsiItemViewModel> OpenRsis { get; } = new();
+
+        public RsiItemViewModel? CurrentOpenRsi
+        {
+            get => _currentOpenRsi;
+            set => this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
+        }
 
         public Interaction<Unit, Unit> NewRsiAction { get; } = new();
 
@@ -39,10 +48,10 @@ namespace Editor.ViewModels
 
         public Interaction<DirectionTypes, Unit> DirectionsAction { get; } = new();
 
-        public RsiItemViewModel? Rsi
+        private void AddOpenRsi(RsiItemViewModel vm)
         {
-            get => _rsi;
-            set => this.RaiseAndSetIfChanged(ref _rsi, value);
+            OpenRsis.Add(vm);
+            CurrentOpenRsi ??= vm;
         }
 
         public async void New()
@@ -83,9 +92,9 @@ namespace Editor.ViewModels
                 await ErrorDialog.Handle(new ErrorWindowViewModel(error));
             }
 
-            Rsi = new RsiItemViewModel(rsiItem);
+            AddOpenRsi(new RsiItemViewModel(rsiItem));
             LastOpenedElement = folderPath;
-            SaveFolder = null;
+            SaveFolder = null; // TODO move to rsi
         }
 
         public async void Open()
@@ -101,7 +110,7 @@ namespace Editor.ViewModels
 
         private async Task SaveRsi(string path)
         {
-            if (Rsi == null)
+            if (CurrentOpenRsi == null)
             {
                 return;
             }
@@ -110,11 +119,11 @@ namespace Editor.ViewModels
             await File.WriteAllTextAsync(metaJsonPath, string.Empty);
 
             var metaJsonFile = File.OpenWrite(metaJsonPath);
-            await JsonSerializer.SerializeAsync(metaJsonFile, Rsi.Item.Rsi);
+            await JsonSerializer.SerializeAsync(metaJsonFile, CurrentOpenRsi.Item.Rsi);
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
-            foreach (var image in Rsi.Item.Images)
+            foreach (var image in CurrentOpenRsi.Item.Images)
             {
                 image.Bitmap.Save($"{path}{Path.DirectorySeparatorChar}{image.State.Name}.png");
             }
@@ -122,7 +131,7 @@ namespace Editor.ViewModels
 
         public async Task Save()
         {
-            if (Rsi == null)
+            if (CurrentOpenRsi == null)
             {
                 return;
             }
@@ -164,7 +173,7 @@ namespace Editor.ViewModels
                 rsiItem.LoadImage(index, new Bitmap(stream));
             }
 
-            Rsi = new RsiItemViewModel(rsiItem);
+            AddOpenRsi(new RsiItemViewModel(rsiItem));
             LastOpenedElement = filePath;
             SaveFolder = null;
         }
@@ -197,7 +206,7 @@ namespace Editor.ViewModels
 
         public async void Undo()
         {
-            if (Rsi != null && Rsi.TryRestore(out var selected))
+            if (CurrentOpenRsi != null && CurrentOpenRsi.TryRestore(out var selected))
             {
                 await UndoAction.Handle(selected);
             }
@@ -205,7 +214,7 @@ namespace Editor.ViewModels
 
         public async void Redo()
         {
-            if (Rsi != null && Rsi.TryRedoDelete(out var index))
+            if (CurrentOpenRsi != null && CurrentOpenRsi.TryRedoDelete(out var index))
             {
                 await RedoAction.Handle(index);
             }
@@ -213,7 +222,7 @@ namespace Editor.ViewModels
 
         public async void Directions(int amount)
         {
-            if (Rsi != null)
+            if (CurrentOpenRsi != null)
             {
                 await DirectionsAction.Handle((DirectionTypes) amount);
             }

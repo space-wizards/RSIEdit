@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Editor.Views.RsiItemCommands
+namespace Editor.Views.Commands
 {
-    public class DeleteStateCommand : ICommand
+    public class RedoCommand : ICommand
     {
         public bool CanExecute(object? parameter)
         {
@@ -12,14 +12,14 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            if (parameter is not MainWindow {ViewModel: {Rsi: {SelectedState: { }}}} view)
+            if (parameter is not MainWindow {ViewModel: {CurrentOpenRsi: { }}} view)
             {
                 return;
             }
 
-            var vm = view.ViewModel.Rsi;
+            var vm = view.ViewModel.CurrentOpenRsi;
 
-            if (vm.TryDelete(vm.SelectedState, out var index))
+            if (view.ViewModel.CurrentOpenRsi.TryRedoDelete(out var index))
             {
                 vm.ReselectState(index);
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Editor.Views.RsiItemCommands
+namespace Editor.Views.Commands
 {
     public class UndoCommand : ICommand
     {
@@ -12,12 +12,12 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            if (parameter is not MainWindow {ViewModel: {Rsi: { }}} window)
+            if (parameter is not MainWindow {ViewModel: {CurrentOpenRsi: { }}} window)
             {
                 return;
             }
 
-            var rsi = window.ViewModel.Rsi;
+            var rsi = window.ViewModel.CurrentOpenRsi;
 
             if (rsi.TryRestore(out var restored))
             {

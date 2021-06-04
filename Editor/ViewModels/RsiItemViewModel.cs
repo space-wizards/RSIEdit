@@ -4,6 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using Avalonia.Logging;
 using Editor.Models.RSI;
 using Importer.RSI;
 using ReactiveUI;
@@ -17,9 +21,9 @@ namespace Editor.ViewModels
         private const int RestoredBufferSize = 50;
 
         private readonly MemoryStream _emptyStream = new();
+        private readonly Bitmap _blankFrame;
         private RsiStateViewModel? _selectedState;
         private bool _hasStateSelected;
-        private RsiFramesViewModel? _frames;
 
         public RsiItemViewModel(RsiItem? item = null)
         {
@@ -37,6 +41,9 @@ namespace Editor.ViewModels
             g.Flush();
 
             bitmap.Save(EmptyStream, ImageFormat.Png);
+
+            _blankFrame = new Bitmap(EmptyStream);
+            Frames = new RsiFramesViewModel(_blankFrame, _blankFrame, _blankFrame, _blankFrame);
         }
 
         private MemoryStream EmptyStream
@@ -47,6 +54,12 @@ namespace Editor.ViewModels
                 return _emptyStream;
             }
         }
+
+        public string Title { get; } = "Rsi"; // TODO
+
+        public Interaction<Unit, string> ImportPngInteraction { get; } = new();
+
+        public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
         public RsiItem Item { get; }
 
@@ -62,11 +75,14 @@ namespace Editor.ViewModels
                 if (value == null)
                 {
                     HasStateSelected = false;
-                    Frames = null;
+                    Frames.South = _blankFrame;
+                    Frames.North = _blankFrame;
+                    Frames.East = _blankFrame;
+                    Frames.West = _blankFrame;
                 }
                 else
                 {
-                    Frames = new RsiFramesViewModel(value.Bitmap, value.Bitmap, value.Bitmap, value.Bitmap); // TODO
+                    RefreshFrames();
                     HasStateSelected = true;
                 }
             }
@@ -78,11 +94,7 @@ namespace Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _hasStateSelected, value);
         }
 
-        public RsiFramesViewModel? Frames
-        {
-            get => _frames;
-            set => this.RaiseAndSetIfChanged(ref _frames, value);
-        }
+        public RsiFramesViewModel Frames { get; }
 
         private CircularBuffer<(RsiStateViewModel model, int index)> Deleted { get; } = new(DeletedBufferSize);
 
@@ -95,8 +107,45 @@ namespace Editor.ViewModels
             var image = new RsiImage(state, bitmap);
             var vm = new RsiStateViewModel(image);
 
-            Item.AddState(image);
-            States.Add(vm);
+            AddState(vm);
+        }
+
+        public async Task ImportPng()
+        {
+            if (SelectedState == null)
+            {
+                return;
+            }
+
+            var path = await ImportPngInteraction.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            if (!path.EndsWith(".png"))
+            {
+                var vm = new ErrorWindowViewModel($"File {path} is not a .png");
+                await ErrorDialog.Handle(vm);
+                return;
+            }
+
+            Bitmap png;
+            try
+            {
+                png = new Bitmap(path);
+            }
+            catch (Exception e)
+            {
+                Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                var vm = new ErrorWindowViewModel($"Error opening file {path}");
+                await ErrorDialog.Handle(vm);
+                return;
+            }
+
+            SelectedState.Image.Bitmap.Dispose();
+            SelectedState.Image.Bitmap = png;
+            RefreshFrames();
         }
 
         public void DeleteSelectedState()
@@ -112,9 +161,15 @@ namespace Editor.ViewModels
             }
         }
 
+        public void AddState(RsiStateViewModel vm)
+        {
+            Item.AddState(vm.Image);
+            States.Add(vm);
+        }
+
         public bool TryDelete(RsiStateViewModel stateVm, [NotNullWhen(true)] out int index)
         {
-            Item.RemoveState(stateVm.State);
+            Item.RemoveState(stateVm.Image.State);
 
             index = States.IndexOf(stateVm);
             var removed = States.Remove(stateVm);
@@ -182,6 +237,19 @@ namespace Editor.ViewModels
         public void Dispose()
         {
             _emptyStream.Dispose();
+        }
+
+        private void RefreshFrames()
+        {
+            if (SelectedState == null)
+            {
+                return;
+            }
+
+            Frames.South = SelectedState.Image.Bitmap;
+            Frames.North = SelectedState.Image.Bitmap;
+            Frames.East = SelectedState.Image.Bitmap;
+            Frames.West = SelectedState.Image.Bitmap;
         }
     }
 }

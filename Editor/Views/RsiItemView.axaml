@@ -14,7 +14,7 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add new state" Command="{Binding CreateNewState}"/>
-                        <MenuItem Header="Import PNG" Command="{Binding New}"/>
+                        <MenuItem Header="Import PNG" Command="{Binding ImportPng}"/>
                         <MenuItem Header="Delete" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteSelectedState}" />
                     </ContextMenu>
                 </ListBox.ContextMenu>

@@ -6,8 +6,8 @@
              x:Class="Editor.Views.RsiStateView">
     <StackPanel>
         <Panel>
-            <Image Height="96" Width="96" Source="{Binding Bitmap}" />
+            <Image Height="96" Width="96" Source="{Binding Image.Bitmap}" />
         </Panel>
-        <TextBox Text="{Binding Name, Mode=TwoWay}" HorizontalAlignment="Center" MaxWidth="96" />
+        <TextBox Text="{Binding Image.State.Name, Mode=TwoWay}" HorizontalAlignment="Center" MaxWidth="96" />
     </StackPanel>
 </UserControl>

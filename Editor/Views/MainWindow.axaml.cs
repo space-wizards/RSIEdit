@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using Editor.ViewModels;
-using Editor.Views.RsiItemCommands;
+using Editor.Views.Commands;
+using Editor.Views.Events;
 using Importer.DMI;
 using ReactiveUI;
 
@@ -18,11 +20,6 @@ namespace Editor.Views
     // ReSharper disable once PartialTypeWithSinglePart
     public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     {
-        private readonly NewCommand _newCommand = new();
-        private readonly DeleteStateCommand _deleteStateCommand = new();
-        private readonly UndoCommand _undoCommand = new();
-        private readonly RedoCommand _redoCommand = new();
-
         public MainWindow()
         {
             InitializeComponent();
@@ -31,21 +28,36 @@ namespace Editor.Views
 #endif
             this.WhenActivated(d =>
             {
-                d.Add(ViewModel!.NewRsiAction.RegisterHandler(DoNewRsi));
-                d.Add(ViewModel!.OpenRsiDialog.RegisterHandler(DoOpenRsi));
-                d.Add(ViewModel!.SaveRsiDialog.RegisterHandler(DoSaveRsi));
-                d.Add(ViewModel!.ImportDmiDialog.RegisterHandler(DoImportDmi));
-                d.Add(ViewModel!.UndoAction.RegisterHandler(DoUndo));
-                d.Add(ViewModel!.RedoAction.RegisterHandler(DoRedo));
-                d.Add(ViewModel!.DirectionsAction.RegisterHandler(DoChangeDirections));
-                d.Add(ViewModel!.ErrorDialog.RegisterHandler(DoShowError));
+                var vm = ViewModel!;
+
+                d.Add(vm.NewRsiAction.RegisterHandler(NewRsi));
+                d.Add(vm.OpenRsiDialog.RegisterHandler(OpenRsi));
+                d.Add(vm.SaveRsiDialog.RegisterHandler(SaveRsi));
+                d.Add(vm.ImportDmiDialog.RegisterHandler(ImportDmi));
+                d.Add(vm.UndoAction.RegisterHandler(Undo));
+                d.Add(vm.RedoAction.RegisterHandler(Redo));
+                d.Add(vm.DirectionsAction.RegisterHandler(ChangeDirections));
+                d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
             });
 
-            RsiItemView = this.Find<RsiItemView>("RsiItemView");
+            ShowErrorEvent.AddClassHandler<MainWindow>(OnShowError);
+            OpenFileEvent.AddClassHandler<MainWindow>(OnOpenFile);
             AddHandler(DragDrop.DropEvent, DropEvent);
         }
 
-        private RsiItemView RsiItemView { get; }
+        public static RoutedEvent<ShowErrorEvent> ShowErrorEvent { get; } =
+            RoutedEvent.Register<MainWindow, ShowErrorEvent>(nameof(ShowErrorEvent), RoutingStrategies.Bubble);
+
+        public static RoutedEvent<OpenFileDialogEvent> OpenFileEvent { get; } =
+            RoutedEvent.Register<MainWindow, OpenFileDialogEvent>(nameof(OpenFileEvent), RoutingStrategies.Bubble);
+
+        private NewCommand NewCommand { get; } = new();
+
+        private DeleteStateCommand DeleteStateCommand { get; } = new();
+
+        private UndoCommand UndoCommand { get; } = new();
+
+        private RedoCommand RedoCommand { get; } = new();
 
         private void InitializeComponent()
         {
@@ -54,7 +66,7 @@ namespace Editor.Views
             var newGesture = new KeyGesture(Key.N, KeyModifiers.Control);
             var newBinding = new KeyBinding
             {
-                Command = _newCommand,
+                Command = NewCommand,
                 CommandParameter = this,
                 Gesture = newGesture
             };
@@ -62,7 +74,7 @@ namespace Editor.Views
             var deleteGesture = new KeyGesture(Key.Delete);
             var deleteBinding = new KeyBinding
             {
-                Command = _deleteStateCommand,
+                Command = DeleteStateCommand,
                 CommandParameter = this,
                 Gesture = deleteGesture
             };
@@ -70,7 +82,7 @@ namespace Editor.Views
             var undoGesture = new KeyGesture(Key.Z, KeyModifiers.Control);
             var undoBinding = new KeyBinding
             {
-                Command = _undoCommand,
+                Command = UndoCommand,
                 CommandParameter = this,
                 Gesture = undoGesture
             };
@@ -78,7 +90,7 @@ namespace Editor.Views
             var redoGesture = new KeyGesture(Key.Y, KeyModifiers.Control);
             var redoBinding = new KeyBinding
             {
-                Command = _redoCommand,
+                Command = RedoCommand,
                 CommandParameter = this,
                 Gesture = redoGesture
             };
@@ -86,7 +98,7 @@ namespace Editor.Views
             var redoGestureAlternative = new KeyGesture(Key.Z, KeyModifiers.Control | KeyModifiers.Shift);
             var redoBindingAlternative = new KeyBinding
             {
-                Command = _redoCommand,
+                Command = RedoCommand,
                 CommandParameter = this,
                 Gesture = redoGestureAlternative
             };
@@ -103,7 +115,7 @@ namespace Editor.Views
 
         private async Task<bool> TryOpenRsiConfirmationPopup(string text)
         {
-            if (ViewModel?.Rsi == null)
+            if (ViewModel?.CurrentOpenRsi == null)
             {
                 return true;
             }
@@ -123,17 +135,17 @@ namespace Editor.Views
 
             if (await TryOpenRsiConfirmationPopup("Are you sure you want to create a new RSI?"))
             {
-                ViewModel.Rsi = new RsiItemViewModel();
+                ViewModel.CurrentOpenRsi = new RsiItemViewModel();
             }
         }
 
-        private void DoNewRsi(InteractionContext<Unit, Unit> interaction)
+        private void NewRsi(InteractionContext<Unit, Unit> interaction)
         {
             DoNewRsi();
             interaction.SetOutput(Unit.Default);
         }
 
-        private async Task DoOpenRsi(InteractionContext<Unit, string> interaction)
+        private async Task OpenRsi(InteractionContext<Unit, string> interaction)
         {
             var dialog = new OpenFolderDialog {Title = "Open RSI"};
             var folder = await dialog.ShowAsync(this);
@@ -141,7 +153,7 @@ namespace Editor.Views
             interaction.SetOutput(folder);
         }
 
-        private async Task DoSaveRsi(InteractionContext<Unit, string> interaction)
+        private async Task SaveRsi(InteractionContext<Unit, string> interaction)
         {
             var dialog = new OpenFolderDialog {Title = "Save RSI"};
             var folder = await dialog.ShowAsync(this);
@@ -149,7 +161,7 @@ namespace Editor.Views
             interaction.SetOutput(folder);
         }
 
-        private async Task DoImportDmi(InteractionContext<Unit, string> interaction)
+        private async Task ImportDmi(InteractionContext<Unit, string> interaction)
         {
             var dialog = new OpenFileDialog
             {
@@ -160,10 +172,7 @@ namespace Editor.Views
                     new()
                     {
                         Name = "DMI Files",
-                        Extensions = new List<string>
-                        {
-                            "dmi"
-                        }
+                        Extensions = new List<string> {"dmi"}
                     }
                 }
             };
@@ -172,41 +181,41 @@ namespace Editor.Views
             interaction.SetOutput(files.Length > 0 ? files[0] : string.Empty);
         }
 
-        private void DoUndo(InteractionContext<RsiStateViewModel, Unit> interaction)
+        private void Undo(InteractionContext<RsiStateViewModel, Unit> interaction)
         {
-            if (ViewModel?.Rsi == null)
+            if (ViewModel?.CurrentOpenRsi == null)
             {
                 return;
             }
 
             var restoredModel = interaction.Input;
-            ViewModel.Rsi.SelectedState = restoredModel;
+            ViewModel.CurrentOpenRsi.SelectedState = restoredModel;
             interaction.SetOutput(Unit.Default);
         }
 
-        private void DoRedo(InteractionContext<int, Unit> interaction)
+        private void Redo(InteractionContext<int, Unit> interaction)
         {
-            if (ViewModel?.Rsi == null)
+            if (ViewModel?.CurrentOpenRsi == null)
             {
                 return;
             }
 
-            ViewModel.Rsi.ReselectState(interaction.Input);
+            ViewModel.CurrentOpenRsi.ReselectState(interaction.Input);
             interaction.SetOutput(Unit.Default);
         }
 
-        private void DoChangeDirections(InteractionContext<DirectionTypes, Unit> interaction)
+        private void ChangeDirections(InteractionContext<DirectionTypes, Unit> interaction)
         {
-            if (ViewModel?.Rsi?.SelectedState == null)
+            if (ViewModel?.CurrentOpenRsi?.SelectedState == null)
             {
                 return;
             }
 
-            ViewModel.Rsi.SelectedState.State.Directions = interaction.Input;
+            ViewModel.CurrentOpenRsi.SelectedState.Image.State.Directions = interaction.Input;
             interaction.SetOutput(Unit.Default);
         }
 
-        private async Task DoShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
+        private async Task ShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
         {
             var dialog = new ErrorWindow {DataContext = interaction.Input};
             await dialog.ShowDialog(this);
@@ -241,6 +250,18 @@ namespace Editor.Views
             {
                 await ViewModel.ImportDmi(file);
             }
+        }
+
+        private async void OnShowError(MainWindow window, ShowErrorEvent args)
+        {
+            var dialog = new ErrorWindow {DataContext = args.ViewModel};
+            await dialog.ShowDialog(this);
+        }
+
+        private void OnOpenFile(MainWindow window, OpenFileDialogEvent args)
+        {
+            var files = args.Dialog.ShowAsync(window).Result;
+            args.Files = files;
         }
     }
 }

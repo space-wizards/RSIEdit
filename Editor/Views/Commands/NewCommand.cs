@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Editor.Views.RsiItemCommands
+namespace Editor.Views.Commands
 {
-    public class RedoCommand : ICommand
+    public class NewCommand : ICommand
     {
         public bool CanExecute(object? parameter)
         {
@@ -12,17 +12,12 @@ namespace Editor.Views.RsiItemCommands
 
         public void Execute(object? parameter)
         {
-            if (parameter is not MainWindow {ViewModel: {Rsi: { }}} view)
+            if (parameter is not MainWindow {ViewModel: { }} window)
             {
                 return;
             }
 
-            var vm = view.ViewModel.Rsi;
-
-            if (view.ViewModel.Rsi.TryRedoDelete(out var index))
-            {
-                vm.ReselectState(index);
-            }
+            window.DoNewRsi();
         }
 
         public event EventHandler? CanExecuteChanged;
