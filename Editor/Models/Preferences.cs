@@ -19,5 +19,8 @@ namespace Editor.Models
 
         [JsonPropertyName("defaultCopyright")]
         public string? DefaultCopyright { get; set; }
+
+        [JsonPropertyName("easterEggs")]
+        public bool EasterEggs { get; set; }
     }
 }

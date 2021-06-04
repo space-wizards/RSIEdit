@@ -8,7 +8,10 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.ReactiveUI;
+using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views.Commands;
 using Editor.Views.Events;
@@ -210,7 +213,18 @@ namespace Editor.Views
 
             var vm = new PreferencesWindowViewModel(ViewModel.Preferences);
             var dialog = new PreferencesWindow() {DataContext = vm};
-            await dialog.ShowDialog(this);
+            var preferences = await dialog.ShowDialog<Preferences>(this);
+
+            if (preferences.EasterEggs)
+            {
+                Icon = new WindowIcon("./Assets/joke-logo.ico");
+                Background = new ImageBrush(new Bitmap("./Assets/joke-background.png"));
+            }
+            else
+            {
+                Icon = new WindowIcon("./Assets/logo.ico");
+                Background = null;
+            }
 
             arg.SetOutput(Unit.Default);
         }

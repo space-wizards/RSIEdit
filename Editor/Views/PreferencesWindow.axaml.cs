@@ -43,11 +43,11 @@ namespace Editor.Views
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
-            Close();
+            Close(arg.Input);
             arg.SetOutput(Unit.Default);
         }
 
-        private void Cancel(InteractionContext<Unit, Unit> arg)
+        private void Cancel(InteractionContext<Preferences, Unit> arg)
         {
             Close();
             arg.SetOutput(Unit.Default);

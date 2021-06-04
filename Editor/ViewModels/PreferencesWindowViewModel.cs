@@ -10,19 +10,21 @@ namespace Editor.ViewModels
     {
         private string? _defaultLicense;
         private string? _defaultCopyright;
+        private bool _easterEggs;
 
         public PreferencesWindowViewModel(Preferences preferences)
         {
             Preferences = preferences;
             DefaultLicense = Preferences.DefaultLicense;
             DefaultCopyright = Preferences.DefaultCopyright;
+            EasterEggs = Preferences.EasterEggs;
         }
 
         private Preferences Preferences { get; }
 
         public Interaction<Preferences, Unit> SaveAction { get; } = new();
 
-        public Interaction<Unit, Unit> CancelAction { get; } = new();
+        public Interaction<Preferences, Unit> CancelAction { get; } = new();
 
         public string? DefaultLicense
         {
@@ -44,6 +46,16 @@ namespace Editor.ViewModels
             }
         }
 
+        public bool EasterEggs
+        {
+            get => _easterEggs;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _easterEggs, value);
+                Preferences.EasterEggs = value;
+            }
+        }
+
         public async Task Save()
         {
             await SaveAction.Handle(Preferences);
@@ -51,7 +63,7 @@ namespace Editor.ViewModels
 
         public async Task Cancel()
         {
-            await CancelAction.Handle(Unit.Default);
+            await CancelAction.Handle(Preferences);
         }
     }
 }
