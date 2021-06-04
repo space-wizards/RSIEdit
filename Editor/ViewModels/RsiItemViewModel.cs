@@ -64,6 +64,8 @@ namespace Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _title, value);
         }
 
+        public string? SaveFolder { get; set; }
+
         public Interaction<Unit, string> ImportPngInteraction { get; } = new();
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();

@@ -22,8 +22,6 @@ namespace Editor.ViewModels
 
         private string? LastOpenedElement { get; set; }
 
-        private string? SaveFolder { get; set; }
-
         private ObservableCollection<RsiItemViewModel> OpenRsis { get; } = new();
 
         public RsiItemViewModel? CurrentOpenRsi
@@ -93,11 +91,10 @@ namespace Editor.ViewModels
             }
 
             var name = Path.GetFileName(folderPath);
-            var rsiVm = new RsiItemViewModel(name, rsiItem);
+            var rsiVm = new RsiItemViewModel(name, rsiItem) {SaveFolder = folderPath};
 
             AddOpenRsi(rsiVm);
             LastOpenedElement = folderPath;
-            SaveFolder = null; // TODO move to rsi
         }
 
         public async void Open()
@@ -139,17 +136,22 @@ namespace Editor.ViewModels
                 return;
             }
 
-            if (SaveFolder == null)
+            if (CurrentOpenRsi.SaveFolder == null)
             {
                 await SaveAs();
                 return;
             }
 
-            await SaveRsi(SaveFolder);
+            await SaveRsi(CurrentOpenRsi.SaveFolder);
         }
 
         public async Task SaveAs()
         {
+            if (CurrentOpenRsi == null)
+            {
+                return;
+            }
+
             var path = await SaveRsiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(path))
             {
@@ -157,7 +159,7 @@ namespace Editor.ViewModels
             }
 
             await SaveRsi(path);
-            SaveFolder = path;
+            CurrentOpenRsi.SaveFolder = path;
         }
 
         public async Task ImportDmi(string filePath)
@@ -177,11 +179,10 @@ namespace Editor.ViewModels
             }
 
             var name = Path.GetFileNameWithoutExtension(filePath);
-            var rsiVm = new RsiItemViewModel(name, rsiItem);
+            var rsiVm = new RsiItemViewModel(name, rsiItem) {SaveFolder = null};
 
             AddOpenRsi(rsiVm);
             LastOpenedElement = filePath;
-            SaveFolder = null;
         }
 
         public async Task Import()
