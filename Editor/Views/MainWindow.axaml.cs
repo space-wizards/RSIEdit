@@ -224,31 +224,45 @@ namespace Editor.Views
 
         private async void DropEvent(object? sender, DragEventArgs e)
         {
-            var files = e.Data.GetFileNames();
-            if (ViewModel == null || files == null)
+            var fileNames = e.Data.GetFileNames();
+            if (ViewModel == null || fileNames == null)
             {
                 return;
             }
 
-            var file = files.ToArray()[0];
-            if (File.GetAttributes(file).HasFlag(FileAttributes.Directory))
+            var files = fileNames.ToArray();
+            if (files.Length == 0)
+            {
+                return;
+            }
+
+            var firstFile = files[0];
+            if (File.GetAttributes(firstFile).HasFlag(FileAttributes.Directory))
             {
                 if (await TryOpenRsiConfirmationPopup("Are you sure you want to open a new RSI?"))
                 {
-                    await ViewModel.OpenRsi(file);
+                    await ViewModel.OpenRsi(firstFile);
                 }
 
                 return;
             }
 
-            if (!file.EndsWith(".dmi"))
+            switch (Path.GetExtension(firstFile))
             {
-                return;
-            }
+                case ".dmi":
+                    if (await TryOpenRsiConfirmationPopup("Are you sure you want to import a new DMI?"))
+                    {
+                        await ViewModel.ImportDmi(firstFile);
+                    }
 
-            if (await TryOpenRsiConfirmationPopup("Are you sure you want to import a new DMI?"))
-            {
-                await ViewModel.ImportDmi(file);
+                    break;
+                case ".png":
+                    foreach (var file in files)
+                    {
+                        ViewModel.CurrentOpenRsi?.CreateNewState(file);
+                    }
+
+                    break;
             }
         }
 

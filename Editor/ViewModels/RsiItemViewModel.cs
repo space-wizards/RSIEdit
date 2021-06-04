@@ -100,10 +100,31 @@ namespace Editor.ViewModels
 
         private CircularBuffer<RsiStateViewModel> Restored { get; } = new(RestoredBufferSize);
 
-        public void CreateNewState()
+        public async Task CreateNewState(string? pngFilePath = null)
         {
             var state = new RsiState(string.Empty);
-            var bitmap = new Bitmap(EmptyStream);
+
+            Bitmap bitmap;
+            if (string.IsNullOrEmpty(pngFilePath))
+            {
+                bitmap = new Bitmap(EmptyStream);
+            }
+            else
+            {
+                state.Name = Path.GetFileNameWithoutExtension(pngFilePath);
+
+                try
+                {
+                    bitmap = new Bitmap(pngFilePath);
+                }
+                catch (Exception)
+                {
+                    var errorVm = new ErrorWindowViewModel($"Error creating a state from file\n{pngFilePath}");
+                    await ErrorDialog.Handle(errorVm);
+                    return;
+                }
+            }
+
             var image = new RsiImage(state, bitmap);
             var vm = new RsiStateViewModel(image);
 
