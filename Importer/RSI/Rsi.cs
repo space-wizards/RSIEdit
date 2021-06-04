@@ -14,8 +14,6 @@ namespace Importer.RSI
     [PublicAPI]
     public class Rsi
     {
-        private static readonly PngEncoder Encoder = new();
-
         public const double CurrentRsiVersion = 1;
 
         [JsonConstructor]
@@ -98,7 +96,7 @@ namespace Importer.RSI
             await foreach (var (image, index) in LoadImages(dmiPath))
             {
                 var stream = new MemoryStream();
-                await image.SaveAsync(stream, Encoder);
+                await image.SaveAsync(stream, PngFormat.Instance);
                 stream.Seek(0, SeekOrigin.Begin);
 
                 yield return (stream, index);

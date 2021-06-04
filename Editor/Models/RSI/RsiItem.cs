@@ -38,7 +38,7 @@ namespace Editor.Models.RSI
                 }
 
                 var bitmap = new Bitmap(statePath);
-                var image = new RsiImage(state, bitmap);
+                var image = new RsiImage(Size, state, bitmap);
                 _images[i] = image;
             }
 
@@ -49,7 +49,7 @@ namespace Editor.Models.RSI
         public void LoadImage(int index, Bitmap image)
         {
             var state = Rsi.States[index];
-            _images[index] = new RsiImage(state, image);
+            _images[index] = new RsiImage(Size, state, image);
         }
 
         public void AddState(RsiImage image)

@@ -11,9 +11,17 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Logging;
 using Editor.Models.RSI;
+using Importer.DMI;
 using Importer.RSI;
 using ReactiveUI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
+using Color = System.Drawing.Color;
+using Image = SixLabors.ImageSharp.Image;
+using Rectangle = SixLabors.ImageSharp.Rectangle;
 
 namespace Editor.ViewModels
 {
@@ -200,7 +208,7 @@ namespace Editor.ViewModels
                 }
             }
 
-            var image = new RsiImage(state, bitmap);
+            var image = new RsiImage(Item.Size, state, bitmap);
             var vm = new RsiStateViewModel(image);
 
             AddState(vm);
@@ -346,10 +354,68 @@ namespace Editor.ViewModels
                 return;
             }
 
-            Frames.South = SelectedState.Image.Bitmap;
-            Frames.North = SelectedState.Image.Bitmap;
-            Frames.East = SelectedState.Image.Bitmap;
-            Frames.West = SelectedState.Image.Bitmap;
+            var state = SelectedState;
+
+            switch (state.Image.State.Directions)
+            {
+                case DirectionTypes.None:
+                    Frames.South = state.Image.Bitmap;
+                    Frames.North = state.Image.Bitmap;
+                    Frames.East = state.Image.Bitmap;
+                    Frames.West = state.Image.Bitmap;
+                    break;
+                case DirectionTypes.Cardinal:
+                case DirectionTypes.Diagonal:
+                {
+                    var delays = state.Image.State.Delays;
+                    if (delays == null)
+                    {
+                        Frames.South = state.Image.Bitmap;
+                        Frames.North = state.Image.Bitmap;
+                        Frames.East = state.Image.Bitmap;
+                        Frames.West = state.Image.Bitmap;
+                        return;
+                    }
+
+                    using var stream = new MemoryStream();
+                    state.Image.Bitmap.Save(stream);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    var fullImage = Image.Load<Rgba32>(stream, new PngDecoder());
+
+                    var delaysIterated = 0;
+
+                    var directionalImages = new Bitmap[4];
+
+                    for (var i = 0; i < 4; i++)
+                    {
+                        var totalDelays = delays[i].Count;
+                        var totalWidth = delaysIterated * Item.Size.X;
+                        var row = totalWidth / fullImage.Width;
+                        var offset = totalWidth % fullImage.Width;
+                        var rectangle = new Rectangle(offset, row, Item.Size.X, Item.Size.Y);
+
+                        var directionalImage = fullImage.Clone(x => x.Crop(rectangle));
+                        using var directionalStream = new MemoryStream();
+
+                        directionalImage.SaveAsPng(directionalStream);
+                        directionalStream.Seek(0, SeekOrigin.Begin);
+
+                        var directionalBitmap = new Bitmap(directionalStream);
+
+                        directionalImages[i] = directionalBitmap;
+
+                        delaysIterated += totalDelays;
+                    }
+
+                    Frames.North = directionalImages[0];
+                    Frames.South = directionalImages[1];
+                    Frames.East = directionalImages[2];
+                    Frames.West = directionalImages[3];
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException($"Unknown direction type {state.Image.State.Directions}");
+            }
         }
 
         public void Dispose()
