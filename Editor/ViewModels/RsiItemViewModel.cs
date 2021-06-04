@@ -1,15 +1,22 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using Editor.Models.RSI;
+using Importer.RSI;
 using ReactiveUI;
+using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace Editor.ViewModels
 {
-    public class RsiItemViewModel : ViewModelBase
+    public class RsiItemViewModel : ViewModelBase, IDisposable
     {
         private const int DeletedBufferSize = 50;
         private const int RestoredBufferSize = 50;
 
+        private readonly MemoryStream _emptyStream = new();
         private RsiStateViewModel? _selectedState;
         private bool _hasStateSelected;
         private RsiFramesViewModel? _frames;
@@ -21,6 +28,23 @@ namespace Editor.ViewModels
             foreach (var image in Item.Images)
             {
                 States.Add(new RsiStateViewModel(image));
+            }
+
+            var bitmap = new System.Drawing.Bitmap(Item.Size.X, Item.Size.Y);
+
+            var g = Graphics.FromImage(bitmap);
+            g.Clear(Color.Transparent);
+            g.Flush();
+
+            bitmap.Save(EmptyStream, ImageFormat.Png);
+        }
+
+        private MemoryStream EmptyStream
+        {
+            get
+            {
+                _emptyStream.Seek(0, SeekOrigin.Begin);
+                return _emptyStream;
             }
         }
 
@@ -63,6 +87,17 @@ namespace Editor.ViewModels
         private CircularBuffer<(RsiStateViewModel model, int index)> Deleted { get; } = new(DeletedBufferSize);
 
         private CircularBuffer<RsiStateViewModel> Restored { get; } = new(RestoredBufferSize);
+
+        public void CreateNewState()
+        {
+            var state = new RsiState(string.Empty);
+            var bitmap = new Bitmap(EmptyStream);
+            var image = new RsiImage(state, bitmap);
+            var vm = new RsiStateViewModel(image);
+
+            Item.AddState(image);
+            States.Add(vm);
+        }
 
         public void DeleteSelectedState()
         {
@@ -142,6 +177,11 @@ namespace Editor.ViewModels
             {
                 SelectedState = States[nextSelectedState.Value];
             }
+        }
+
+        public void Dispose()
+        {
+            _emptyStream.Dispose();
         }
     }
 }

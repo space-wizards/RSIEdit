@@ -56,6 +56,12 @@ namespace Editor.Models.RSI
             _images[index] = new RsiImage(state, image);
         }
 
+        public void AddState(RsiImage image)
+        {
+            Rsi.States.Add(image.State);
+            _images.Add(image);
+        }
+
         public void InsertState(int index, RsiImage image)
         {
             Rsi.States.Insert(index, image.State);
