@@ -8,6 +8,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Logging;
 using Editor.Models.RSI;
 using Importer.RSI;
@@ -27,6 +28,7 @@ namespace Editor.ViewModels
         private RsiStateViewModel? _selectedState;
         private bool _hasStateSelected;
         private string _title;
+        private ComboBoxItem _selectedLicense;
 
         public RsiItemViewModel(string title = "New Rsi", RsiItem? item = null)
         {
@@ -141,6 +143,25 @@ namespace Editor.ViewModels
                 this.RaisePropertyChanging();
                 Item.Rsi.Copyright = value;
                 this.RaisePropertyChanged();
+            }
+        }
+
+        public ComboBoxItem SelectedLicense
+        {
+            get => _selectedLicense;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _selectedLicense, value);
+
+                var valueLicense = (string) value.Content;
+
+                if (valueLicense == "None")
+                {
+                    License = null;
+                    return;
+                }
+
+                License = valueLicense;
             }
         }
 
