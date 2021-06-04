@@ -26,9 +26,12 @@
                 <MenuItem Header="Undo" Command="{Binding Undo}"/>
                 <MenuItem Header="Redo" Command="{Binding Redo}"/>
                 <Separator/>
-                <MenuItem Header="1 direction" Command="{Binding Directions}" CommandParameter="1"/>
-                <MenuItem Header="4 directions" Command="{Binding Directions}" CommandParameter="4"/>
-                <MenuItem Header="8 directions" Command="{Binding Directions}" CommandParameter="8"/>
+                <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="1"/>
+                <MenuItem Header="4 Directions" Command="{Binding Directions}" CommandParameter="4"/>
+                <MenuItem Header="8 Directions" Command="{Binding Directions}" CommandParameter="8"/>
+                <Separator/>
+                <MenuItem Header="Change All Licenses" Command="{Binding ChangeAllLicenses}"/>
+                <MenuItem Header="Change All Copyrights" Command="{Binding ChangeAllCopyrights}"/>
             </MenuItem>
         </Menu>
         <Grid>

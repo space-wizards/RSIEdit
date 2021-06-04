@@ -24,10 +24,6 @@ namespace Editor.Models.RSI
 
         public IReadOnlyList<RsiImage> Images => _images;
 
-        public string? License => Rsi.License;
-
-        public string? Copyright => Rsi.Copyright;
-
         public bool TryLoadImages(string folder, [NotNullWhen(false)] out string? error)
         {
             for (var i = 0; i < Rsi.States.Count; i++)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
@@ -74,6 +75,7 @@ namespace Editor.ViewModels
 
         public Interaction<RsiItemViewModel, Unit> CloseInteraction { get; } = new();
 
+        // TODO encapsulate this further
         public RsiItem Item { get; }
 
         public ObservableCollection<RsiStateViewModel> States { get; } = new();
@@ -108,6 +110,39 @@ namespace Editor.ViewModels
         }
 
         public RsiFramesViewModel Frames { get; }
+
+        public string? License
+        {
+            get => Item.Rsi.License;
+            set
+            {
+                if (EqualityComparer<string>.Default.Equals(License, value))
+                {
+                    return;
+                }
+
+                this.RaisePropertyChanging();
+                Item.Rsi.License = value;
+                this.RaisePropertyChanged();
+            }
+        }
+
+        public string? Copyright
+        {
+            get => Item.Rsi.Copyright;
+            set
+            {
+                if (EqualityComparer<string>.Default.Equals(Copyright, value))
+                {
+                    return;
+                }
+
+
+                this.RaisePropertyChanging();
+                Item.Rsi.Copyright = value;
+                this.RaisePropertyChanged();
+            }
+        }
 
         private CircularBuffer<(RsiStateViewModel model, int index)> Deleted { get; } = new(DeletedBufferSize);
 

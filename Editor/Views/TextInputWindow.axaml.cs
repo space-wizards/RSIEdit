@@ -7,14 +7,15 @@ using ReactiveUI;
 
 namespace Editor.Views
 {
-    public class ConfirmationWindow : ReactiveWindow<ConfirmationWindowViewModel>
+    public class TextInputWindow : ReactiveWindow<TextInputWindowViewModel>
     {
-        public ConfirmationWindow()
+        public TextInputWindow()
         {
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();
 #endif
+
             this.WhenActivated(d =>
             {
                 d.Add(ViewModel!.ConfirmAction.RegisterHandler(Confirm));
@@ -22,21 +23,21 @@ namespace Editor.Views
             });
         }
 
-        private void Confirm(InteractionContext<Unit, Unit> interaction)
-        {
-            Close(true);
-            interaction.SetOutput(Unit.Default);
-        }
-
-        private void Decline(InteractionContext<Unit, Unit> interaction)
-        {
-            Close(false);
-            interaction.SetOutput(Unit.Default);
-        }
-
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
+        }
+
+        private void Confirm(InteractionContext<string, Unit> arg)
+        {
+            Close(true);
+            arg.SetOutput(Unit.Default);
+        }
+
+        private void Decline(InteractionContext<Unit, Unit> arg)
+        {
+            Close(false);
+            arg.SetOutput(Unit.Default);
         }
     }
 }

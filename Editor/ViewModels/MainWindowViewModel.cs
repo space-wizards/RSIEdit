@@ -46,6 +46,10 @@ namespace Editor.ViewModels
 
         public Interaction<DirectionTypes, Unit> DirectionsAction { get; } = new();
 
+        public Interaction<Unit, string?> ChangeAllLicensesAction { get; } = new();
+
+        public Interaction<Unit, string?> ChangeAllCopyrightsAction { get; } = new();
+
         private void AddRsi(RsiItemViewModel vm)
         {
             OpenRsis.Add(vm);
@@ -60,7 +64,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async void New()
+        public async Task New()
         {
             await NewRsiAction.Handle(Unit.Default);
         }
@@ -105,7 +109,7 @@ namespace Editor.ViewModels
             LastOpenedElement = folderPath;
         }
 
-        public async void Open()
+        public async Task Open()
         {
             var folder = await OpenRsiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(folder))
@@ -219,7 +223,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async void Undo()
+        public async Task Undo()
         {
             if (CurrentOpenRsi != null && CurrentOpenRsi.TryRestore(out var selected))
             {
@@ -227,7 +231,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async void Redo()
+        public async Task Redo()
         {
             if (CurrentOpenRsi != null && CurrentOpenRsi.TryRedoDelete(out var index))
             {
@@ -235,11 +239,39 @@ namespace Editor.ViewModels
             }
         }
 
-        public async void Directions(int amount)
+        public async Task Directions(int amount)
         {
             if (CurrentOpenRsi != null)
             {
                 await DirectionsAction.Handle((DirectionTypes) amount);
+            }
+        }
+
+        public async Task ChangeAllLicenses()
+        {
+            var license = await ChangeAllLicensesAction.Handle(Unit.Default);
+            if (license == null)
+            {
+                return;
+            }
+
+            foreach (var rsi in OpenRsis)
+            {
+                rsi.License = license;
+            }
+        }
+
+        public async Task ChangeAllCopyrights()
+        {
+            var copyright = await ChangeAllCopyrightsAction.Handle(Unit.Default);
+            if (copyright == null)
+            {
+                return;
+            }
+
+            foreach (var rsi in OpenRsis)
+            {
+                rsi.Copyright = copyright;
             }
         }
     }

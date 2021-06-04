@@ -38,6 +38,8 @@ namespace Editor.Views
                 d.Add(vm.RedoAction.RegisterHandler(Redo));
                 d.Add(vm.DirectionsAction.RegisterHandler(ChangeDirections));
                 d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
+                d.Add(vm.ChangeAllLicensesAction.RegisterHandler(ChangeAllLicenses));
+                d.Add(vm.ChangeAllCopyrightsAction.RegisterHandler(ChangeAllCopyrights));
             });
 
             ShowErrorEvent.AddClassHandler<MainWindow>(OnShowError);
@@ -232,6 +234,34 @@ namespace Editor.Views
             var dialog = new ErrorWindow {DataContext = interaction.Input};
             await dialog.ShowDialog(this);
             interaction.SetOutput(Unit.Default);
+        }
+
+        private async Task ChangeAllLicenses(InteractionContext<Unit, string?> arg)
+        {
+            var vm = new TextInputWindowViewModel("Change all licenses", "Change all open RSI licenses to:");
+            var dialog = new TextInputWindow {DataContext = vm};
+
+            if (!await dialog.ShowDialog<bool>(this))
+            {
+                arg.SetOutput(null);
+                return;
+            }
+
+            arg.SetOutput(vm.SubmittedText);
+        }
+
+        private async Task ChangeAllCopyrights(InteractionContext<Unit, string?> arg)
+        {
+            var vm = new TextInputWindowViewModel("Change all copyrights", "Change all open RSI copyrights to:");
+            var dialog = new TextInputWindow {DataContext = vm};
+
+            if (!await dialog.ShowDialog<bool>(this))
+            {
+                arg.SetOutput(null);
+                return;
+            }
+
+            arg.SetOutput(vm.SubmittedText);
         }
 
         private async void DropEvent(object? sender, DragEventArgs e)
