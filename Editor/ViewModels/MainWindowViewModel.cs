@@ -65,7 +65,7 @@ namespace Editor.ViewModels
 
             if (metaJsonFiles.Length == 0)
             {
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"No meta.json found in folder\n{folderPath}"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"No meta.json found in folder\n{folderPath}\nIs it an RSI?"));
                 return;
             }
 
