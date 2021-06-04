@@ -154,25 +154,37 @@ namespace Editor.ViewModels
             await OpenRsi(folder);
         }
 
-        private async Task SaveRsi(string path)
+        private async Task SaveRsiToPath(RsiItemViewModel rsi)
         {
-            if (CurrentOpenRsi == null)
+            if (rsi.SaveFolder == null)
             {
                 return;
             }
 
-            var metaJsonPath = $"{path}{Path.DirectorySeparatorChar}meta.json";
+            Directory.CreateDirectory(rsi.SaveFolder);
+            var metaJsonPath = $"{rsi.SaveFolder}{Path.DirectorySeparatorChar}meta.json";
             await File.WriteAllTextAsync(metaJsonPath, string.Empty);
 
             var metaJsonFile = File.OpenWrite(metaJsonPath);
-            await JsonSerializer.SerializeAsync(metaJsonFile, CurrentOpenRsi.Item.Rsi);
+            await JsonSerializer.SerializeAsync(metaJsonFile, rsi.Item.Rsi);
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
-            foreach (var image in CurrentOpenRsi.Item.Images)
+            foreach (var image in rsi.Item.Images)
             {
-                image.Bitmap.Save($"{path}{Path.DirectorySeparatorChar}{image.State.Name}.png");
+                image.Bitmap.Save($"{rsi.SaveFolder}{Path.DirectorySeparatorChar}{image.State.Name}.png");
             }
+        }
+
+        private async Task SaveRsi(RsiItemViewModel rsi)
+        {
+            if (rsi.SaveFolder == null)
+            {
+                await SaveAs();
+                return;
+            }
+
+            await SaveRsiToPath(rsi);
         }
 
         public async Task Save()
@@ -188,7 +200,19 @@ namespace Editor.ViewModels
                 return;
             }
 
-            await SaveRsi(CurrentOpenRsi.SaveFolder);
+            await SaveRsiToPath(CurrentOpenRsi);
+        }
+
+        private async Task SaveRsiAs(RsiItemViewModel rsi)
+        {
+            var path = await SaveRsiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            rsi.SaveFolder = path;
+            await SaveRsiToPath(rsi);
         }
 
         public async Task SaveAs()
@@ -198,14 +222,22 @@ namespace Editor.ViewModels
                 return;
             }
 
+            await SaveRsiAs(CurrentOpenRsi);
+        }
+
+        public async Task SaveAll()
+        {
             var path = await SaveRsiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(path))
             {
                 return;
             }
 
-            await SaveRsi(path);
-            CurrentOpenRsi.SaveFolder = path;
+            foreach (var rsi in OpenRsis)
+            {
+                rsi.SaveFolder = $"{path}{Path.DirectorySeparatorChar}{rsi.Title}";
+                await SaveRsi(rsi);
+            }
         }
 
         public async Task ImportDmi(string filePath)

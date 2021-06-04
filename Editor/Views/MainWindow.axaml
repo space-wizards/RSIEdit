@@ -17,6 +17,8 @@
                 <MenuItem Header="Save" Command="{Binding Save}"/>
                 <MenuItem Header="Save As" Command="{Binding SaveAs}"/>
                 <Separator/>
+                <MenuItem Header="Save All To" Command="{Binding SaveAll}"/>
+                <Separator/>
                 <MenuItem Header="Import DMI" Command="{Binding Import}"/>
                 <MenuItem Header="Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
@@ -39,8 +41,8 @@
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>
+                            <TextBox DockPanel.Dock="Left" Margin="0 0 5 0" BorderThickness="0" Text="{Binding Title}"/>
                             <Button DockPanel.Dock="Right" Command="{Binding Close}" Content="X"/>
-                            <TextBlock Text="{Binding Title}"/>
                         </DockPanel>
                     </DataTemplate>
                 </TabControl.ItemTemplate>
