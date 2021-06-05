@@ -1,4 +1,4 @@
-![346432](https://user-images.githubusercontent.com/43253663/120900658-62893b00-c60c-11eb-8c7c-ac52548261f2.png)
+![346432](https://raw.githubusercontent.com/space-wizards/RSIEdit/master/logo.png)
 
 
 
