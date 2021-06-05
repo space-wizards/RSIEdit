@@ -1,3 +1,7 @@
+![346432](https://user-images.githubusercontent.com/49448379/120876478-6d0deb00-c5a0-11eb-9fe9-807640316fa1.png)
+
+
+
 # RSIEdit
 
 RSIEdit is a **VERY WIP** GUI for creating/editing [RSI files](https://hackmd.io/@ss14/rsis) and converting existing DMI files to the RSI format. 
