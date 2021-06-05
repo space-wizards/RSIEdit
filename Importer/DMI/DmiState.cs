@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using Importer.Directions;
 using Importer.RSI;
 
 namespace Importer.DMI
 {
-    public record DmiState(string Name, DirectionTypes Directions = DirectionTypes.None, int Frames = 1, List<float>? Delay = null)
+    public record DmiState(string Name, DirectionType Directions = DirectionType.None, int Frames = 1, List<float>? Delay = null)
     {
         public RsiState ToRsiState()
         {

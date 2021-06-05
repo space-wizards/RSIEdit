@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Importer.Directions;
 
 namespace Importer.DMI.Metadata
 {
@@ -143,7 +144,7 @@ namespace Importer.DMI.Metadata
                             continue;
                         }
 
-                        var dirs = (DirectionTypes) dirsInt;
+                        var dirs = (DirectionType) dirsInt;
 
                         if (!Enum.IsDefined(dirs))
                         {

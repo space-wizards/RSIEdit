@@ -15,7 +15,7 @@ using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views.Commands;
 using Editor.Views.Events;
-using Importer.DMI;
+using Importer.Directions;
 using ReactiveUI;
 
 namespace Editor.Views
@@ -252,7 +252,7 @@ namespace Editor.Views
             interaction.SetOutput(Unit.Default);
         }
 
-        private void ChangeDirections(InteractionContext<DirectionTypes, Unit> interaction)
+        private void ChangeDirections(InteractionContext<DirectionType, Unit> interaction)
         {
             if (ViewModel?.CurrentOpenRsi?.SelectedState == null)
             {

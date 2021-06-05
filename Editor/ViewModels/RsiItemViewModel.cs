@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Logging;
 using Editor.Models.RSI;
-using Importer.DMI;
+using Importer.Directions;
 using Importer.RSI;
 using ReactiveUI;
 using SixLabors.ImageSharp;
@@ -358,14 +358,14 @@ namespace Editor.ViewModels
 
             switch (state.Image.State.Directions)
             {
-                case DirectionTypes.None:
+                case DirectionType.None:
                     Frames.South = state.Image.Bitmap;
                     Frames.North = state.Image.Bitmap;
                     Frames.East = state.Image.Bitmap;
                     Frames.West = state.Image.Bitmap;
                     break;
-                case DirectionTypes.Cardinal:
-                case DirectionTypes.Diagonal:
+                case DirectionType.Cardinal:
+                case DirectionType.Diagonal:
                 {
                     var delays = state.Image.State.Delays;
                     if (delays == null)

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
 using Editor.Models;
 using Editor.Models.RSI;
-using Importer.DMI;
+using Importer.Directions;
 using Importer.DMI.Metadata;
 using Importer.RSI;
 using ReactiveUI;
@@ -73,7 +73,7 @@ namespace Editor.ViewModels
 
         public Interaction<int, Unit> RedoAction { get; } = new();
 
-        public Interaction<DirectionTypes, Unit> DirectionsAction { get; } = new();
+        public Interaction<DirectionType, Unit> DirectionsAction { get; } = new();
 
         public Interaction<Unit, string?> ChangeAllLicensesAction { get; } = new();
 
@@ -319,7 +319,7 @@ namespace Editor.ViewModels
         {
             if (CurrentOpenRsi != null)
             {
-                await DirectionsAction.Handle((DirectionTypes) amount);
+                await DirectionsAction.Handle((DirectionType) amount);
             }
         }
 
