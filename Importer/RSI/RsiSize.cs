@@ -15,5 +15,14 @@ namespace Importer.RSI
 
         [JsonPropertyName("y")]
         public int Y { get; }
+
+        public (int x, int y) CoordinatesForFrame(int index, int fileWidth)
+        {
+            var x = index * X;
+            var y = x / fileWidth * Y;
+            x = x % fileWidth;
+
+            return (x, y);
+        }
     }
 }

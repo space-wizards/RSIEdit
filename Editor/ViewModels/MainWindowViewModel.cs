@@ -6,18 +6,22 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Editor.Models;
 using Editor.Models.RSI;
-using Importer.DMI;
+using Importer.Directions;
 using Importer.DMI.Metadata;
 using Importer.RSI;
 using ReactiveUI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Editor.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        private static readonly PngDecoder PngDecoder = new();
+
         private RsiItemViewModel? _currentOpenRsi;
 
         public MainWindowViewModel()
@@ -73,7 +77,7 @@ namespace Editor.ViewModels
 
         public Interaction<int, Unit> RedoAction { get; } = new();
 
-        public Interaction<DirectionTypes, Unit> DirectionsAction { get; } = new();
+        public Interaction<DirectionType, Unit> DirectionsAction { get; } = new();
 
         public Interaction<Unit, string?> ChangeAllLicensesAction { get; } = new();
 
@@ -126,11 +130,6 @@ namespace Editor.ViewModels
 
             var rsiItem = new RsiItem(rsi);
 
-            if (!rsiItem.TryLoadImages(folderPath, out var error))
-            {
-                await ErrorDialog.Handle(new ErrorWindowViewModel(error));
-            }
-
             var name = Path.GetFileName(folderPath);
             var rsiVm = new RsiItemViewModel(name, rsiItem)
             {
@@ -170,10 +169,7 @@ namespace Editor.ViewModels
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
-            foreach (var image in rsi.Item.Images)
-            {
-                image.Bitmap.Save($"{rsi.SaveFolder}{Path.DirectorySeparatorChar}{image.State.Name}.png");
-            }
+            await rsi.Item.Rsi.SaveTo(rsi.SaveFolder);
         }
 
         private async Task SaveRsi(RsiItemViewModel rsi)
@@ -248,14 +244,19 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var rsi = metadata.ToRsi();
-            var rsiItem = new RsiItem(metadata.ToRsi());
-
-            await foreach (var (stream, index) in rsi.LoadStreams(filePath))
+            Image<Rgba32> dmi;
+            try
             {
-                rsiItem.LoadImage(index, new Bitmap(stream));
+                dmi = Image.Load<Rgba32>(filePath, PngDecoder);
+            }
+            catch
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading dmi image"));
+                return;
             }
 
+            var rsi = metadata.ToRsi(dmi);
+            var rsiItem = new RsiItem(rsi);
             var name = Path.GetFileNameWithoutExtension(filePath);
             var rsiVm = new RsiItemViewModel(name, rsiItem)
             {
@@ -319,7 +320,7 @@ namespace Editor.ViewModels
         {
             if (CurrentOpenRsi != null)
             {
-                await DirectionsAction.Handle((DirectionTypes) amount);
+                await DirectionsAction.Handle((DirectionType) amount);
             }
         }
 

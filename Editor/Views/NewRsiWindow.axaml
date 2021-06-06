@@ -10,7 +10,7 @@
         Height="200"
         Icon="/Assets/logo.ico">
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
-        <TextBlock Text="{Binding Text}" />
+        <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
             <Button Command="{Binding Confirm}" IsDefault="True" Width="75" HorizontalContentAlignment="Center">Yes</Button>
             <Button Command="{Binding Decline}" IsCancel="True" Width="75" HorizontalContentAlignment="Center">No</Button>

@@ -1,6 +1,6 @@
-﻿namespace Importer.DMI
+﻿namespace Importer.Directions
 {
-    public enum DirectionTypes
+    public enum DirectionType
     {
         None = 1,
         Cardinal = 4,

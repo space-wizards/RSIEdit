@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Importer.RSI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Importer.DMI.Metadata
 {
@@ -22,10 +24,41 @@ namespace Importer.DMI.Metadata
 
         public List<DmiState> States { get; }
 
-        public Rsi ToRsi()
+        public Rsi ToRsi(Image<Rgba32> image)
         {
-            var rsiStates = States.Select(s => s.ToRsiState()).ToList();
-            return new Rsi(Rsi.CurrentRsiVersion, Width, Height, rsiStates);
+            var size = new RsiSize(Width, Height);
+            var rsiStates = new List<RsiState>(States.Count);
+            var currentX = 0;
+            var currentY = 0;
+
+            foreach (var dmiState in States)
+            {
+                var images = new Image<Rgba32>[8, dmiState.Frames];
+
+                for (var frame = 0; frame < dmiState.Frames; frame++)
+                {
+                    for (var direction = 0; direction < (int) dmiState.Directions; direction++)
+                    {
+                        var rectangle = new Rectangle(currentX, currentY, size.X, size.Y);
+                        var crop = image.Clone(x => x.Crop(rectangle));
+
+                        images[direction, frame] = crop;
+
+                        currentX += size.X;
+
+                        if (currentX >= image.Width)
+                        {
+                            currentX = 0;
+                            currentY += size.Y;
+                        }
+                    }
+                }
+
+                var rsiState = dmiState.ToRsiState(size, images);
+                rsiStates.Add(rsiState);
+            }
+
+            return new Rsi(Rsi.CurrentRsiVersion, size, rsiStates);
         }
     }
 }

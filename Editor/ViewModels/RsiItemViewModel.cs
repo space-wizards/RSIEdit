@@ -10,18 +10,14 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Logging;
+using Editor.Extensions;
 using Editor.Models.RSI;
-using Importer.DMI;
+using Importer.Directions;
 using Importer.RSI;
 using ReactiveUI;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = System.Drawing.Color;
-using Image = SixLabors.ImageSharp.Image;
-using Rectangle = SixLabors.ImageSharp.Rectangle;
 
 namespace Editor.ViewModels
 {
@@ -43,11 +39,6 @@ namespace Editor.ViewModels
             _title = title;
             Item = item ?? new RsiItem();
 
-            foreach (var image in Item.Images)
-            {
-                States.Add(new RsiStateViewModel(image));
-            }
-
             var bitmap = new System.Drawing.Bitmap(Item.Size.X, Item.Size.Y);
 
             var g = Graphics.FromImage(bitmap);
@@ -57,7 +48,15 @@ namespace Editor.ViewModels
             bitmap.Save(EmptyStream, ImageFormat.Png);
 
             _blankFrame = new Bitmap(EmptyStream);
-            Frames = new RsiFramesViewModel(_blankFrame, _blankFrame, _blankFrame, _blankFrame);
+            Frames = new RsiFramesViewModel(_blankFrame, DirectionType.None);
+
+            foreach (var state in Item.Rsi.States)
+            {
+                var frame = state.Frames[0, 0]?.ToBitmap() ?? _blankFrame;
+                var image = new RsiImage(state, frame);
+
+                States.Add(new RsiStateViewModel(image));
+            }
         }
 
         private MemoryStream EmptyStream
@@ -185,7 +184,7 @@ namespace Editor.ViewModels
 
         public async Task CreateNewState(string? pngFilePath = null)
         {
-            var state = new RsiState(string.Empty);
+            var state = new RsiState(string.Empty, size: Item.Size);
 
             Bitmap bitmap;
             if (string.IsNullOrEmpty(pngFilePath))
@@ -208,7 +207,7 @@ namespace Editor.ViewModels
                 }
             }
 
-            var image = new RsiImage(Item.Size, state, bitmap);
+            var image = new RsiImage(state, bitmap);
             var vm = new RsiStateViewModel(image);
 
             AddState(vm);
@@ -248,7 +247,12 @@ namespace Editor.ViewModels
                 return;
             }
 
-            SelectedState.Image.Bitmap.Dispose();
+            var oldBitmap = SelectedState.Image.Bitmap;
+            if (oldBitmap != _blankFrame)
+            {
+                oldBitmap.Dispose();
+            }
+
             SelectedState.Image.Bitmap = png;
             RefreshFrames();
             Modified = true;
@@ -354,73 +358,27 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var state = SelectedState;
+            var image = SelectedState.Image;
+            var state = image.State;
 
-            switch (state.Image.State.Directions)
+            for (var direction = 0; direction < (int) state.Directions; direction++)
             {
-                case DirectionTypes.None:
-                    Frames.South = state.Image.Bitmap;
-                    Frames.North = state.Image.Bitmap;
-                    Frames.East = state.Image.Bitmap;
-                    Frames.West = state.Image.Bitmap;
-                    break;
-                case DirectionTypes.Cardinal:
-                case DirectionTypes.Diagonal:
-                {
-                    var delays = state.Image.State.Delays;
-                    if (delays == null)
-                    {
-                        Frames.South = state.Image.Bitmap;
-                        Frames.North = state.Image.Bitmap;
-                        Frames.East = state.Image.Bitmap;
-                        Frames.West = state.Image.Bitmap;
-                        return;
-                    }
+                var frame = state.Frames[direction, 0];
+                var stream = new MemoryStream();
 
-                    using var stream = new MemoryStream();
-                    state.Image.Bitmap.Save(stream);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    var fullImage = Image.Load<Rgba32>(stream, new PngDecoder());
+                frame.SaveAsPng(stream);
+                stream.Seek(0, SeekOrigin.Begin);
 
-                    var delaysIterated = 0;
+                var bitmap = new Bitmap(stream);
 
-                    var directionalImages = new Bitmap[4];
-
-                    for (var i = 0; i < 4; i++)
-                    {
-                        var totalDelays = delays[i].Count;
-                        var totalWidth = delaysIterated * Item.Size.X;
-                        var row = totalWidth / fullImage.Width;
-                        var offset = totalWidth % fullImage.Width;
-                        var rectangle = new Rectangle(offset, row, Item.Size.X, Item.Size.Y);
-
-                        var directionalImage = fullImage.Clone(x => x.Crop(rectangle));
-                        using var directionalStream = new MemoryStream();
-
-                        directionalImage.SaveAsPng(directionalStream);
-                        directionalStream.Seek(0, SeekOrigin.Begin);
-
-                        var directionalBitmap = new Bitmap(directionalStream);
-
-                        directionalImages[i] = directionalBitmap;
-
-                        delaysIterated += totalDelays;
-                    }
-
-                    Frames.North = directionalImages[0];
-                    Frames.South = directionalImages[1];
-                    Frames.East = directionalImages[2];
-                    Frames.West = directionalImages[3];
-                    break;
-                }
-                default:
-                    throw new ArgumentOutOfRangeException($"Unknown direction type {state.Image.State.Directions}");
+                Frames.Set((Direction) direction, bitmap, state.Directions);
             }
         }
 
         public void Dispose()
         {
             _emptyStream.Dispose();
+            Item.Rsi.Dispose();
         }
     }
 }

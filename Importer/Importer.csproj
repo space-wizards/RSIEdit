@@ -8,6 +8,7 @@
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="10.3.0" />
       <PackageReference Include="MetadataExtractor" Version="2.5.0" />
+      <PackageReference Include="Microsoft.Toolkit.Diagnostics" Version="7.0.2" />
       <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
     </ItemGroup>
 
