@@ -1,24 +1,36 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using Importer.Directions;
 using JetBrains.Annotations;
+using Microsoft.Toolkit.Diagnostics;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Importer.RSI
 {
     [PublicAPI]
-    public class RsiState
+    public class RsiState : IDisposable
     {
         public RsiState(
             string name,
             DirectionType directions = DirectionType.None,
             List<List<float>>? delays = null,
-            Dictionary<object, object>? flags = null)
+            Dictionary<object, object>? flags = null,
+            RsiSize? size = null,
+            Image<Rgba32>[,]? frames = null)
         {
             Name = name;
             Directions = directions;
             Delays = delays;
             Flags = flags;
+            Size = size ?? new RsiSize(32, 32);
+
+            DelayLength = Delays is {Count: > 0} ? Delays[0].Count : 1;
+            Frames = frames ?? new Image<Rgba32>[8, DelayLength];
+
+            Guard.IsEqualTo(Frames.Length, 8 * DelayLength, "Frames.Length");
         }
 
         [JsonPropertyName("name")]
@@ -33,6 +45,48 @@ namespace Importer.RSI
         [JsonPropertyName("flags")]
         public Dictionary<object, object>? Flags { get; set; }
 
+        [JsonIgnore]
+        public int DelayLength { get; private set; }
+
+        [JsonIgnore]
+        public RsiSize Size { get; private set; }
+
+        [JsonIgnore]
+        public Image<Rgba32>?[,] Frames { get; private set; }
+
+        public Image<Rgba32> GetFullImage()
+        {
+            var totalImages = Frames.Length;
+            var sqrt = Math.Sqrt(totalImages);
+            var rows = (int) Math.Ceiling(sqrt);
+            var columns = (int) Math.Floor(sqrt);
+            var image = new Image<Rgba32>(Size.X * columns, Size.Y * rows);
+
+            var currentX = 0;
+            var currentY = 0;
+
+            foreach (var frame in Frames)
+            {
+                if (frame == null)
+                {
+                    continue;
+                }
+
+                var point = new Point(currentX, currentY);
+                image.Mutate(x => x.DrawImage(frame, point, 1));
+
+                currentX += Size.X;
+
+                if (currentX >= image.Width)
+                {
+                    currentX = 0;
+                    currentY += Size.Y;
+                }
+            }
+
+            return image;
+        }
+
         public int FirstFrameIndexFor(RsiSize size, Direction direction)
         {
             var directionIndex = (int) direction;
@@ -44,7 +98,7 @@ namespace Importer.RSI
 
             if (directionIndex >= Delays.Count)
             {
-                return -1;
+                return (int) direction;
             }
 
             var currentFrame = 0;
@@ -57,34 +111,49 @@ namespace Importer.RSI
             return currentFrame;
         }
 
-        public (int x, int y) CoordinatesForFrame(RsiSize size, int index, int fileMultipleX)
+        public Image<Rgba32>?[] FirstImageFor(Direction direction)
         {
-            var x = index * size.X;
-            var fileWidth = fileMultipleX * size.X;
-            var y = x / fileWidth * size.Y;
-            x = x % fileWidth;
+            var image = new Image<Rgba32>?[DelayLength];
 
-            return (x, y);
+            for (var i = 0; i < Frames.GetUpperBound((int) direction); i++)
+            {
+                image[i] = Frames[(int) direction, i];
+            }
+
+            return image;
         }
 
-        public Rectangle? FirstFrameFor(RsiSize size, Direction direction, int fileWidth, int fileHeight)
+        public Image<Rgba32>? FirstFrameFor(Direction direction)
         {
-            var index = FirstFrameIndexFor(size, direction);
+            return FirstImageFor(direction)[0];
+        }
 
-            if (index == -1)
+        public Image<Rgba32>?[] FirstFrameForAll(DirectionType directionType)
+        {
+            var frames = new Image<Rgba32>?[8];
+
+            for (var i = 0; i < (int) directionType; i++)
             {
-                return null;
+                var direction = (Direction) i;
+                frames[i] = FirstFrameFor(direction);
             }
 
-            var fileMultipleX = fileWidth / size.X;
-            var (x, y) = CoordinatesForFrame(size, index, fileMultipleX);
+            return frames;
+        }
 
-            if (x >= fileWidth || y >= fileHeight)
+        public void LoadImage(Image<Rgba32> image)
+        {
+
+        }
+
+        public void Dispose()
+        {
+            foreach (var image in Frames)
             {
-                return null;
+                image?.Dispose();
             }
 
-            return new Rectangle(x, y, size.X, size.Y);
+            Array.Clear(Frames, 0, Frames.Length);
         }
     }
 }

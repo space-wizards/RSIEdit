@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using Importer.Directions;
 using Importer.RSI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Importer.DMI
 {
     public record DmiState(string Name, DirectionType Directions = DirectionType.None, int Frames = 1, List<float>? Delay = null)
     {
-        public RsiState ToRsiState()
+        public RsiState ToRsiState(RsiSize size, Image<Rgba32>[,] frames)
         {
             var delays = new List<List<float>>();
 
@@ -18,7 +20,7 @@ namespace Importer.DMI
                 }
             }
 
-            return new RsiState(Name, Directions, delays);
+            return new RsiState(Name, Directions, delays, size: size, frames: frames);
         }
     }
 }

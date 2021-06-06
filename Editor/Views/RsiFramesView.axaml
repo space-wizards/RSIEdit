@@ -5,29 +5,59 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Editor.Views.RsiFramesView">
     <StackPanel Orientation="Horizontal" Spacing="24" Margin="12 0 0 0">
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowFull}">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding Full}" />
+            </Panel>
+            <TextBlock Text="Full" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowCardinals}">
             <Panel>
                 <Image Width="96" Height="96" Source="{Binding South}" />
             </Panel>
             <TextBlock Text="South" HorizontalAlignment="Center" MaxWidth="96" />
         </StackPanel>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowCardinals}">
             <Panel>
                 <Image Width="96" Height="96" Source="{Binding North}" />
             </Panel>
             <TextBlock Text="North" HorizontalAlignment="Center" MaxWidth="96" />
         </StackPanel>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowCardinals}">
             <Panel>
                 <Image Width="96" Height="96" Source="{Binding East}" />
             </Panel>
             <TextBlock Text="East" HorizontalAlignment="Center" MaxWidth="96" />
         </StackPanel>
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowCardinals}">
             <Panel>
                 <Image Width="96" Height="96" Source="{Binding West}" />
             </Panel>
             <TextBlock Text="West" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowDiagonals}">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding SouthEast}" />
+            </Panel>
+            <TextBlock Text="South East" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowDiagonals}">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding SouthWest}" />
+            </Panel>
+            <TextBlock Text="South West" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowDiagonals}">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding NorthEast}" />
+            </Panel>
+            <TextBlock Text="North East" HorizontalAlignment="Center" MaxWidth="96" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical" IsVisible="{Binding ShowDiagonals}">
+            <Panel>
+                <Image Width="96" Height="96" Source="{Binding NorthWest}" />
+            </Panel>
+            <TextBlock Text="North West" HorizontalAlignment="Center" MaxWidth="96" />
         </StackPanel>
     </StackPanel>
 </UserControl>

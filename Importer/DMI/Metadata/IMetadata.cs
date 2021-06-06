@@ -1,4 +1,6 @@
 ﻿using Importer.RSI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Importer.DMI.Metadata
 {
@@ -10,6 +12,6 @@ namespace Importer.DMI.Metadata
 
         public int Height { get; }
 
-        public Rsi ToRsi();
+        public Rsi ToRsi(Image<Rgba32> image);
     }
 }
