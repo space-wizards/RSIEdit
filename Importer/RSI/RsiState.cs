@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Importer.Directions;
 using JetBrains.Annotations;
@@ -13,14 +15,22 @@ namespace Importer.RSI
     [PublicAPI]
     public class RsiState : IDisposable
     {
+        private static readonly char[] InvalidFilenameChars = Path.GetInvalidFileNameChars();
+
         public RsiState(
             string name,
             DirectionType directions = DirectionType.None,
             List<List<float>>? delays = null,
             Dictionary<object, object>? flags = null,
             RsiSize? size = null,
-            Image<Rgba32>[,]? frames = null)
+            Image<Rgba32>[,]? frames = null,
+            string? invalidCharacterReplace = "_")
         {
+            if (invalidCharacterReplace != null)
+            {
+                name = string.Join(invalidCharacterReplace, name.Split(Path.GetInvalidFileNameChars()));
+            }
+
             Name = name;
             Directions = directions;
             Delays = delays;
@@ -54,12 +64,19 @@ namespace Importer.RSI
         [JsonIgnore]
         public Image<Rgba32>?[,] Frames { get; private set; }
 
+        public static (int rows, int columns) GetRowsAndColumns(int images)
+        {
+            var sqrt = Math.Sqrt(images);
+            var rows = (int) Math.Ceiling(sqrt);
+            var columns = (int) Math.Round(sqrt);
+
+            return (rows, columns);
+        }
+
         public Image<Rgba32> GetFullImage()
         {
-            var totalImages = Frames.Length;
-            var sqrt = Math.Sqrt(totalImages);
-            var rows = (int) Math.Ceiling(sqrt);
-            var columns = (int) Math.Floor(sqrt);
+            var totalImages = Frames.Cast<Image<Rgba32>>().Count(x => x != null);
+            var (rows, columns) = GetRowsAndColumns(totalImages);
             var image = new Image<Rgba32>(Size.X * columns, Size.Y * rows);
 
             var currentX = 0;
