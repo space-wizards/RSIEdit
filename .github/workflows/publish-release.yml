@@ -23,10 +23,10 @@ jobs:
       run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -o Publish/Editor_Windows
 
     - name: Create Linux Release
-      run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -o Publish/Editor_Linux
+      run: dotnet publish Editor -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -o Publish/Editor_Linux
 
     - name: Create MacOS Release
-      run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -o Publish/Editor_macOS
+      run: dotnet publish Editor -c Release -r osx-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -o Publish/Editor_macOS
 
     - name: Archive Windows Release
       uses: thedoctor0/zip-release@master
