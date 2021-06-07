@@ -15,7 +15,6 @@ using Editor.Models.RSI;
 using Importer.Directions;
 using Importer.RSI;
 using ReactiveUI;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = System.Drawing.Color;

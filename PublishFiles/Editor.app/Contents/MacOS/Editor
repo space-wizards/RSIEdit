@@ -1,0 +1,12 @@
+﻿#!/bin/sh
+
+# cd to file containing script or something?
+BASEDIR=$(dirname "$0")
+echo "$BASEDIR"
+cd "$BASEDIR"
+
+mkdir -p "$HOME/Library/Application Support/Editor"
+
+export DOTNET_ROOT="$(pwd)/../Resources/dotnet"
+
+exec ../Resources/bin/Editor "$@" > "$HOME/Library/Application Support/Editor/launcher.log"
