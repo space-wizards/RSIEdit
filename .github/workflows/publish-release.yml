@@ -19,7 +19,7 @@ jobs:
       with:
         dotnet-version: 5.0.*
     - name: Create build
-      run: ./publish.sh
+      run: ./Scripts/publish.sh
 
     - name: Create Release
       id: create_release
