@@ -8,22 +8,22 @@ namespace Editor.Models.RSI
 {
     public class RsiImage : INotifyPropertyChanged
     {
-        private Bitmap _bitmap;
+        private Bitmap _preview;
 
-        public RsiImage(RsiState state, Bitmap bitmap)
+        public RsiImage(RsiState state, Bitmap preview)
         {
             State = state;
-            _bitmap = bitmap;
+            _preview = preview;
         }
 
         public RsiState State { get; }
 
-        public Bitmap Bitmap
+        public Bitmap Preview
         {
-            get => _bitmap;
+            get => _preview;
             set
             {
-                _bitmap = value;
+                _preview = value;
                 OnPropertyChanged();
             }
         }

@@ -45,7 +45,7 @@ namespace Editor.Views
             d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
             d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
             d.Add(vm.CloseInteraction.RegisterHandler(Close));
-            d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Bitmap))));
+            d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
             d.Add(vm);
         }
 

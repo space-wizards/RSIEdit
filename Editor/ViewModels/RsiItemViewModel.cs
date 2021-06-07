@@ -16,8 +16,10 @@ using Importer.Directions;
 using Importer.RSI;
 using ReactiveUI;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = System.Drawing.Color;
+using Size = SixLabors.ImageSharp.Size;
 
 namespace Editor.ViewModels
 {
@@ -25,6 +27,14 @@ namespace Editor.ViewModels
     {
         private const int DeletedBufferSize = 50;
         private const int RestoredBufferSize = 50;
+
+        private static readonly ResizeOptions PreviewResizeOptions = new()
+        {
+            Mode = ResizeMode.Max,
+            Position = AnchorPositionMode.Center,
+            Size = new Size(96, 96),
+            Sampler = KnownResamplers.NearestNeighbor
+        };
 
         private readonly MemoryStream _emptyStream = new();
         private readonly Bitmap _blankFrame;
@@ -52,8 +62,11 @@ namespace Editor.ViewModels
 
             foreach (var state in Item.Rsi.States)
             {
-                var frame = state.Frames[0, 0]?.ToBitmap() ?? _blankFrame;
-                var image = new RsiImage(state, frame);
+                var firstFrame = state.Frames[0, 0];
+                var preview = firstFrame == null
+                    ? _blankFrame
+                    : firstFrame.ToBitmap(PreviewResizeOptions);
+                var image = new RsiImage(state, preview);
 
                 States.Add(new RsiStateViewModel(image));
             }
@@ -247,13 +260,13 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var oldBitmap = SelectedState.Image.Bitmap;
+            var oldBitmap = SelectedState.Image.Preview;
             if (oldBitmap != _blankFrame)
             {
                 oldBitmap.Dispose();
             }
 
-            SelectedState.Image.Bitmap = png;
+            SelectedState.Image.Preview = png;
             RefreshFrames();
             Modified = true;
         }
@@ -363,15 +376,8 @@ namespace Editor.ViewModels
 
             for (var direction = 0; direction < (int) state.Directions; direction++)
             {
-                var frame = state.Frames[direction, 0];
-                var stream = new MemoryStream();
-
-                frame.SaveAsPng(stream);
-                stream.Seek(0, SeekOrigin.Begin);
-
-                var bitmap = new Bitmap(stream);
-
-                Frames.Set((Direction) direction, bitmap, state.Directions);
+                var frame = state.Frames[direction, 0]?.ToBitmap(PreviewResizeOptions) ?? _blankFrame;
+                Frames.Set((Direction) direction, frame, state.Directions);
             }
         }
 
