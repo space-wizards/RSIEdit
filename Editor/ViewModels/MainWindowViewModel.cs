@@ -250,8 +250,9 @@ namespace Editor.ViewModels
             {
                 dmi = Image.Load<Rgba32>(filePath, PngDecoder);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
                 await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading dmi image"));
                 return;
             }

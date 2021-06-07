@@ -212,8 +212,9 @@ namespace Editor.ViewModels
                 {
                     bitmap = new Bitmap(pngFilePath);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
                     var errorVm = new ErrorWindowViewModel($"Error creating a state from file\n{pngFilePath}");
                     await ErrorDialog.Handle(errorVm);
                     return;
