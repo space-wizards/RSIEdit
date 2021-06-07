@@ -19,6 +19,6 @@
     <PackageReference Include="Microsoft.Toolkit.Diagnostics" Version="7.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Importer\Importer.csproj" />
+    <ProjectReference Include="..\RSI.NET\Importer\Importer.csproj" />
   </ItemGroup>
 </Project>
