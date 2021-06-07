@@ -153,7 +153,8 @@ namespace Editor.ViewModels
             var minify = Locator.Current.GetService<Preferences>().MinifyJson;
             var options = new JsonSerializerOptions
             {
-                WriteIndented = !minify
+                WriteIndented = !minify,
+                IgnoreNullValues = true
             };
 
             await JsonSerializer.SerializeAsync(metaJsonFile, rsi.Item.Rsi, options);
