@@ -128,8 +128,9 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var rsiItem = new RsiItem(rsi);
+            await rsi.LoadFolderImages(folderPath);
 
+            var rsiItem = new RsiItem(rsi);
             var name = Path.GetFileName(folderPath);
             var rsiVm = new RsiItemViewModel(name, rsiItem)
             {

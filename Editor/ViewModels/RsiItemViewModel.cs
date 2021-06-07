@@ -184,7 +184,7 @@ namespace Editor.ViewModels
 
         public async Task CreateNewState(string? pngFilePath = null)
         {
-            var state = new RsiState(string.Empty, size: Item.Size);
+            var state = new RsiState();
 
             Bitmap bitmap;
             if (string.IsNullOrEmpty(pngFilePath))

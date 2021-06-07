@@ -17,7 +17,7 @@ namespace Editor.Models.RSI
 
         public void LoadImage(int index, Image<Rgba32> image)
         {
-            Rsi.States[index].LoadImage(image);
+            Rsi.States[index].LoadImage(image, Size);
         }
 
         public void AddState(RsiImage image)
