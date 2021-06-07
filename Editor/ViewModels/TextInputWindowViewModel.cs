@@ -8,6 +8,7 @@ namespace Editor.ViewModels
     {
         public TextInputWindowViewModel(string title, string header)
         {
+            Title = title;
             Header = header;
         }
 
@@ -23,7 +24,7 @@ namespace Editor.ViewModels
 
         public async void Confirm()
         {
-            await ConfirmAction.Handle(SubmittedText ?? string.Empty);
+            await ConfirmAction.Handle(SubmittedText);
         }
 
         public async void Decline()

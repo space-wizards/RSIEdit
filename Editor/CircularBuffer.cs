@@ -271,7 +271,7 @@ namespace Editor
             var segments = ToArraySegments();
             foreach (var segment in segments)
             {
-                Array.Copy(segment.Array, segment.Offset, newArray, newArrayOffset, segment.Count);
+                Array.Copy(segment.Array!, segment.Offset, newArray, newArrayOffset, segment.Count);
                 newArrayOffset += segment.Count;
             }
             return newArray;
@@ -304,7 +304,7 @@ namespace Editor
             {
                 for (var i = 0; i < segment.Count; i++)
                 {
-                    yield return segment.Array[segment.Offset + i];
+                    yield return segment.Array![segment.Offset + i];
                 }
             }
         }
