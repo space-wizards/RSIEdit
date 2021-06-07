@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <ApplicationIcon>Assets/logo.ico</ApplicationIcon>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
-    <AvaloniaResource Include="Assets\**" />
+    <Folder Include="Models/" />
+    <AvaloniaResource Include="Assets/**" />
     <Content Include="Assets/**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -20,6 +21,6 @@
     <PackageReference Include="Splat" Version="10.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RSI.NET\Importer\Importer.csproj" />
+    <ProjectReference Include="../RSI.NET/Importer/Importer.csproj" />
   </ItemGroup>
 </Project>

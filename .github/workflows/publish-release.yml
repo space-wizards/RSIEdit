@@ -18,8 +18,39 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.*
-    - name: Create build
-      run: ./publish.sh
+
+    - name: Create Windows Release
+      run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:PublishReadyToRun=true -p:UseAppHost=true -o Publish/Editor_Windows
+
+    - name: Create Linux Release
+      run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:PublishReadyToRun=true -p:UseAppHost=true -o Publish/Editor_Linux
+
+    - name: Create MacOS Release
+      run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:PublishReadyToRun=true -p:UseAppHost=true -o Publish/Editor_macOS
+
+    - name: Archive Windows Release
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'Editor_Windows.zip'
+        path: 'Editor_Windows'
+        directory: './Publish'
+        type: 'zip'
+
+    - name: Archive Linux Release
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'Editor_Linux.zip'
+        path: 'Editor_Linux'
+        directory: './Publish'
+        type: 'zip'
+
+    - name: Archive MacOS Release
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'Editor_macOS.zip'
+        path: 'Editor_macOS'
+        directory: './Publish'
+        type: 'zip'
 
     - name: Create Release
       id: create_release
@@ -32,35 +63,32 @@ jobs:
         draft: false
         prerelease: false
 
-    # Upload Linux
-    - name: Upload Release Asset
+    - name: Upload Windows Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Editor_Linux.zip
-        asset_name: Editor_Linux.zip
-        asset_content_type: application/zip
-
-    # Upload Windows
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Editor_Windows.zip
+        asset_path: ./Publish/Editor_Windows.zip
         asset_name: Editor_Windows.zip
         asset_content_type: application/zip
 
-    # Upload macOS
-    - name: Upload Release Asset
+    - name: Upload Linux Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Editor_macOS.zip
+        asset_path: ./Publish/Editor_Linux.zip
+        asset_name: Editor_Linux.zip
+        asset_content_type: application/zip
+
+    - name: Upload MacOS Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Publish/Editor_macOS.zip
         asset_name: Editor_macOS.zip
         asset_content_type: application/zip
