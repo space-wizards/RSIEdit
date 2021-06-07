@@ -11,12 +11,14 @@ namespace Editor.ViewModels
         private string? _defaultLicense;
         private string? _defaultCopyright;
         private bool _easterEggs;
+        private bool _minifyJson;
 
         public PreferencesWindowViewModel(Preferences preferences)
         {
             Preferences = preferences;
             DefaultLicense = Preferences.DefaultLicense;
             DefaultCopyright = Preferences.DefaultCopyright;
+            MinifyJson = Preferences.MinifyJson;
             EasterEggs = Preferences.EasterEggs;
         }
 
@@ -43,6 +45,16 @@ namespace Editor.ViewModels
             {
                 this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
                 Preferences.DefaultCopyright = value;
+            }
+        }
+
+        public bool MinifyJson
+        {
+            get => _minifyJson;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _minifyJson, value);
+                Preferences.MinifyJson = value;
             }
         }
 

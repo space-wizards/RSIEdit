@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Avalonia.Logging;
 using Editor.Models;
 using Editor.Models.RSI;
 using Importer.Directions;
@@ -15,6 +16,7 @@ using ReactiveUI;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using Splat;
 
 namespace Editor.ViewModels
 {
@@ -26,25 +28,7 @@ namespace Editor.ViewModels
 
         public MainWindowViewModel()
         {
-            var filePath = "preferences.json";
-
-            if (File.Exists(filePath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(filePath);
-                    Preferences = JsonSerializer.Deserialize<Preferences>(json) ?? new Preferences();
-                }
-                catch (Exception)
-                {
-                    Preferences = new Preferences();
-                    File.WriteAllText(filePath, string.Empty);
-                }
-            }
-            else
-            {
-                Preferences = new Preferences();
-            }
+            Preferences = Locator.Current.GetService<Preferences>();
         }
 
         public Preferences Preferences { get; }
@@ -166,7 +150,13 @@ namespace Editor.ViewModels
             await File.WriteAllTextAsync(metaJsonPath, string.Empty);
 
             var metaJsonFile = File.OpenWrite(metaJsonPath);
-            await JsonSerializer.SerializeAsync(metaJsonFile, rsi.Item.Rsi);
+            var minify = Locator.Current.GetService<Preferences>().MinifyJson;
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = !minify
+            };
+
+            await JsonSerializer.SerializeAsync(metaJsonFile, rsi.Item.Rsi, options);
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
