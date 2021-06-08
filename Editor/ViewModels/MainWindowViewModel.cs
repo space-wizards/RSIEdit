@@ -295,7 +295,8 @@ namespace Editor.ViewModels
 
         public async Task Undo()
         {
-            if (CurrentOpenRsi != null && CurrentOpenRsi.TryRestore(out var selected))
+            if (CurrentOpenRsi != null &&
+                CurrentOpenRsi.TryRestore(out var selected))
             {
                 await UndoAction.Handle(selected);
             }
@@ -303,7 +304,8 @@ namespace Editor.ViewModels
 
         public async Task Redo()
         {
-            if (CurrentOpenRsi != null && CurrentOpenRsi.TryRedoDelete(out var index))
+            if (CurrentOpenRsi != null &&
+                CurrentOpenRsi.TryRedoDelete(out var index))
             {
                 await RedoAction.Handle(index);
             }
@@ -343,6 +345,11 @@ namespace Editor.ViewModels
             {
                 rsi.Copyright = copyright;
             }
+        }
+
+        public void Delete()
+        {
+            CurrentOpenRsi?.DeleteSelectedState();
         }
     }
 }

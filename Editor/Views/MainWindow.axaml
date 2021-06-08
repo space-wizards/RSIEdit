@@ -9,6 +9,18 @@
         Icon="/Assets/logo.ico"
         Title="RSI Editor"
         DragDrop.AllowDrop="True">
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+N"
+                    Command="{Binding New}"/>
+        <KeyBinding Gesture="Delete"
+                    Command="{Binding Delete}"/>
+        <KeyBinding Gesture="Ctrl+Z"
+                    Command="{Binding Undo}"/>
+        <KeyBinding Gesture="Ctrl+Y"
+                    Command="{Binding Redo}"/>
+        <KeyBinding Gesture="Ctrl+Shift+Z"
+                    Command="{Binding Redo}"/>
+    </Window.KeyBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Name="Menu">
             <MenuItem Header="File">

@@ -13,7 +13,6 @@ using Avalonia.Media.Imaging;
 using Avalonia.ReactiveUI;
 using Editor.Models;
 using Editor.ViewModels;
-using Editor.Views.Commands;
 using Editor.Views.Events;
 using Importer.Directions;
 using ReactiveUI;
@@ -70,66 +69,9 @@ namespace Editor.Views
         public static RoutedEvent<GetMainWindowEvent> GetMainWindowEvent { get; } =
             RoutedEvent.Register<MainWindow, GetMainWindowEvent>(nameof(GetMainWindowEvent), RoutingStrategies.Bubble);
 
-        private NewCommand NewCommand { get; } = new();
-
-        private DeleteStateCommand DeleteStateCommand { get; } = new();
-
-        private UndoCommand UndoCommand { get; } = new();
-
-        private RedoCommand RedoCommand { get; } = new();
-
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-
-            var newGesture = new KeyGesture(Key.N, KeyModifiers.Control);
-            var newBinding = new KeyBinding
-            {
-                Command = NewCommand,
-                CommandParameter = this,
-                Gesture = newGesture
-            };
-
-            var deleteGesture = new KeyGesture(Key.Delete);
-            var deleteBinding = new KeyBinding
-            {
-                Command = DeleteStateCommand,
-                CommandParameter = this,
-                Gesture = deleteGesture
-            };
-
-            var undoGesture = new KeyGesture(Key.Z, KeyModifiers.Control);
-            var undoBinding = new KeyBinding
-            {
-                Command = UndoCommand,
-                CommandParameter = this,
-                Gesture = undoGesture
-            };
-
-            var redoGesture = new KeyGesture(Key.Y, KeyModifiers.Control);
-            var redoBinding = new KeyBinding
-            {
-                Command = RedoCommand,
-                CommandParameter = this,
-                Gesture = redoGesture
-            };
-
-            var redoGestureAlternative = new KeyGesture(Key.Z, KeyModifiers.Control | KeyModifiers.Shift);
-            var redoBindingAlternative = new KeyBinding
-            {
-                Command = RedoCommand,
-                CommandParameter = this,
-                Gesture = redoGestureAlternative
-            };
-
-            KeyBindings.AddRange(new[]
-            {
-                newBinding,
-                deleteBinding,
-                undoBinding,
-                redoBinding,
-                redoBindingAlternative
-            });
         }
 
         private async Task<bool> TryOpenConfirmation(string text, bool modified = true)
