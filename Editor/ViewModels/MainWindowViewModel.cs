@@ -98,7 +98,7 @@ namespace Editor.ViewModels
 
             if (metaJsonFiles.Length > 1)
             {
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"More than one meta.json found in folder\n{folderPath}"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"More than one meta.json found in folder:\n{folderPath}"));
                 return;
             }
 
@@ -108,7 +108,7 @@ namespace Editor.ViewModels
 
             if (rsi is not {Size: {}})
             {
-                await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading meta.json"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading meta.json:\nMissing size property."));
                 return;
             }
 
@@ -244,7 +244,7 @@ namespace Editor.ViewModels
             catch (Exception e)
             {
                 Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-                await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading dmi image"));
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading dmi image:\n{e.Message}"));
                 return;
             }
 
