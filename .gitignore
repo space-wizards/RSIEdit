@@ -1,7 +1,17 @@
+# Build folders
 bin/
 obj/
 /packages/
-riderModule.iml
-/_ReSharper.Caches/
+
+# JetBrains Rider
 .idea/
+*.sln.iml
+
+# Release upload folder
 Publish/
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+/_ReSharper.Caches/
