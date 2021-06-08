@@ -57,7 +57,7 @@ namespace Editor.ViewModels
             bitmap.Save(EmptyStream, ImageFormat.Png);
 
             _blankFrame = new Bitmap(EmptyStream);
-            Frames = new RsiFramesViewModel(_blankFrame, DirectionType.None);
+            Frames = new RsiFramesViewModel(_blankFrame, null);
 
             foreach (var state in Item.Rsi.States)
             {
@@ -108,19 +108,8 @@ namespace Editor.ViewModels
             {
                 this.RaiseAndSetIfChanged(ref _selectedState, value);
 
-                if (value == null)
-                {
-                    HasStateSelected = false;
-                    Frames.South = _blankFrame;
-                    Frames.North = _blankFrame;
-                    Frames.East = _blankFrame;
-                    Frames.West = _blankFrame;
-                }
-                else
-                {
-                    RefreshFrames();
-                    HasStateSelected = true;
-                }
+                HasStateSelected = value != null;
+                RefreshFrames();
             }
         }
 
@@ -368,6 +357,13 @@ namespace Editor.ViewModels
         {
             if (SelectedState == null)
             {
+                for (var i = 0; i < 8; i++)
+                {
+                    Frames.Set((Direction) i, _blankFrame);
+                }
+
+                Frames.SetDirections(null);
+
                 return;
             }
 
@@ -377,8 +373,10 @@ namespace Editor.ViewModels
             for (var direction = 0; direction < (int) state.Directions; direction++)
             {
                 var frame = state.Frames[direction, 0]?.ToBitmap(PreviewResizeOptions) ?? _blankFrame;
-                Frames.Set((Direction) direction, frame, state.Directions);
+                Frames.Set((Direction) direction, frame);
             }
+
+            Frames.SetDirections(state.Directions);
         }
 
         public void Dispose()

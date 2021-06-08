@@ -20,7 +20,7 @@ namespace Editor.ViewModels
         private bool _showCardinals;
         private bool _showDiagonals;
 
-        public RsiFramesViewModel(Bitmap full, DirectionType direction)
+        public RsiFramesViewModel(Bitmap full, DirectionType? direction)
         {
             _full = full;
             _south = full;
@@ -31,9 +31,8 @@ namespace Editor.ViewModels
             _southWest = full;
             _northEast = full;
             _northWest = full;
-            _showFull = direction == DirectionType.None;
-            _showCardinals = direction == DirectionType.Cardinal;
-            _showDiagonals = direction == DirectionType.Diagonal;
+
+            SetDirections(direction);
         }
 
         public bool ShowFull
@@ -108,7 +107,7 @@ namespace Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _northWest, value);
         }
 
-        public void Set(Direction direction, Bitmap image, DirectionType directionType)
+        public void Set(Direction direction, Bitmap image)
         {
             switch (direction)
             {
@@ -140,10 +139,13 @@ namespace Editor.ViewModels
                 default:
                     throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
+        }
 
-            ShowFull = directionType == DirectionType.None;
-            ShowCardinals = directionType == DirectionType.Cardinal || directionType == DirectionType.Diagonal;
-            ShowDiagonals = directionType == DirectionType.Diagonal;
+        public void SetDirections(DirectionType? direction)
+        {
+            ShowFull = direction == DirectionType.None;
+            ShowCardinals = direction == DirectionType.Cardinal || direction == DirectionType.Diagonal;
+            ShowDiagonals = direction == DirectionType.Diagonal;
         }
     }
 }
