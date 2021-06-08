@@ -6,7 +6,7 @@
         x:Class="Editor.Views.PreferencesWindow"
         WindowStartupLocation="CenterOwner"
         Width="400"
-        Height="200"
+        Height="300"
         Title="Preferences"
         Icon="/Assets/logo.ico">
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10">
