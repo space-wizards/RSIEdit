@@ -8,7 +8,8 @@
         x:Class="Editor.Views.MainWindow"
         Icon="/Assets/logo.ico"
         Title="RSI Editor"
-        DragDrop.AllowDrop="True">
+        DragDrop.AllowDrop="True"
+        Height="776">
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+N"
                     Command="{Binding New}"/>

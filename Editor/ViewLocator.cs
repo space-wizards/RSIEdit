@@ -20,7 +20,7 @@ namespace Editor
             }
             else
             {
-                return new TextBlock { Text = "Not Found: " + name };
+                return new TextBlock {Text = "Not Found: " + name};
             }
         }
 
