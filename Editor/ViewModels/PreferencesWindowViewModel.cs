@@ -31,13 +31,29 @@ namespace Editor.ViewModels
         public string? DefaultLicense
         {
             get => _defaultLicense;
-            set => this.RaiseAndSetIfChanged(ref _defaultLicense, value);
+            set
+            {
+                if (value == string.Empty)
+                {
+                    value = null;
+                }
+
+                this.RaiseAndSetIfChanged(ref _defaultLicense, value);
+            }
         }
 
         public string? DefaultCopyright
         {
             get => _defaultCopyright;
-            set => this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
+            set
+            {
+                if (value == string.Empty)
+                {
+                    value = null;
+                }
+
+                this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
+            }
         }
 
         public bool MinifyJson
