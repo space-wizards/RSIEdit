@@ -22,7 +22,7 @@ namespace Editor.ViewModels
             EasterEggs = Preferences.EasterEggs;
         }
 
-        private Preferences Preferences { get; }
+        public Preferences Preferences { get; }
 
         public Interaction<Preferences, Unit> SaveAction { get; } = new();
 
@@ -31,45 +31,34 @@ namespace Editor.ViewModels
         public string? DefaultLicense
         {
             get => _defaultLicense;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _defaultLicense, value);
-                Preferences.DefaultLicense = value;
-            }
+            set => this.RaiseAndSetIfChanged(ref _defaultLicense, value);
         }
 
         public string? DefaultCopyright
         {
             get => _defaultCopyright;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
-                Preferences.DefaultCopyright = value;
-            }
+            set => this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
         }
 
         public bool MinifyJson
         {
             get => _minifyJson;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _minifyJson, value);
-                Preferences.MinifyJson = value;
-            }
+            set => this.RaiseAndSetIfChanged(ref _minifyJson, value);
         }
 
         public bool EasterEggs
         {
             get => _easterEggs;
-            set
-            {
-                this.RaiseAndSetIfChanged(ref _easterEggs, value);
-                Preferences.EasterEggs = value;
-            }
+            set => this.RaiseAndSetIfChanged(ref _easterEggs, value);
         }
 
         public async Task Save()
         {
+            Preferences.DefaultLicense = DefaultLicense;
+            Preferences.DefaultCopyright = DefaultCopyright;
+            Preferences.MinifyJson = MinifyJson;
+            Preferences.EasterEggs = EasterEggs;
+
             await SaveAction.Handle(Preferences);
         }
 

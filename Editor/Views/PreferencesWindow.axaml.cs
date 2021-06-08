@@ -39,11 +39,13 @@ namespace Editor.Views
             await File.WriteAllTextAsync(filePath, string.Empty);
 
             var metaJsonFile = File.OpenWrite(filePath);
-            await JsonSerializer.SerializeAsync(metaJsonFile, arg.Input);
+            var preferences = arg.Input;
+
+            await JsonSerializer.SerializeAsync(metaJsonFile, preferences);
             await metaJsonFile.FlushAsync();
             await metaJsonFile.DisposeAsync();
 
-            Close(arg.Input);
+            Close(preferences);
             arg.SetOutput(Unit.Default);
         }
 
