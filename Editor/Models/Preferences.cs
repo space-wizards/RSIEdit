@@ -21,7 +21,7 @@ namespace Editor.Models
         public string? DefaultCopyright { get; set; }
 
         [JsonPropertyName("minifyJson")]
-        public bool MinifyJson { get; set; } = true;
+        public bool MinifyJson { get; set; } = false;
 
         [JsonPropertyName("easterEggs")]
         public bool EasterEggs { get; set; }
