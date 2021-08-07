@@ -104,7 +104,7 @@ namespace Editor.ViewModels
 
             var metaJson = metaJsonFiles.Single();
             var stream = File.OpenRead(metaJson);
-            var rsi = await JsonSerializer.DeserializeAsync<Rsi>(stream);
+            var rsi = await Rsi.FromMetaJson(stream);
 
             if (rsi is not {Size: {}})
             {
@@ -112,7 +112,7 @@ namespace Editor.ViewModels
                 return;
             }
 
-            await rsi.LoadFolderImages(folderPath);
+            await rsi.TryLoadFolderImages(folderPath);
 
             var rsiItem = new RsiItem(rsi);
             var name = Path.GetFileName(folderPath);
@@ -145,11 +145,6 @@ namespace Editor.ViewModels
                 return;
             }
 
-            Directory.CreateDirectory(rsi.SaveFolder);
-            var metaJsonPath = $"{rsi.SaveFolder}{Path.DirectorySeparatorChar}meta.json";
-            await File.WriteAllTextAsync(metaJsonPath, string.Empty);
-
-            var metaJsonFile = File.OpenWrite(metaJsonPath);
             var minify = Locator.Current.GetService<Preferences>().MinifyJson;
             var options = new JsonSerializerOptions
             {
@@ -157,11 +152,7 @@ namespace Editor.ViewModels
                 IgnoreNullValues = true
             };
 
-            await JsonSerializer.SerializeAsync(metaJsonFile, rsi.Item.Rsi, options);
-            await metaJsonFile.FlushAsync();
-            await metaJsonFile.DisposeAsync();
-
-            await rsi.Item.Rsi.SaveTo(rsi.SaveFolder);
+            await rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder, options);
         }
 
         private async Task SaveRsi(RsiItemViewModel rsi)
