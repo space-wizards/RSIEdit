@@ -15,5 +15,5 @@ You can find every previous release [here](https://github.com/space-wizards/RSIE
 
 ## Building
 1. Clone this repo.
-2. Run `git submodule init --update` to init submodules and download the importer.
+2. Run `git submodule update --init` to init submodules and download the importer.
 3. Compile the solution.
