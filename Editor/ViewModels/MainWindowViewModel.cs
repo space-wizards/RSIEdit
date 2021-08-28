@@ -116,11 +116,17 @@ namespace Editor.ViewModels
 
             var rsiItem = new RsiItem(rsi);
             var name = Path.GetFileName(folderPath);
+
+            var license = string.IsNullOrEmpty(rsiItem.Rsi.License) ? Preferences.DefaultLicense : rsiItem.Rsi.License;
+            var copyright = string.IsNullOrEmpty(rsiItem.Rsi.Copyright)
+                ? Preferences.DefaultCopyright
+                : rsiItem.Rsi.Copyright;
+            
             var rsiVm = new RsiItemViewModel(name, rsiItem)
             {
                 SaveFolder = folderPath,
-                License = Preferences.DefaultLicense,
-                Copyright = Preferences.DefaultCopyright
+                License = license,
+                Copyright = copyright,
             };
 
             AddRsi(rsiVm);
