@@ -158,7 +158,30 @@ namespace Editor.ViewModels
                 IgnoreNullValues = true
             };
 
-            await rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder, options);
+            // Lazy version of 
+            Directory.CreateDirectory(rsi.SaveFolder);
+
+            await SaveImagesLazy(rsi, rsi.SaveFolder);
+            await rsi.Item.Rsi.SaveRsiToFolder(rsi.SaveFolder, options);
+        }
+
+        private async Task SaveImagesLazy(RsiItemViewModel rsi, string? rsiFolder)
+        {
+            var rsiItem = rsi.Item.Rsi;
+            foreach (var state in rsiItem.States)
+            {
+                switch (rsi.Item.WasModified(state))
+                {
+                    case UpdateState.None:
+                        break;
+                    default:
+                        var image = state.GetFullImage(rsiItem.Size);
+                        var path = $"{rsiFolder}{Path.DirectorySeparatorChar}{state.Name}.png";
+
+                        await image.SaveAsPngAsync(path);
+                        break;
+                }
+            }
         }
 
         private async Task SaveRsi(RsiItemViewModel rsi)
