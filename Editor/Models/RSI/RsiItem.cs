@@ -29,7 +29,12 @@ namespace Editor.Models.RSI
         
         public UpdateState WasModified(RsiState state)
         {
-            return _rsiUpdateStates[state.Name];
+            if (_rsiUpdateStates.TryGetValue(state.Name, out var wasModified)) 
+                return wasModified;
+            
+            // Assume the state is new and track it
+            _rsiUpdateStates.Add(state.Name, UpdateState.Edit);
+            return UpdateState.Edit;
         }
         
         public void LoadImage(int index, Image<Rgba32> image)
