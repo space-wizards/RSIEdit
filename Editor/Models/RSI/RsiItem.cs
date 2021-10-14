@@ -54,6 +54,14 @@ namespace Editor.Models.RSI
             _rsiUpdateStates.TryAdd(image.State.Name, UpdateState.Edit);
         }
 
+        public void UpdateImageState(int index, RsiImage image)
+        {
+            var stateName = image.State.Name;
+            Rsi.States[index] = image.State;
+            if (_rsiUpdateStates.ContainsKey(stateName)) 
+                _rsiUpdateStates[stateName] = UpdateState.Edit;
+        }
+
         public void RemoveState(int index)
         {
             Rsi.States.RemoveAt(index);

@@ -213,7 +213,6 @@ namespace Editor.ViewModels
             var vm = new RsiStateViewModel(image);
 
             AddState(vm);
-            Modified = true;
         }
 
         public async Task ImportPng()
@@ -257,7 +256,7 @@ namespace Editor.ViewModels
 
             SelectedState.Image.Preview = png;
             RefreshFrames();
-            Modified = true;
+            UpdateImageState(SelectedState);
         }
 
         public void DeleteSelectedState()
@@ -282,6 +281,12 @@ namespace Editor.ViewModels
         {
             Item.AddState(vm.Image);
             States.Add(vm);
+            Modified = true;
+        }
+
+        public void UpdateImageState(RsiStateViewModel vm)
+        {
+            Item.UpdateImageState(States.IndexOf(vm), vm.Image);
             Modified = true;
         }
 

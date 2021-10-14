@@ -179,6 +179,7 @@ namespace Editor.ViewModels
                         var path = $"{rsiFolder}{Path.DirectorySeparatorChar}{state.Name}.png";
 
                         await image.SaveAsPngAsync(path);
+                        rsi.Item.MarkAsUpdated(state, UpdateState.None);
                         break;
                 }
             }
