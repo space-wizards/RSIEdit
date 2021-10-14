@@ -15,9 +15,12 @@ using Editor.Models.RSI;
 using Importer.Directions;
 using Importer.RSI;
 using ReactiveUI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = System.Drawing.Color;
+using Image = System.Drawing.Image;
 using Size = SixLabors.ImageSharp.Size;
 
 namespace Editor.ViewModels
@@ -236,9 +239,11 @@ namespace Editor.ViewModels
             }
 
             Bitmap png;
+            Image<Rgba32> img;
             try
             {
                 png = new Bitmap(path);
+                img = SixLabors.ImageSharp.Image.Load(await File.ReadAllBytesAsync(path));
             }
             catch (Exception e)
             {
@@ -253,8 +258,12 @@ namespace Editor.ViewModels
             {
                 oldBitmap.Dispose();
             }
-
+            
             SelectedState.Image.Preview = png;
+            // Caution, huge HACK AHEAD, I HAVE NO IDEA WHAT I HAVE DONE.
+            // What frame to save? No idea. But it werks!
+            SelectedState.Image.State.Frames[0, 0] = img;
+            
             RefreshFrames();
             UpdateImageState(SelectedState);
         }
