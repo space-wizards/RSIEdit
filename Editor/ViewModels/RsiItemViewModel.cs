@@ -188,7 +188,10 @@ namespace Editor.ViewModels
 
         public async Task CreateNewState(string? pngFilePath = null)
         {
-            var state = new RsiState();
+            var state = new RsiState
+            {
+                ImagePath = pngFilePath
+            };
 
             Bitmap bitmap;
             if (string.IsNullOrEmpty(pngFilePath))
@@ -216,6 +219,7 @@ namespace Editor.ViewModels
             var vm = new RsiStateViewModel(image);
 
             AddState(vm);
+            Modified = true;
         }
 
         public async Task ImportPng()
@@ -239,11 +243,9 @@ namespace Editor.ViewModels
             }
 
             Bitmap png;
-            Image<Rgba32> img;
             try
             {
                 png = new Bitmap(path);
-                img = SixLabors.ImageSharp.Image.Load(await File.ReadAllBytesAsync(path));
             }
             catch (Exception e)
             {
@@ -260,9 +262,6 @@ namespace Editor.ViewModels
             }
             
             SelectedState.Image.Preview = png;
-            // Caution, huge HACK AHEAD, I HAVE NO IDEA WHAT I HAVE DONE.
-            // What frame to save? No idea. But it werks!
-            SelectedState.Image.State.Frames[0, 0] = img;
             
             RefreshFrames();
             UpdateImageState(SelectedState);
