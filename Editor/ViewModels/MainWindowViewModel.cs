@@ -197,6 +197,7 @@ namespace Editor.ViewModels
             }
 
             rsi.SaveFolder = path;
+            rsi.Title = Path.GetFileName(path);
             await SaveRsiToPath(rsi);
         }
 
