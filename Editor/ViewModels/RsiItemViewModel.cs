@@ -15,9 +15,12 @@ using Editor.Models.RSI;
 using Importer.Directions;
 using Importer.RSI;
 using ReactiveUI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = System.Drawing.Color;
+using Image = System.Drawing.Image;
 using Size = SixLabors.ImageSharp.Size;
 
 namespace Editor.ViewModels
@@ -185,7 +188,10 @@ namespace Editor.ViewModels
 
         public async Task CreateNewState(string? pngFilePath = null)
         {
-            var state = new RsiState();
+            var state = new RsiState
+            {
+                ImagePath = pngFilePath
+            };
 
             Bitmap bitmap;
             if (string.IsNullOrEmpty(pngFilePath))
@@ -254,10 +260,11 @@ namespace Editor.ViewModels
             {
                 oldBitmap.Dispose();
             }
-
+            
             SelectedState.Image.Preview = png;
+            
             RefreshFrames();
-            Modified = true;
+            UpdateImageState(SelectedState);
         }
 
         public void DeleteSelectedState()
@@ -282,6 +289,12 @@ namespace Editor.ViewModels
         {
             Item.AddState(vm.Image);
             States.Add(vm);
+            Modified = true;
+        }
+
+        public void UpdateImageState(RsiStateViewModel vm)
+        {
+            Item.UpdateImageState(States.IndexOf(vm), vm.Image);
             Modified = true;
         }
 
