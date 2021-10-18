@@ -263,6 +263,15 @@ namespace Editor.ViewModels
             
             SelectedState.Image.Preview = png;
             
+            await using var memoryStream = new MemoryStream();
+            png.Save(memoryStream);
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            var frame = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(memoryStream);
+
+            SelectedState.Image.State.LoadImage(frame, Item.Size);
+            
             RefreshFrames();
             UpdateImageState(SelectedState);
         }

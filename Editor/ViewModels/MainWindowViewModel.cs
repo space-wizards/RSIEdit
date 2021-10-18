@@ -45,7 +45,7 @@ namespace Editor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
         }
 
-        public Interaction<Unit, Unit> NewRsiAction { get; } = new();
+        public Interaction<Unit, bool> NewRsiAction { get; } = new();
 
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
 
@@ -83,7 +83,16 @@ namespace Editor.ViewModels
 
         public async Task New()
         {
-            await NewRsiAction.Handle(Unit.Default);
+            if (await NewRsiAction.Handle(Unit.Default))
+            {
+                CurrentOpenRsi = new RsiItemViewModel
+                {
+                    License = Preferences.DefaultLicense,
+                    Copyright = Preferences.DefaultCopyright
+                };
+
+                AddRsi(CurrentOpenRsi);
+            }
         }
 
         public async Task OpenRsi(string folderPath)

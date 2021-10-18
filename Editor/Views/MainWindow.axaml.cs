@@ -87,27 +87,20 @@ namespace Editor.Views
             return confirmed;
         }
 
-        public async void DoNewRsi()
+        public async Task<bool> DoNewRsi()
         {
             if (ViewModel == null)
             {
-                return;
+                return false;
             }
 
-            if (await TryOpenConfirmation("Are you sure you want to create a new RSI?"))
-            {
-                ViewModel.CurrentOpenRsi = new RsiItemViewModel
-                {
-                    License = ViewModel.Preferences.DefaultLicense,
-                    Copyright = ViewModel.Preferences.DefaultCopyright
-                };
-            }
+            return await TryOpenConfirmation("Are you sure you want to create a new RSI?");
         }
 
-        private void NewRsi(InteractionContext<Unit, Unit> interaction)
+        private async Task NewRsi(InteractionContext<Unit, bool> interaction)
         {
-            DoNewRsi();
-            interaction.SetOutput(Unit.Default);
+            var confirm = await DoNewRsi();
+            interaction.SetOutput(confirm);
         }
 
         private async Task OpenRsi(InteractionContext<Unit, string> interaction)
