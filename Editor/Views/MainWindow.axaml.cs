@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.ReactiveUI;
 using Editor.Models;
 using Editor.ViewModels;
@@ -150,14 +152,15 @@ namespace Editor.Views
             var dialog = new PreferencesWindow() {DataContext = vm};
             var preferences = await dialog.ShowDialog<Preferences>(this);
 
+            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             if (preferences.EasterEggs)
             {
-                Icon = new WindowIcon("./Assets/joke-logo.ico");
-                Background = new ImageBrush(new Bitmap("./Assets/joke-background.png"));
+                Icon = new WindowIcon(assets.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
+                Background = new ImageBrush(new Bitmap(assets.Open(new Uri("avares://Editor/Assets/joke-background.png"))));
             }
             else
             {
-                Icon = new WindowIcon("./Assets/logo.ico");
+                Icon = new WindowIcon(assets.Open(new Uri("avares://Editor/Assets/logo.ico")));
                 Background = null;
             }
 

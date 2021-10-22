@@ -9,9 +9,6 @@
   <ItemGroup>
     <Folder Include="Models/" />
     <AvaloniaResource Include="Assets/**" />
-    <Content Include="Assets/**">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.3" />
