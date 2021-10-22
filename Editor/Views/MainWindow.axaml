@@ -13,6 +13,14 @@
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+N"
                     Command="{Binding New}"/>
+        <KeyBinding Gesture="Ctrl+O"
+                    Command="{Binding Open}"/>
+        <KeyBinding Gesture="Ctrl+S"
+                    Command="{Binding Save}"/>
+        <KeyBinding Gesture="Ctrl+Shift+S"
+                    Command="{Binding SaveAs}"/>
+        <KeyBinding Gesture="Ctrl+I"
+                    Command="{Binding Import}"/>
         <KeyBinding Gesture="Delete"
                     Command="{Binding Delete}"/>
         <KeyBinding Gesture="Ctrl+Z"
@@ -21,25 +29,27 @@
                     Command="{Binding Redo}"/>
         <KeyBinding Gesture="Ctrl+Shift+Z"
                     Command="{Binding Redo}"/>
+        <KeyBinding Gesture="Ctrl+,"
+                    Command="{Binding OpenPreferences}"/>
     </Window.KeyBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Name="Menu">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Command="{Binding New}"/>
-                <MenuItem Header="_Open..." Command="{Binding Open}"/>
-                <MenuItem Header="_Save" Command="{Binding Save}"/>
-                <MenuItem Header="Save _As..." Command="{Binding SaveAs}"/>
+                <MenuItem Header="_New" Command="{Binding New}" InputGesture="Ctrl+N"/>
+                <MenuItem Header="_Open..." Command="{Binding Open}" InputGesture="Ctrl+O"/>
+                <MenuItem Header="_Save" Command="{Binding Save}" InputGesture="Ctrl+S"/>
+                <MenuItem Header="Save _As..." Command="{Binding SaveAs}" InputGesture="Ctrl+Shift+S"/>
                 <Separator/>
                 <MenuItem Header="Save All To" Command="{Binding SaveAll}"/>
                 <Separator/>
-                <MenuItem Header="_Import DMI..." Command="{Binding Import}"/>
+                <MenuItem Header="_Import DMI..." Command="{Binding Import}" InputGesture="Ctrl+I"/>
                 <MenuItem Header="_Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
-                <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}"/>
+                <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" Command="{Binding Undo}"/>
-                <MenuItem Header="_Redo" Command="{Binding Redo}"/>
+                <MenuItem Header="_Undo" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
+                <MenuItem Header="_Redo" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>
                 <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="1"/>
                 <MenuItem Header="4 Directions" Command="{Binding Directions}" CommandParameter="4"/>
