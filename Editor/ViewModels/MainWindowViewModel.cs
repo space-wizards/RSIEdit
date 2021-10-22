@@ -28,7 +28,7 @@ namespace Editor.ViewModels
 
         public MainWindowViewModel()
         {
-            Preferences = Locator.Current.GetService<Preferences>();
+            Preferences = Locator.Current.GetService<Preferences>()!;
         }
 
         public Preferences Preferences { get; }
@@ -154,7 +154,7 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var minify = Locator.Current.GetService<Preferences>().MinifyJson;
+            var minify = Locator.Current.GetService<Preferences>()!.MinifyJson;
             var options = new JsonSerializerOptions
             {
                 WriteIndented = !minify,
