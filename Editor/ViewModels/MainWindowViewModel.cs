@@ -174,14 +174,14 @@ namespace Editor.ViewModels
         {
             if (rsi.SaveFolder == null)
             {
-                await SaveAs();
+                SaveAs();
                 return;
             }
 
             await SaveRsiToPath(rsi);
         }
 
-        public async Task Save()
+        public async void Save()
         {
             if (CurrentOpenRsi == null)
             {
@@ -190,14 +190,14 @@ namespace Editor.ViewModels
 
             if (CurrentOpenRsi.SaveFolder == null)
             {
-                await SaveAs();
+                SaveAs();
                 return;
             }
 
             await SaveRsiToPath(CurrentOpenRsi);
         }
 
-        private async Task SaveRsiAs(RsiItemViewModel rsi)
+        private async void SaveRsiAs(RsiItemViewModel rsi)
         {
             var path = await SaveRsiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(path))
@@ -210,17 +210,17 @@ namespace Editor.ViewModels
             await SaveRsiToPath(rsi);
         }
 
-        public async Task SaveAs()
+        public void SaveAs()
         {
             if (CurrentOpenRsi == null)
             {
                 return;
             }
 
-            await SaveRsiAs(CurrentOpenRsi);
+            SaveRsiAs(CurrentOpenRsi);
         }
 
-        public async Task SaveAll()
+        public async void SaveAll()
         {
             var path = await SaveRsiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(path))
@@ -269,7 +269,7 @@ namespace Editor.ViewModels
             LastOpenedElement = filePath;
         }
 
-        public async Task Import()
+        public async void Import()
         {
             var file = await ImportDmiDialog.Handle(Unit.Default);
             if (string.IsNullOrEmpty(file))
@@ -280,7 +280,7 @@ namespace Editor.ViewModels
             await ImportDmi(file);
         }
 
-        public async Task ReOpenLast()
+        public async void ReOpenLast()
         {
             if (LastOpenedElement != null)
             {
@@ -295,12 +295,12 @@ namespace Editor.ViewModels
             }
         }
 
-        public async Task OpenPreferences()
+        public async void OpenPreferences()
         {
             await PreferencesAction.Handle(Unit.Default);
         }
 
-        public async Task Undo()
+        public async void Undo()
         {
             if (CurrentOpenRsi != null &&
                 CurrentOpenRsi.TryRestore(out var selected))
@@ -309,7 +309,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async Task Redo()
+        public async void Redo()
         {
             if (CurrentOpenRsi != null &&
                 CurrentOpenRsi.TryRedoDelete(out var index))
@@ -318,7 +318,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async Task Directions(int amount)
+        public async void Directions(int amount)
         {
             if (CurrentOpenRsi != null)
             {
@@ -326,7 +326,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async Task ChangeAllLicenses()
+        public async void ChangeAllLicenses()
         {
             var license = await ChangeAllLicensesAction.Handle(Unit.Default);
             if (license == null)
@@ -340,7 +340,7 @@ namespace Editor.ViewModels
             }
         }
 
-        public async Task ChangeAllCopyrights()
+        public async void ChangeAllCopyrights()
         {
             var copyright = await ChangeAllCopyrightsAction.Handle(Unit.Default);
             if (copyright == null)
