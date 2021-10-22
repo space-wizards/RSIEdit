@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Logging;
+using Editor.Extensions;
 using Editor.Models;
 using Editor.Models.RSI;
 using Importer.Directions;
@@ -28,7 +29,7 @@ namespace Editor.ViewModels
 
         public MainWindowViewModel()
         {
-            Preferences = Locator.Current.GetService<Preferences>()!;
+            Preferences = Locator.Current.GetRequiredService<Preferences>();
         }
 
         public Preferences Preferences { get; }
