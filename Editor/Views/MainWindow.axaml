@@ -24,29 +24,29 @@
     </Window.KeyBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top" Name="Menu">
-            <MenuItem Header="File">
-                <MenuItem Header="New" Command="{Binding New}"/>
-                <MenuItem Header="Open" Command="{Binding Open}"/>
-                <MenuItem Header="Save" Command="{Binding Save}"/>
-                <MenuItem Header="Save As" Command="{Binding SaveAs}"/>
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding New}"/>
+                <MenuItem Header="_Open..." Command="{Binding Open}"/>
+                <MenuItem Header="_Save" Command="{Binding Save}"/>
+                <MenuItem Header="Save _As..." Command="{Binding SaveAs}"/>
                 <Separator/>
                 <MenuItem Header="Save All To" Command="{Binding SaveAll}"/>
                 <Separator/>
-                <MenuItem Header="Import DMI" Command="{Binding Import}"/>
-                <MenuItem Header="Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
+                <MenuItem Header="_Import DMI..." Command="{Binding Import}"/>
+                <MenuItem Header="_Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
-                <MenuItem Header="Preferences" Command="{Binding OpenPreferences}"/>
+                <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}"/>
             </MenuItem>
-            <MenuItem Header="Edit">
-                <MenuItem Header="Undo" Command="{Binding Undo}"/>
-                <MenuItem Header="Redo" Command="{Binding Redo}"/>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" Command="{Binding Undo}"/>
+                <MenuItem Header="_Redo" Command="{Binding Redo}"/>
                 <Separator/>
                 <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="1"/>
                 <MenuItem Header="4 Directions" Command="{Binding Directions}" CommandParameter="4"/>
                 <MenuItem Header="8 Directions" Command="{Binding Directions}" CommandParameter="8"/>
                 <Separator/>
-                <MenuItem Header="Change All Licenses" Command="{Binding ChangeAllLicenses}"/>
-                <MenuItem Header="Change All Copyrights" Command="{Binding ChangeAllCopyrights}"/>
+                <MenuItem Header="Change All Licenses..." Command="{Binding ChangeAllLicenses}"/>
+                <MenuItem Header="Change All Copyrights..." Command="{Binding ChangeAllCopyrights}"/>
             </MenuItem>
         </Menu>
         <Grid>
