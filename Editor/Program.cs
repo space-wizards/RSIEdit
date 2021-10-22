@@ -20,6 +20,7 @@ namespace Editor
             catch (Exception e)
             {
                 Logger.Sink.Log(LogEventLevel.Fatal, "MAIN", null, e.ToString());
+                throw;
             }
         }
 
