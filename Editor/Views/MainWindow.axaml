@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Editor.Views"
         xmlns:vm="clr-namespace:Editor.ViewModels"
+        xmlns:directions="clr-namespace:Importer.Directions;assembly=Importer"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="Editor.Views.MainWindow"
         Icon="/Assets/logo.ico"
@@ -51,9 +52,9 @@
                 <MenuItem Header="_Undo" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
                 <MenuItem Header="_Redo" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>
-                <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="1"/>
-                <MenuItem Header="4 Directions" Command="{Binding Directions}" CommandParameter="4"/>
-                <MenuItem Header="8 Directions" Command="{Binding Directions}" CommandParameter="8"/>
+                <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.None}"/>
+                <MenuItem Header="4 Directions (cardinal)" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Cardinal}"/>
+                <MenuItem Header="8 Directions (diagonal)" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Diagonal}"/>
                 <Separator/>
                 <MenuItem Header="Change All Licenses..." Command="{Binding ChangeAllLicenses}"/>
                 <MenuItem Header="Change All Copyrights..." Command="{Binding ChangeAllCopyrights}"/>

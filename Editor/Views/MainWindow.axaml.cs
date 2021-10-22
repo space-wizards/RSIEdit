@@ -16,7 +16,6 @@ using Avalonia.ReactiveUI;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views.Events;
-using Importer.Directions;
 using ReactiveUI;
 
 namespace Editor.Views
@@ -41,7 +40,6 @@ namespace Editor.Views
                 d.Add(vm.PreferencesAction.RegisterHandler(OpenPreferences));
                 d.Add(vm.UndoAction.RegisterHandler(Undo));
                 d.Add(vm.RedoAction.RegisterHandler(Redo));
-                d.Add(vm.DirectionsAction.RegisterHandler(ChangeDirections));
                 d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
                 d.Add(vm.ChangeAllLicensesAction.RegisterHandler(ChangeAllLicenses));
                 d.Add(vm.ChangeAllCopyrightsAction.RegisterHandler(ChangeAllCopyrights));
@@ -187,17 +185,6 @@ namespace Editor.Views
             }
 
             ViewModel.CurrentOpenRsi.ReselectState(interaction.Input);
-            interaction.SetOutput(Unit.Default);
-        }
-
-        private void ChangeDirections(InteractionContext<DirectionType, Unit> interaction)
-        {
-            if (ViewModel?.CurrentOpenRsi?.SelectedState == null)
-            {
-                return;
-            }
-
-            ViewModel.CurrentOpenRsi.SelectedState.Image.State.Directions = interaction.Input;
             interaction.SetOutput(Unit.Default);
         }
 

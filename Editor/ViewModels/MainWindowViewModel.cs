@@ -60,9 +60,7 @@ namespace Editor.ViewModels
         public Interaction<RsiStateViewModel, Unit> UndoAction { get; } = new();
 
         public Interaction<int, Unit> RedoAction { get; } = new();
-
-        public Interaction<DirectionType, Unit> DirectionsAction { get; } = new();
-
+        
         public Interaction<Unit, string?> ChangeAllLicensesAction { get; } = new();
 
         public Interaction<Unit, string?> ChangeAllCopyrightsAction { get; } = new();
@@ -318,11 +316,11 @@ namespace Editor.ViewModels
             }
         }
 
-        public async void Directions(int amount)
+        public void Directions(DirectionType directions)
         {
-            if (CurrentOpenRsi != null)
+            if (CurrentOpenRsi?.SelectedState != null)
             {
-                await DirectionsAction.Handle((DirectionType) amount);
+                CurrentOpenRsi.SelectedState.Image.State.Directions = directions;
             }
         }
 
