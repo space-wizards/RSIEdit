@@ -38,8 +38,6 @@ namespace Editor.Views
                 d.Add(vm.SaveRsiDialog.RegisterHandler(SaveRsi));
                 d.Add(vm.ImportDmiDialog.RegisterHandler(ImportDmi));
                 d.Add(vm.PreferencesAction.RegisterHandler(OpenPreferences));
-                d.Add(vm.UndoAction.RegisterHandler(Undo));
-                d.Add(vm.RedoAction.RegisterHandler(Redo));
                 d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
                 d.Add(vm.ChangeAllLicensesAction.RegisterHandler(ChangeAllLicenses));
                 d.Add(vm.ChangeAllCopyrightsAction.RegisterHandler(ChangeAllCopyrights));
@@ -163,29 +161,6 @@ namespace Editor.Views
             }
 
             arg.SetOutput(Unit.Default);
-        }
-
-        private void Undo(InteractionContext<RsiStateViewModel, Unit> interaction)
-        {
-            if (ViewModel?.CurrentOpenRsi == null)
-            {
-                return;
-            }
-
-            var restoredModel = interaction.Input;
-            ViewModel.CurrentOpenRsi.SelectedState = restoredModel;
-            interaction.SetOutput(Unit.Default);
-        }
-
-        private void Redo(InteractionContext<int, Unit> interaction)
-        {
-            if (ViewModel?.CurrentOpenRsi == null)
-            {
-                return;
-            }
-
-            ViewModel.CurrentOpenRsi.ReselectState(interaction.Input);
-            interaction.SetOutput(Unit.Default);
         }
 
         private async Task ShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)

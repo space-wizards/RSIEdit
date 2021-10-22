@@ -57,10 +57,6 @@ namespace Editor.ViewModels
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
-        public Interaction<RsiStateViewModel, Unit> UndoAction { get; } = new();
-
-        public Interaction<int, Unit> RedoAction { get; } = new();
-        
         public Interaction<Unit, string?> ChangeAllLicensesAction { get; } = new();
 
         public Interaction<Unit, string?> ChangeAllCopyrightsAction { get; } = new();
@@ -298,21 +294,21 @@ namespace Editor.ViewModels
             await PreferencesAction.Handle(Unit.Default);
         }
 
-        public async void Undo()
+        public void Undo()
         {
             if (CurrentOpenRsi != null &&
                 CurrentOpenRsi.TryRestore(out var selected))
             {
-                await UndoAction.Handle(selected);
+                CurrentOpenRsi.SelectedState = selected;
             }
         }
 
-        public async void Redo()
+        public void Redo()
         {
             if (CurrentOpenRsi != null &&
                 CurrentOpenRsi.TryRedoDelete(out var index))
             {
-                await RedoAction.Handle(index);
+                CurrentOpenRsi.ReselectState(index);
             }
         }
 
