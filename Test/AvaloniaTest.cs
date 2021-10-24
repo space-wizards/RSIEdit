@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Headless;
-using Avalonia.ReactiveUI;
 using Avalonia.Threading;
+using Editor.ViewModels;
 using Editor.Views;
 using NUnit.Framework;
 
@@ -12,56 +9,23 @@ namespace Test
 {
     public class AvaloniaTest
     {
-        private static TestApp? _app;
+        protected static TestApp App => GlobalSetup.App ?? throw new NullReferenceException();
 
-        protected static TestApp App => _app ?? throw new NullReferenceException();
+        protected static MainWindow Window => App.MainWindow();
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            var tcs = new TaskCompletionSource<SynchronizationContext>();
-
-            var app = AppBuilder
-                .Configure<TestApp>()
-                .UsePlatformDetect()
-                .UseReactiveUI()
-                .AfterSetup(builder =>
-                {
-                    _app = (TestApp) builder.Instance;
-                    tcs.SetResult(SynchronizationContext.Current!);
-                })
-                .UseHeadless();
-
-            var thread = new Thread(() => app.StartWithClassicDesktopLifetime(Array.Empty<string>()))
-            {
-                IsBackground = true
-            };
-
-            thread.Start();
-
-            SynchronizationContext.SetSynchronizationContext(tcs.Task.Result);
-        }
-
-        [OneTimeTearDown]
-        public async Task OneTimeTearDown()
-        {
-            await Post(() =>
-            {
-                _app?.Shutdown();
-            });
-        }
+        protected static MainWindowViewModel Vm => Window.ViewModel ?? throw new NullReferenceException();
 
         [TearDown]
         public async Task TearDown()
         {
-            if (_app == null)
+            if (GlobalSetup.App == null)
             {
                 return;
             }
 
             await Post(() =>
             {
-                var lifetime = _app.Lifetime();
+                var lifetime = App.Lifetime();
                 foreach (var window in lifetime.Windows)
                 {
                     if (window is MainWindow)
@@ -72,11 +36,16 @@ namespace Test
                     window.Close();
                 }
                 
-                _app.MainWindow().ViewModel!.Reset();
+                App.MainWindow().ViewModel!.Reset();
             });
         }
 
-        protected async Task Post(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+        public static async Task Post(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+        {
+            await Dispatcher.UIThread.InvokeAsync(action, priority);
+        }
+
+        public static async Task Post(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Normal)
         {
             await Dispatcher.UIThread.InvokeAsync(action, priority);
         }

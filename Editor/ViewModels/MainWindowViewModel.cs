@@ -64,7 +64,7 @@ namespace Editor.ViewModels
 
         public void Reset()
         {
-            foreach (var rsi in OpenRsis)
+            foreach (var rsi in OpenRsis.ToArray())
             {
                 CloseRsi(rsi);
             }
