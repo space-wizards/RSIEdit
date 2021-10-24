@@ -11,6 +11,9 @@
         Title="RSI Editor"
         DragDrop.AllowDrop="True"
         Height="776">
+    <Window.DataContext>
+        <vm:MainWindowViewModel/>
+    </Window.DataContext>
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+N"
                     Command="{Binding New}"/>
