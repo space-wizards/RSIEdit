@@ -27,4 +27,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore /m
     - name: Test
-      run: dotnet test --no-build Test/Test.csproj -v n
+      run: dotnet test --no-restore -v n
