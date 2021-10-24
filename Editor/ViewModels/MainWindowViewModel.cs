@@ -62,6 +62,17 @@ namespace Editor.ViewModels
 
         public Interaction<Unit, string?> ChangeAllCopyrightsAction { get; } = new();
 
+        public void Reset()
+        {
+            foreach (var rsi in OpenRsis)
+            {
+                CloseRsi(rsi);
+            }
+
+            CurrentOpenRsi = null;
+            LastOpenedElement = null;
+        }
+        
         private void AddRsi(RsiItemViewModel vm)
         {
             OpenRsis.Add(vm);

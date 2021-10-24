@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer", "RSI.NET\Importe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Tests", "RSI.NET\Importer.Tests\Importer.Tests.csproj", "{15AA1A86-D41C-4EE3-8215-8A88565218BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{5DF038CC-947D-4934-B3FB-F396EE66818D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{15AA1A86-D41C-4EE3-8215-8A88565218BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15AA1A86-D41C-4EE3-8215-8A88565218BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15AA1A86-D41C-4EE3-8215-8A88565218BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5DF038CC-947D-4934-B3FB-F396EE66818D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5DF038CC-947D-4934-B3FB-F396EE66818D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5DF038CC-947D-4934-B3FB-F396EE66818D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5DF038CC-947D-4934-B3FB-F396EE66818D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E67B73FB-A5C1-4BB3-8B9A-BC8ACCCC9C53} = {E672785F-8DCC-4F52-A23A-4BF88AE06EAD}
