@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -26,6 +27,7 @@ namespace Editor.ViewModels
         private static readonly PngDecoder PngDecoder = new();
 
         private RsiItemViewModel? _currentOpenRsi;
+        private readonly ObservableCollection<RsiItemViewModel> _openRsis = new();
 
         public MainWindowViewModel()
         {
@@ -38,7 +40,7 @@ namespace Editor.ViewModels
 
         private string? LastOpenedElement { get; set; }
 
-        private ObservableCollection<RsiItemViewModel> OpenRsis { get; } = new();
+        public IReadOnlyList<RsiItemViewModel> OpenRsis => _openRsis;
 
         public RsiItemViewModel? CurrentOpenRsi
         {
@@ -64,7 +66,7 @@ namespace Editor.ViewModels
 
         public void Reset()
         {
-            foreach (var rsi in OpenRsis.ToArray())
+            foreach (var rsi in _openRsis.ToArray())
             {
                 CloseRsi(rsi);
             }
@@ -75,13 +77,13 @@ namespace Editor.ViewModels
         
         private void AddRsi(RsiItemViewModel vm)
         {
-            OpenRsis.Add(vm);
+            _openRsis.Add(vm);
             CurrentOpenRsi = vm;
         }
 
         public void CloseRsi(RsiItemViewModel vm)
         {
-            if (OpenRsis.Remove(vm) && CurrentOpenRsi == vm)
+            if (_openRsis.Remove(vm) && CurrentOpenRsi == vm)
             {
                 CurrentOpenRsi = null;
             }
@@ -234,7 +236,7 @@ namespace Editor.ViewModels
                 return;
             }
 
-            foreach (var rsi in OpenRsis)
+            foreach (var rsi in _openRsis)
             {
                 rsi.SaveFolder = $"{path}{Path.DirectorySeparatorChar}{rsi.Title}";
                 await SaveRsi(rsi);
@@ -340,7 +342,7 @@ namespace Editor.ViewModels
                 return;
             }
 
-            foreach (var rsi in OpenRsis)
+            foreach (var rsi in _openRsis)
             {
                 rsi.License = license;
             }
@@ -354,7 +356,7 @@ namespace Editor.ViewModels
                 return;
             }
 
-            foreach (var rsi in OpenRsis)
+            foreach (var rsi in _openRsis)
             {
                 rsi.Copyright = copyright;
             }
