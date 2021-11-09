@@ -17,7 +17,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.*
+        dotnet-version: 6.0.100
 
     - name: Create Windows Release
       run: dotnet publish Editor -c Release -r win-x64 -p:PublishSingleFile=true --self-contained true -p:UseAppHost=true -o Publish/Editor_Windows
