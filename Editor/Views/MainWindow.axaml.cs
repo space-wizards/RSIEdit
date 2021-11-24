@@ -17,6 +17,7 @@ using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views.Events;
 using ReactiveUI;
+using SixLabors.ImageSharp;
 
 namespace Editor.Views
 {
@@ -45,6 +46,7 @@ namespace Editor.Views
 
             ShowErrorEvent.AddClassHandler<MainWindow>(OnShowError);
             OpenFileEvent.AddClassHandler<MainWindow>(OnOpenFile);
+            SaveFileEvent.AddClassHandler<MainWindow>(OnSaveFile);
             AskConfirmationEvent.AddClassHandler<MainWindow>(OnAskConfirmation);
             CloseRsiEvent.AddClassHandler<MainWindow>(OnCloseRsi);
             GetMainWindowEvent.AddClassHandler<MainWindow>(OnGetMainWindow);
@@ -57,6 +59,9 @@ namespace Editor.Views
 
         public static RoutedEvent<OpenFileDialogEvent> OpenFileEvent { get; } =
             RoutedEvent.Register<MainWindow, OpenFileDialogEvent>(nameof(OpenFileEvent), RoutingStrategies.Bubble);
+
+        public static RoutedEvent<SaveFileDialogEvent> SaveFileEvent { get; } =
+            RoutedEvent.Register<MainWindow, SaveFileDialogEvent>(nameof(SaveFileEvent), RoutingStrategies.Bubble);
 
         public static RoutedEvent<AskConfirmationEvent> AskConfirmationEvent { get; } =
             RoutedEvent.Register<MainWindow, AskConfirmationEvent>(nameof(AskConfirmationEvent), RoutingStrategies.Bubble);
@@ -252,6 +257,16 @@ namespace Editor.Views
         {
             var files = args.Dialog.ShowAsync(window).Result;
             args.Files = files;
+        }
+        
+        private async void OnSaveFile(MainWindow window, SaveFileDialogEvent args)
+        {
+            var path = await args.Dialog.ShowAsync(window);
+
+            if (path != null)
+            {
+                await args.Png.SaveAsPngAsync(path);
+            }
         }
 
         private void OnAskConfirmation(MainWindow window, AskConfirmationEvent args)
