@@ -25,11 +25,16 @@ namespace Editor.Views
             this.WhenActivated(d =>
             {
                 d.Add(this.WhenAnyValue(x => x.ViewModel)
-                    .Subscribe(new AnonymousObserver<RsiItemViewModel?>(newVm =>
+                    .Subscribe(new AnonymousObserver<RsiItemViewModel?>(vm =>
                     {
-                        if (newVm != null)
+                        if (vm != null)
                         {
-                            AddDisposables(d, newVm);
+                            d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
+                            d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
+                            d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
+                            d.Add(vm.CloseInteraction.RegisterHandler(Close));
+                            d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
+                            d.Add(vm);
                         }
                     })));
             });
@@ -38,16 +43,6 @@ namespace Editor.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-        }
-
-        private void AddDisposables(CompositeDisposable d, RsiItemViewModel vm)
-        {
-            d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
-            d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
-            d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
-            d.Add(vm.CloseInteraction.RegisterHandler(Close));
-            d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
-            d.Add(vm);
         }
 
         private void ShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
