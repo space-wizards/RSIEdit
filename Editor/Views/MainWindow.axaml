@@ -48,6 +48,7 @@
                 <Separator/>
                 <MenuItem Header="_Import DMI..." Command="{Binding Import}" InputGesture="Ctrl+I"/>
                 <MenuItem Header="_Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
+                <MenuItem Header="_Open Current RSI Folder" Command="{Binding OpenCurrentRsi}"/>
                 <Separator/>
                 <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
             </MenuItem>

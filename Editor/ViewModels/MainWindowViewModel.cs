@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Avalonia.Logging;
@@ -47,7 +49,7 @@ namespace Editor.ViewModels
             get => _currentOpenRsi;
             set => this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
         }
-
+        
         public Interaction<Unit, bool> NewRsiAction { get; } = new();
 
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
@@ -299,6 +301,25 @@ namespace Editor.ViewModels
                 else
                 {
                     await ImportDmi(LastOpenedElement);
+                }
+            }
+        }
+
+        public void OpenCurrentRsi()
+        {
+            if (CurrentOpenRsi != null && CurrentOpenRsi.SaveFolder != null)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Process.Start("explorer", CurrentOpenRsi.SaveFolder);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", CurrentOpenRsi.SaveFolder);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", CurrentOpenRsi.SaveFolder);
                 }
             }
         }
