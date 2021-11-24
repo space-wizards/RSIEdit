@@ -24,15 +24,17 @@ namespace Editor.Views
 
             this.WhenActivated(d =>
             {
-                var vm = ViewModel!;
-
-                AddDisposables(d, vm);
                 d.Add(this.WhenAnyValue(x => x.ViewModel)
-                    .Subscribe(new AnonymousObserver<RsiItemViewModel?>(newVm =>
+                    .Subscribe(new AnonymousObserver<RsiItemViewModel?>(vm =>
                     {
-                        if (newVm != null)
+                        if (vm != null)
                         {
-                            AddDisposables(d, newVm);
+                            d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
+                            d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
+                            d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
+                            d.Add(vm.CloseInteraction.RegisterHandler(Close));
+                            d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
+                            d.Add(vm);
                         }
                     })));
             });
@@ -41,16 +43,6 @@ namespace Editor.Views
         private void InitializeComponent()
         {
             AvaloniaXamlLoader.Load(this);
-        }
-
-        private void AddDisposables(CompositeDisposable d, RsiItemViewModel vm)
-        {
-            d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
-            d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
-            d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
-            d.Add(vm.CloseInteraction.RegisterHandler(Close));
-            d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
-            d.Add(vm);
         }
 
         private void ShowError(InteractionContext<ErrorWindowViewModel, Unit> interaction)
@@ -91,7 +83,7 @@ namespace Editor.Views
             var dialog = new SaveFileDialog
             {
                 DefaultExtension = "png",
-                InitialFileName = ViewModel?.SelectedState?.Image.State.Name ?? string.Empty,
+                InitialFileName = ViewModel?.SelectedStates[0].Image.State.Name ?? string.Empty,
             };
             
             var args = new SaveFileDialogEvent(dialog, interaction.Input) { RoutedEvent = MainWindow.SaveFileEvent };
