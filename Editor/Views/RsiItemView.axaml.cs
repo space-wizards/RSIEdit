@@ -24,9 +24,6 @@ namespace Editor.Views
 
             this.WhenActivated(d =>
             {
-                var vm = ViewModel!;
-
-                AddDisposables(d, vm);
                 d.Add(this.WhenAnyValue(x => x.ViewModel)
                     .Subscribe(new AnonymousObserver<RsiItemViewModel?>(newVm =>
                     {
