@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
@@ -9,6 +10,8 @@ using Avalonia.ReactiveUI;
 using Editor.ViewModels;
 using Editor.Views.Events;
 using ReactiveUI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Editor.Views
 {
@@ -43,6 +46,7 @@ namespace Editor.Views
         private void AddDisposables(CompositeDisposable d, RsiItemViewModel vm)
         {
             d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
+            d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
             d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
             d.Add(vm.CloseInteraction.RegisterHandler(Close));
             d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
@@ -75,6 +79,24 @@ namespace Editor.Views
             RaiseEvent(args);
 
             interaction.SetOutput(args.Files.FirstOrDefault() ?? string.Empty);
+        }
+
+        private void ExportPng(InteractionContext<Image<Rgba32>, Unit> interaction)
+        {
+            if (ViewModel is null)
+            {
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                DefaultExtension = "png",
+                InitialFileName = ViewModel?.SelectedState?.Image.State.Name ?? string.Empty,
+            };
+            
+            var args = new SaveFileDialogEvent(dialog, interaction.Input) { RoutedEvent = MainWindow.SaveFileEvent };
+            RaiseEvent(args);
+            
         }
 
         private void Close(InteractionContext<RsiItemViewModel, Unit> interaction)
