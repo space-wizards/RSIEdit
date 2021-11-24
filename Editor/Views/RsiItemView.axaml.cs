@@ -91,7 +91,7 @@ namespace Editor.Views
             var dialog = new SaveFileDialog
             {
                 DefaultExtension = "png",
-                InitialFileName = ViewModel?.SelectedState?.Image.State.Name ?? string.Empty,
+                InitialFileName = ViewModel?.SelectedStates[0].Image.State.Name ?? string.Empty,
             };
             
             var args = new SaveFileDialogEvent(dialog, interaction.Input) { RoutedEvent = MainWindow.SaveFileEvent };

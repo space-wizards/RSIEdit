@@ -296,10 +296,7 @@ namespace Editor.ViewModels
 
         public async Task ExportPng()
         {
-            if (SelectedState == null)
-                return;
-
-            var png = SelectedState.Image.State.GetFullImage(Item.Size);
+            var png = SelectedStates[0].Image.State.GetFullImage(Item.Size);
             
             await ExportPngInteraction.Handle(png);
         }
