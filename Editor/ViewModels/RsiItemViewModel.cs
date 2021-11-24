@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -22,8 +20,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
-using Color = System.Drawing.Color;
-using Image = System.Drawing.Image;
+using ImageExtensions = Editor.Extensions.ImageExtensions;
 using Size = SixLabors.ImageSharp.Size;
 
 namespace Editor.ViewModels
@@ -57,15 +54,7 @@ namespace Editor.ViewModels
 
             SelectedStates.CollectionChanged += OnStateModified;
 
-            var bitmap = new System.Drawing.Bitmap(Item.Size.X, Item.Size.Y);
-
-            var g = Graphics.FromImage(bitmap);
-            g.Clear(Color.Transparent);
-            g.Flush();
-
-            bitmap.Save(EmptyStream, ImageFormat.Png);
-
-            _blankFrame = new Bitmap(EmptyStream);
+            _blankFrame = CreateEmptyBitmap();
             Frames = new RsiFramesViewModel(_blankFrame, null);
 
             foreach (var state in Item.Rsi.States)
@@ -77,15 +66,6 @@ namespace Editor.ViewModels
                 var image = new RsiImage(state, preview);
 
                 States.Add(new RsiStateViewModel(image));
-            }
-        }
-
-        private MemoryStream EmptyStream
-        {
-            get
-            {
-                _emptyStream.Seek(0, SeekOrigin.Begin);
-                return _emptyStream;
             }
         }
 
@@ -214,7 +194,7 @@ namespace Editor.ViewModels
             Bitmap bitmap;
             if (string.IsNullOrEmpty(pngFilePath))
             {
-                bitmap = new Bitmap(EmptyStream);
+                bitmap = CreateEmptyBitmap();
             }
             else
             {
@@ -433,6 +413,18 @@ namespace Editor.ViewModels
 
         }
 
+        private Bitmap CreateEmptyBitmap()
+        {
+            var (width, height) = Item.Size;
+            var bufLength = width * height;
+            var buf = ArrayPool<Rgba32>.Shared.Rent(bufLength);
+            Array.Clear(buf);
+            var bitmap = ImageExtensions.SpanToBitmap<Rgba32>(buf.AsSpan(0, bufLength), width, height);
+            ArrayPool<Rgba32>.Shared.Return(buf);
+
+            return bitmap;
+        }
+        
         public void Dispose()
         {
             _emptyStream.Dispose();

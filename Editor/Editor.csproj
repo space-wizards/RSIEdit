@@ -7,6 +7,7 @@
     <Version>0.2.1</Version>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <LangVersion>10</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Models/" />
