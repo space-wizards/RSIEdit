@@ -49,7 +49,6 @@ namespace Editor.ViewModels
             get => _currentOpenRsi;
             set => this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
         }
-        
         public Interaction<Unit, bool> NewRsiAction { get; } = new();
 
         public Interaction<Unit, string> OpenRsiDialog { get; } = new();
