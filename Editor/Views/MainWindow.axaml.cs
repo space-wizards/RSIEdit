@@ -145,9 +145,9 @@ namespace Editor.Views
         
         private async Task ImportDmiFolder(InteractionContext<Unit, string> interaction)
         {
-            var dialog = new OpenFolderDialog()
+            var dialog = new OpenFolderDialog
             {
-                Title = "Import DMI directory",
+                Title = "Convert directory",
             };
             
             var folder = await dialog.ShowAsync(this);
