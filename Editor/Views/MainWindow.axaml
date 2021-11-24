@@ -46,7 +46,11 @@
                 <Separator/>
                 <MenuItem Header="Save All To" Command="{Binding SaveAll}"/>
                 <Separator/>
-                <MenuItem Header="_Import DMI..." Command="{Binding Import}" InputGesture="Ctrl+I"/>
+                <MenuItem Header="_Convert DMI...">
+                    <MenuItem Header="File" Command="{Binding SingleConvertDMI}"/>
+                    <MenuItem Header="Folder" Command="{Binding BulkConvertDMI}"/>
+                </MenuItem>
+                <MenuItem Header="_Import DMI" Command="{Binding Import}" InputGesture="Ctrl+I"/>
                 <MenuItem Header="_Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <Separator/>
                 <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
