@@ -101,6 +101,8 @@ namespace Editor.ViewModels
 
         public Interaction<Unit, string> ImportPngInteraction { get; } = new();
 
+        public Interaction<Image<Rgba32>, Unit> ExportPngInteraction { get; } = new();
+
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
 
         public Interaction<RsiItemViewModel, Unit> CloseInteraction { get; } = new();
@@ -290,6 +292,16 @@ namespace Editor.ViewModels
             
             RefreshFrames();
             UpdateImageState(SelectedStates[0]);
+        }
+
+        public async Task ExportPng()
+        {
+            if (SelectedState == null)
+                return;
+
+            var png = SelectedState.Image.State.GetFullImage(Item.Size);
+            
+            await ExportPngInteraction.Handle(png);
         }
 
         public void DeleteSelectedStates()
