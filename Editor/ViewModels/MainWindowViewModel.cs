@@ -313,7 +313,7 @@ namespace Editor.ViewModels
             if (CurrentOpenRsi != null &&
                 CurrentOpenRsi.TryRestore(out var selected))
             {
-                CurrentOpenRsi.SelectedState = selected;
+                CurrentOpenRsi.SelectedStates.Add(selected);
             }
         }
 
@@ -328,9 +328,12 @@ namespace Editor.ViewModels
 
         public void Directions(DirectionType directions)
         {
-            if (CurrentOpenRsi?.SelectedState != null)
+            if (CurrentOpenRsi != null && CurrentOpenRsi.SelectedStates.Count != 0)
             {
-                CurrentOpenRsi.SelectedState.Image.State.Directions = directions;
+                foreach (var state in CurrentOpenRsi.SelectedStates)
+                {
+                    state.Image.State.Directions = directions;
+                }
             }
         }
 
@@ -364,7 +367,7 @@ namespace Editor.ViewModels
 
         public void Delete()
         {
-            CurrentOpenRsi?.DeleteSelectedState();
+            CurrentOpenRsi?.DeleteSelectedStates();
         }
     }
 }

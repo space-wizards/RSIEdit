@@ -10,12 +10,12 @@
             <Panel Height="120">
                 <views:RsiFramesView Name="Frames" Content="{Binding Frames}"/>
             </Panel>
-            <ListBox Name="States" Items="{Binding States}" SelectedItem="{Binding SelectedState}" Height="480">
+            <ListBox Name="States" SelectionMode="Multiple" Items="{Binding States}" SelectedItems="{Binding SelectedStates}" Height="480">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add new state" Command="{Binding CreateNewState}"/>
                         <MenuItem Header="Import PNG" Command="{Binding ImportPng}"/>
-                        <MenuItem Header="Delete" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteSelectedState}" InputGesture="Delete" />
+                        <MenuItem Header="Delete" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteSelectedStates}" InputGesture="Delete" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemsPanel>

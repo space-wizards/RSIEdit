@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -41,8 +44,9 @@ namespace Editor.ViewModels
         private readonly MemoryStream _emptyStream = new();
         private readonly Bitmap _blankFrame;
 
-        private RsiStateViewModel? _selectedState;
+        private ObservableCollection<RsiStateViewModel> _selectedStates = new();
         private bool _hasStateSelected;
+        private bool _hasOneStateSelected;
         private string _title;
         private ComboBoxItem? _selectedLicense;
 
@@ -50,6 +54,8 @@ namespace Editor.ViewModels
         {
             _title = title;
             Item = item ?? new RsiItem();
+
+            SelectedStates.CollectionChanged += OnStateModified;
 
             var bitmap = new System.Drawing.Bitmap(Item.Size.X, Item.Size.Y);
 
@@ -104,15 +110,12 @@ namespace Editor.ViewModels
 
         public ObservableCollection<RsiStateViewModel> States { get; } = new();
 
-        public RsiStateViewModel? SelectedState
+        public ObservableCollection<RsiStateViewModel> SelectedStates
         {
-            get => _selectedState;
+            get => _selectedStates;
             set
             {
-                this.RaiseAndSetIfChanged(ref _selectedState, value);
-
-                HasStateSelected = value != null;
-                RefreshFrames();
+                this.RaiseAndSetIfChanged(ref _selectedStates, value);
             }
         }
 
@@ -120,6 +123,12 @@ namespace Editor.ViewModels
         {
             get => _hasStateSelected;
             set => this.RaiseAndSetIfChanged(ref _hasStateSelected, value);
+        }
+
+        public bool HasOneStateSelected
+        {
+            get => _hasOneStateSelected;
+            set => this.RaiseAndSetIfChanged(ref _hasOneStateSelected, value);
         }
 
         public RsiFramesViewModel Frames { get; }
@@ -186,6 +195,13 @@ namespace Editor.ViewModels
 
         private CircularBuffer<RsiStateViewModel> Restored { get; } = new(RestoredBufferSize);
 
+        public void OnStateModified(object? obj, NotifyCollectionChangedEventArgs args)
+        {
+            HasStateSelected = SelectedStates.Count != 0;
+            HasOneStateSelected = SelectedStates.Count == 1;
+            RefreshFrames();
+        }
+
         public async Task CreateNewState(string? pngFilePath = null)
         {
             var state = new RsiState
@@ -224,7 +240,7 @@ namespace Editor.ViewModels
 
         public async Task ImportPng()
         {
-            if (SelectedState == null)
+            if (!HasOneStateSelected)
             {
                 return;
             }
@@ -255,13 +271,13 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var oldBitmap = SelectedState.Image.Preview;
+            var oldBitmap = SelectedStates[0].Image.Preview;
             if (oldBitmap != _blankFrame)
             {
                 oldBitmap.Dispose();
             }
             
-            SelectedState.Image.Preview = png;
+            SelectedStates[0].Image.Preview = png;
             
             await using var memoryStream = new MemoryStream();
             png.Save(memoryStream);
@@ -270,22 +286,25 @@ namespace Editor.ViewModels
 
             var frame = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(memoryStream);
 
-            SelectedState.Image.State.LoadImage(frame, Item.Size);
+            SelectedStates[0].Image.State.LoadImage(frame, Item.Size);
             
             RefreshFrames();
-            UpdateImageState(SelectedState);
+            UpdateImageState(SelectedStates[0]);
         }
 
-        public void DeleteSelectedState()
+        public void DeleteSelectedStates()
         {
-            if (_selectedState == null)
+            if (_selectedStates.Count == 0)
             {
                 return;
             }
 
-            if (TryDelete(_selectedState, out var index))
+            foreach (var state in _selectedStates.ToArray())
             {
-                ReselectState(index);
+                if (TryDelete(state, out var index))
+                {
+                    ReselectState(index);
+                }
             }
         }
 
@@ -319,9 +338,9 @@ namespace Editor.ViewModels
                 return false;
             }
 
-            if (SelectedState == stateVm)
+            if (SelectedStates.Contains(stateVm))
             {
-                SelectedState = null;
+                SelectedStates.Remove(stateVm);
             }
 
             Deleted.PushFront((stateVm, index));
@@ -371,13 +390,13 @@ namespace Editor.ViewModels
 
             if (nextSelectedState != null)
             {
-                SelectedState = States[nextSelectedState.Value];
+                SelectedStates.Add(States[nextSelectedState.Value]);;
             }
         }
 
         private void RefreshFrames()
         {
-            if (SelectedState == null)
+            if (SelectedStates.Count == 0)
             {
                 for (var i = 0; i < 8; i++)
                 {
@@ -389,16 +408,20 @@ namespace Editor.ViewModels
                 return;
             }
 
-            var image = SelectedState.Image;
-            var state = image.State;
-
-            for (var direction = 0; direction < (int) state.Directions; direction++)
+            foreach (var state in SelectedStates)
             {
-                var frame = state.Frames[direction, 0]?.ToBitmap(PreviewResizeOptions) ?? _blankFrame;
-                Frames.Set((Direction) direction, frame);
+                var image = state.Image;
+                var rsiState = image.State;
+
+                for (var direction = 0; direction < (int) rsiState.Directions; direction++)
+                {
+                    var frame = rsiState.Frames[direction, 0]?.ToBitmap(PreviewResizeOptions) ?? _blankFrame;
+                    Frames.Set((Direction) direction, frame);
+                }
+
+                Frames.SetDirections(rsiState.Directions);
             }
 
-            Frames.SetDirections(state.Directions);
         }
 
         public void Dispose()
