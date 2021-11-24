@@ -284,32 +284,6 @@ namespace Editor.ViewModels
             Logger.Sink.Log(LogEventLevel.Information, "MAIN", null, $"Converted {rsis.Count} DMIs to RSIs");
         }
 
-        private async Task LoadRSIs(string directory, List<(Rsi, string)> rsis)
-        {
-            foreach (var (dmiPath, rsiPath) in GetDMIFiles(directory))
-            {
-                var rsi = await LoadDmi(dmiPath);
-
-                if (rsi == null) continue;
-
-                rsis.Add((rsi, rsiPath));
-            }
-        }
-
-        private IEnumerable<(string DMI, string RSI)> GetDMIFiles(string directory)
-        {
-            foreach (var fn in Directory.GetFiles(directory))
-            {
-                if (Path.GetExtension(fn) != ".dmi") continue;
-                
-                var targetPath = Path.ChangeExtension(fn, "rsi");
-
-                if (Directory.Exists(targetPath)) continue;
-
-                yield return (fn, targetPath);
-            }
-        }
-
         public async void Import()
         {
             var file = await ImportDmiDialog.Handle(Unit.Default);
@@ -405,6 +379,32 @@ namespace Editor.ViewModels
         }
         
         #endregion
+        
+        private async Task LoadRSIs(string directory, List<(Rsi, string)> rsis)
+        {
+            foreach (var (dmiPath, rsiPath) in GetDMIFiles(directory))
+            {
+                var rsi = await LoadDmi(dmiPath);
+
+                if (rsi == null) continue;
+
+                rsis.Add((rsi, rsiPath));
+            }
+        }
+
+        private IEnumerable<(string DMI, string RSI)> GetDMIFiles(string directory)
+        {
+            foreach (var fn in Directory.GetFiles(directory))
+            {
+                if (Path.GetExtension(fn) != ".dmi") continue;
+                
+                var targetPath = Path.ChangeExtension(fn, "rsi");
+
+                if (Directory.Exists(targetPath)) continue;
+
+                yield return (fn, targetPath);
+            }
+        }
         
         private async void SaveRsiAs(RsiItemViewModel rsi)
         {
