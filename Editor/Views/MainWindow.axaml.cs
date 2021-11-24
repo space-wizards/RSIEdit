@@ -38,6 +38,7 @@ namespace Editor.Views
                 d.Add(vm.OpenRsiDialog.RegisterHandler(OpenRsi));
                 d.Add(vm.SaveRsiDialog.RegisterHandler(SaveRsi));
                 d.Add(vm.ImportDmiDialog.RegisterHandler(ImportDmi));
+                d.Add(vm.ImportDmiFolderDialog.RegisterHandler(ImportDmiFolder));
                 d.Add(vm.PreferencesAction.RegisterHandler(OpenPreferences));
                 d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
                 d.Add(vm.ChangeAllLicensesAction.RegisterHandler(ChangeAllLicenses));
@@ -140,6 +141,18 @@ namespace Editor.Views
             var files = await dialog.ShowAsync(this);
 
             interaction.SetOutput(files.Length > 0 ? files[0] : string.Empty);
+        }
+        
+        private async Task ImportDmiFolder(InteractionContext<Unit, string> interaction)
+        {
+            var dialog = new OpenFolderDialog
+            {
+                Title = "Convert directory",
+            };
+            
+            var folder = await dialog.ShowAsync(this);
+
+            interaction.SetOutput(folder);
         }
 
         private async Task OpenPreferences(InteractionContext<Unit, Unit> arg)

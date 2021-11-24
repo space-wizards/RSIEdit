@@ -8,6 +8,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Avalonia.Logging;
 using Editor.Extensions;
@@ -57,6 +58,8 @@ namespace Editor.ViewModels
 
         public Interaction<Unit, string> ImportDmiDialog { get; } = new();
 
+        public Interaction<Unit, string> ImportDmiFolderDialog { get; } = new();
+
         public Interaction<Unit, Unit> PreferencesAction { get; } = new();
 
         public Interaction<ErrorWindowViewModel, Unit> ErrorDialog { get; } = new();
@@ -89,6 +92,8 @@ namespace Editor.ViewModels
                 CurrentOpenRsi = null;
             }
         }
+        
+        #region File
 
         public async Task New()
         {
@@ -162,34 +167,6 @@ namespace Editor.ViewModels
             await OpenRsi(folder);
         }
 
-        private async Task SaveRsiToPath(RsiItemViewModel rsi)
-        {
-            if (rsi.SaveFolder == null)
-            {
-                return;
-            }
-
-            var minify = Locator.Current.GetService<Preferences>()!.MinifyJson;
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = !minify,
-                IgnoreNullValues = true
-            };
-
-            await rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder, options);
-        }
-
-        private async Task SaveRsi(RsiItemViewModel rsi)
-        {
-            if (rsi.SaveFolder == null)
-            {
-                SaveAs();
-                return;
-            }
-
-            await SaveRsiToPath(rsi);
-        }
-
         public async void Save()
         {
             if (CurrentOpenRsi == null)
@@ -204,19 +181,6 @@ namespace Editor.ViewModels
             }
 
             await SaveRsiToPath(CurrentOpenRsi);
-        }
-
-        private async void SaveRsiAs(RsiItemViewModel rsi)
-        {
-            var path = await SaveRsiDialog.Handle(Unit.Default);
-            if (string.IsNullOrEmpty(path))
-            {
-                return;
-            }
-
-            rsi.SaveFolder = path;
-            rsi.Title = Path.GetFileName(path);
-            await SaveRsiToPath(rsi);
         }
 
         public void SaveAs()
@@ -246,25 +210,10 @@ namespace Editor.ViewModels
 
         public async Task ImportDmi(string filePath)
         {
-            if (!DmiParser.TryGetFileMetadata(filePath, out var metadata, out var parseError))
-            {
-                await ErrorDialog.Handle(new ErrorWindowViewModel(parseError.Message));
-                return;
-            }
+            var rsi = await LoadDmi(filePath);
 
-            Image<Rgba32> dmi;
-            try
-            {
-                dmi = Image.Load<Rgba32>(filePath, PngDecoder);
-            }
-            catch (Exception e)
-            {
-                Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading dmi image:\n{e.Message}"));
-                return;
-            }
+            if (rsi == null) return;
 
-            var rsi = metadata.ToRsi(dmi);
             var rsiItem = new RsiItem(rsi);
             var name = Path.GetFileNameWithoutExtension(filePath);
             var rsiVm = new RsiItemViewModel(name, rsiItem)
@@ -276,6 +225,64 @@ namespace Editor.ViewModels
 
             AddRsi(rsiVm);
             LastOpenedElement = filePath;
+        }
+
+        public async void SingleConvertDMI()
+        {
+            var file = await ImportDmiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(file))
+            {
+                return;
+            }
+
+            var targetPath = Path.ChangeExtension(file, "rsi");
+
+            if (Directory.Exists(targetPath))
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error converting dmi image as target path {targetPath} already exists"));
+                return;
+            }
+
+            var rsi = await LoadDmi(file);
+
+            if (rsi == null) return;
+            
+            var options = GetOptions();
+
+            await rsi.SaveToFolder(targetPath, options);
+        }
+
+        public async void BulkConvertDMI()
+        {
+            var directory = await ImportDmiFolderDialog.Handle(Unit.Default);
+            
+            if (string.IsNullOrEmpty(directory))
+            {
+                return;
+            }
+
+            if (!Directory.Exists(directory))
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"{directory} is not a directory"));
+            }
+
+            var rsis = new List<(Rsi Rsi, string Path)>();
+
+            await LoadRSIs(directory, rsis);
+
+            foreach (var fn in Directory.GetDirectories(directory))
+            {
+                await LoadRSIs(fn, rsis);
+            }
+
+            if (rsis.Count == 0) return;
+
+            foreach (var (rsi, path) in rsis)
+            {
+                await rsi.SaveToFolder(path, GetOptions());
+            }
+
+            Logger.Sink.Log(LogEventLevel.Information, "MAIN", null, $"Converted {rsis.Count} DMIs to RSIs");
         }
 
         public async void Import()
@@ -327,6 +334,10 @@ namespace Editor.ViewModels
         {
             await PreferencesAction.Handle(Unit.Default);
         }
+        
+        #endregion
+
+        #region Edit
 
         public void Undo()
         {
@@ -388,6 +399,103 @@ namespace Editor.ViewModels
         public void Delete()
         {
             CurrentOpenRsi?.DeleteSelectedStates();
+        }
+        
+        #endregion
+        
+        private async Task LoadRSIs(string directory, List<(Rsi, string)> rsis)
+        {
+            foreach (var (dmiPath, rsiPath) in GetDMIFiles(directory))
+            {
+                var rsi = await LoadDmi(dmiPath);
+
+                if (rsi == null) continue;
+
+                rsis.Add((rsi, rsiPath));
+            }
+        }
+
+        private IEnumerable<(string DMI, string RSI)> GetDMIFiles(string directory)
+        {
+            foreach (var fn in Directory.GetFiles(directory))
+            {
+                if (Path.GetExtension(fn) != ".dmi") continue;
+                
+                var targetPath = Path.ChangeExtension(fn, "rsi");
+
+                if (Directory.Exists(targetPath)) continue;
+
+                yield return (fn, targetPath);
+            }
+        }
+        
+        private async void SaveRsiAs(RsiItemViewModel rsi)
+        {
+            var path = await SaveRsiDialog.Handle(Unit.Default);
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            rsi.SaveFolder = path;
+            rsi.Title = Path.GetFileName(path);
+            await SaveRsiToPath(rsi);
+        }
+
+        private async Task<Rsi?> LoadDmi(string filePath)
+        {
+            if (!DmiParser.TryGetFileMetadata(filePath, out var metadata, out var parseError))
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel(parseError.Message));
+                return null;
+            }
+
+            Image<Rgba32> dmi;
+            try
+            {
+                dmi = Image.Load<Rgba32>(filePath, PngDecoder);
+            }
+            catch (Exception e)
+            {
+                Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading dmi at {filePath} image:\n{e.Message}"));
+                return null;
+            }
+
+            return metadata.ToRsi(dmi);
+        }
+        
+        private JsonSerializerOptions GetOptions()
+        {
+            var minify = Locator.Current.GetService<Preferences>()!.MinifyJson;
+            return new JsonSerializerOptions
+            {
+                WriteIndented = !minify,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+        }
+
+        private async Task SaveRsiToPath(RsiItemViewModel rsi)
+        {
+            if (rsi.SaveFolder == null)
+            {
+                return;
+            }
+
+            var options = GetOptions();
+            
+            await rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder, options);
+        }
+
+        private async Task SaveRsi(RsiItemViewModel rsi)
+        {
+            if (rsi.SaveFolder == null)
+            {
+                SaveAs();
+                return;
+            }
+
+            await SaveRsiToPath(rsi);
         }
     }
 }
