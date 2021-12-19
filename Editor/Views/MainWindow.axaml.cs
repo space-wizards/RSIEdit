@@ -164,10 +164,10 @@ namespace Editor.Views
 
             var vm = new PreferencesWindowViewModel(ViewModel.Preferences);
             var dialog = new PreferencesWindow() {DataContext = vm};
-            var preferences = await dialog.ShowDialog<Preferences>(this);
+            var preferences = await dialog.ShowDialog<Preferences?>(this);
 
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            if (preferences.EasterEggs)
+            if (preferences?.EasterEggs == true)
             {
                 Icon = new WindowIcon(assets.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
                 Background = new ImageBrush(new Bitmap(assets.Open(new Uri("avares://Editor/Assets/joke-background.png"))));
