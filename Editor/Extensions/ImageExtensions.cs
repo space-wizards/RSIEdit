@@ -20,10 +20,10 @@ namespace Editor.Extensions
                 image = image.Clone(x => x.Resize(resizeOptions));
             }
 
-            if (!image.TryGetSinglePixelSpan(out var span))
+            if (!image.DangerousTryGetSinglePixelMemory(out var span))
                 throw new InvalidOperationException("Image is too large!");
 
-            var bitmap = SpanToBitmap<T>(span, image.Width, image.Height);
+            var bitmap = SpanToBitmap<T>(span.Span, image.Width, image.Height);
 
             if (dispose)
                 image.Dispose();
