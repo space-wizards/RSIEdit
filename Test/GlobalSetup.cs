@@ -6,46 +6,45 @@ using Avalonia.Headless;
 using Avalonia.ReactiveUI;
 using NUnit.Framework;
 
-namespace Test
+namespace Test;
+
+[SetUpFixture]
+public class GlobalSetup
 {
-    [SetUpFixture]
-    public class GlobalSetup
-    {
-        public static TestApp? App;
+    public static TestApp? App;
         
-        [OneTimeSetUp]
-        public static void OneTimeSetUp()
-        {
-            var tcs = new TaskCompletionSource<SynchronizationContext>();
+    [OneTimeSetUp]
+    public static void OneTimeSetUp()
+    {
+        var tcs = new TaskCompletionSource<SynchronizationContext>();
 
-            var app = AppBuilder
-                .Configure<TestApp>()
-                .UsePlatformDetect()
-                .UseReactiveUI()
-                .AfterSetup(builder =>
-                {
-                    App = (TestApp) builder.Instance;
-                    tcs.SetResult(SynchronizationContext.Current!);
-                })
-                .UseHeadless();
-
-            var thread = new Thread(() => app.StartWithClassicDesktopLifetime(Array.Empty<string>()))
+        var app = AppBuilder
+            .Configure<TestApp>()
+            .UsePlatformDetect()
+            .UseReactiveUI()
+            .AfterSetup(builder =>
             {
-                IsBackground = true
-            };
+                App = (TestApp) builder.Instance;
+                tcs.SetResult(SynchronizationContext.Current!);
+            })
+            .UseHeadless();
 
-            thread.Start();
-
-            SynchronizationContext.SetSynchronizationContext(tcs.Task.Result);
-        }
-
-        [OneTimeTearDown]
-        public static async Task OneTimeTearDown()
+        var thread = new Thread(() => app.StartWithClassicDesktopLifetime(Array.Empty<string>()))
         {
-            await AvaloniaTest.Post(() =>
-            {
-                App?.Shutdown();
-            });
-        }
+            IsBackground = true
+        };
+
+        thread.Start();
+
+        SynchronizationContext.SetSynchronizationContext(tcs.Task.Result);
+    }
+
+    [OneTimeTearDown]
+    public static async Task OneTimeTearDown()
+    {
+        await AvaloniaTest.Post(() =>
+        {
+            App?.Shutdown();
+        });
     }
 }

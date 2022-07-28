@@ -5,39 +5,38 @@ using Avalonia.ReactiveUI;
 using Editor.ViewModels;
 using ReactiveUI;
 
-namespace Editor.Views
+namespace Editor.Views;
+
+public class TextInputWindow : ReactiveWindow<TextInputWindowViewModel>
 {
-    public class TextInputWindow : ReactiveWindow<TextInputWindowViewModel>
+    public TextInputWindow()
     {
-        public TextInputWindow()
-        {
-            InitializeComponent();
+        InitializeComponent();
 #if DEBUG
-            this.AttachDevTools();
+        this.AttachDevTools();
 #endif
 
-            this.WhenActivated(d =>
-            {
-                d.Add(ViewModel!.ConfirmAction.RegisterHandler(Confirm));
-                d.Add(ViewModel!.DeclineAction.RegisterHandler(Decline));
-            });
-        }
-
-        private void InitializeComponent()
+        this.WhenActivated(d =>
         {
-            AvaloniaXamlLoader.Load(this);
-        }
+            d.Add(ViewModel!.ConfirmAction.RegisterHandler(Confirm));
+            d.Add(ViewModel!.DeclineAction.RegisterHandler(Decline));
+        });
+    }
 
-        private void Confirm(InteractionContext<string, Unit> arg)
-        {
-            Close(true);
-            arg.SetOutput(Unit.Default);
-        }
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        private void Decline(InteractionContext<Unit, Unit> arg)
-        {
-            Close(false);
-            arg.SetOutput(Unit.Default);
-        }
+    private void Confirm(InteractionContext<string, Unit> arg)
+    {
+        Close(true);
+        arg.SetOutput(Unit.Default);
+    }
+
+    private void Decline(InteractionContext<Unit, Unit> arg)
+    {
+        Close(false);
+        arg.SetOutput(Unit.Default);
     }
 }

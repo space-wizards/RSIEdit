@@ -4,83 +4,82 @@ using System.Threading.Tasks;
 using Editor.Models;
 using ReactiveUI;
 
-namespace Editor.ViewModels
+namespace Editor.ViewModels;
+
+public class PreferencesWindowViewModel : ViewModelBase
 {
-    public class PreferencesWindowViewModel : ViewModelBase
+    private string? _defaultLicense;
+    private string? _defaultCopyright;
+    private bool _easterEggs;
+    private bool _minifyJson;
+
+    public PreferencesWindowViewModel(Preferences preferences)
     {
-        private string? _defaultLicense;
-        private string? _defaultCopyright;
-        private bool _easterEggs;
-        private bool _minifyJson;
+        Preferences = preferences;
+        DefaultLicense = Preferences.DefaultLicense;
+        DefaultCopyright = Preferences.DefaultCopyright;
+        MinifyJson = Preferences.MinifyJson;
+        EasterEggs = Preferences.EasterEggs;
+    }
 
-        public PreferencesWindowViewModel(Preferences preferences)
+    public Preferences Preferences { get; }
+
+    public Interaction<Preferences, Unit> SaveAction { get; } = new();
+
+    public Interaction<Preferences, Unit> CancelAction { get; } = new();
+
+    public string? DefaultLicense
+    {
+        get => _defaultLicense;
+        set
         {
-            Preferences = preferences;
-            DefaultLicense = Preferences.DefaultLicense;
-            DefaultCopyright = Preferences.DefaultCopyright;
-            MinifyJson = Preferences.MinifyJson;
-            EasterEggs = Preferences.EasterEggs;
-        }
-
-        public Preferences Preferences { get; }
-
-        public Interaction<Preferences, Unit> SaveAction { get; } = new();
-
-        public Interaction<Preferences, Unit> CancelAction { get; } = new();
-
-        public string? DefaultLicense
-        {
-            get => _defaultLicense;
-            set
+            if (value == string.Empty)
             {
-                if (value == string.Empty)
-                {
-                    value = null;
-                }
-
-                this.RaiseAndSetIfChanged(ref _defaultLicense, value);
+                value = null;
             }
-        }
 
-        public string? DefaultCopyright
+            this.RaiseAndSetIfChanged(ref _defaultLicense, value);
+        }
+    }
+
+    public string? DefaultCopyright
+    {
+        get => _defaultCopyright;
+        set
         {
-            get => _defaultCopyright;
-            set
+            if (value == string.Empty)
             {
-                if (value == string.Empty)
-                {
-                    value = null;
-                }
-
-                this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
+                value = null;
             }
-        }
 
-        public bool MinifyJson
-        {
-            get => _minifyJson;
-            set => this.RaiseAndSetIfChanged(ref _minifyJson, value);
+            this.RaiseAndSetIfChanged(ref _defaultCopyright, value);
         }
+    }
 
-        public bool EasterEggs
-        {
-            get => _easterEggs;
-            set => this.RaiseAndSetIfChanged(ref _easterEggs, value);
-        }
+    public bool MinifyJson
+    {
+        get => _minifyJson;
+        set => this.RaiseAndSetIfChanged(ref _minifyJson, value);
+    }
 
-        public async Task Save()
-        {
-            Preferences.DefaultLicense = DefaultLicense;
-            Preferences.DefaultCopyright = DefaultCopyright;
-            Preferences.MinifyJson = MinifyJson;
-            Preferences.EasterEggs = EasterEggs;
+    public bool EasterEggs
+    {
+        get => _easterEggs;
+        set => this.RaiseAndSetIfChanged(ref _easterEggs, value);
+    }
 
-            await SaveAction.Handle(Preferences);
-        }
+    public async Task Save()
+    {
+        Preferences.DefaultLicense = DefaultLicense;
+        Preferences.DefaultCopyright = DefaultCopyright;
+        Preferences.MinifyJson = MinifyJson;
+        Preferences.EasterEggs = EasterEggs;
 
-        public async Task Cancel()
-        {
-            await CancelAction.Handle(Preferences);
-        }
+        await SaveAction.Handle(Preferences);
+    }
+
+    public async Task Cancel()
+    {
+        await CancelAction.Handle(Preferences);
     }
 }

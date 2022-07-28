@@ -10,58 +10,57 @@ using Editor.ViewModels;
 using Editor.Views;
 using Splat;
 
-namespace Editor
+namespace Editor;
+
+public class App : Application
 {
-    public class App : Application
+    public override void Initialize()
     {
-        public override void Initialize()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        private new void RegisterServices()
+    private new void RegisterServices()
+    {
+        Locator.CurrentMutable.RegisterLazySingleton(() =>
         {
-            Locator.CurrentMutable.RegisterLazySingleton(() =>
+            Preferences preferences;
+            var filePath = "preferences.json";
+
+            if (File.Exists(filePath))
             {
-                Preferences preferences;
-                var filePath = "preferences.json";
-
-                if (File.Exists(filePath))
+                try
                 {
-                    try
-                    {
-                        var json = File.ReadAllText(filePath);
-                        preferences = JsonSerializer.Deserialize<Preferences>(json) ?? new Preferences();
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-                        preferences = new Preferences();
-                        File.WriteAllText(filePath, string.Empty);
-                    }
+                    var json = File.ReadAllText(filePath);
+                    preferences = JsonSerializer.Deserialize<Preferences>(json) ?? new Preferences();
                 }
-                else
+                catch (Exception e)
                 {
+                    Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
                     preferences = new Preferences();
+                    File.WriteAllText(filePath, string.Empty);
                 }
-
-                return preferences;
-            });
-        }
-
-        public override void OnFrameworkInitializationCompleted()
-        {
-            RegisterServices();
-
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            }
+            else
             {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
+                preferences = new Preferences();
             }
 
-            base.OnFrameworkInitializationCompleted();
+            return preferences;
+        });
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        RegisterServices();
+
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow
+            {
+                DataContext = new MainWindowViewModel(),
+            };
         }
+
+        base.OnFrameworkInitializationCompleted();
     }
 }

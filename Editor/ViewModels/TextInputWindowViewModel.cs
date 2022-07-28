@@ -2,34 +2,33 @@
 using System.Reactive.Linq;
 using ReactiveUI;
 
-namespace Editor.ViewModels
+namespace Editor.ViewModels;
+
+public class TextInputWindowViewModel : ViewModelBase
 {
-    public class TextInputWindowViewModel : ViewModelBase
+    public TextInputWindowViewModel(string title, string header)
     {
-        public TextInputWindowViewModel(string title, string header)
-        {
-            Title = title;
-            Header = header;
-        }
+        Title = title;
+        Header = header;
+    }
 
-        public Interaction<string, Unit> ConfirmAction { get; } = new();
+    public Interaction<string, Unit> ConfirmAction { get; } = new();
 
-        public Interaction<Unit, Unit> DeclineAction { get; } = new();
+    public Interaction<Unit, Unit> DeclineAction { get; } = new();
 
-        public string Title { get; }
+    public string Title { get; }
 
-        public string Header { get; }
+    public string Header { get; }
 
-        public string SubmittedText { get; set; } = string.Empty;
+    public string SubmittedText { get; set; } = string.Empty;
 
-        public async void Confirm()
-        {
-            await ConfirmAction.Handle(SubmittedText);
-        }
+    public async void Confirm()
+    {
+        await ConfirmAction.Handle(SubmittedText);
+    }
 
-        public async void Decline()
-        {
-            await DeclineAction.Handle(Unit.Default);
-        }
+    public async void Decline()
+    {
+        await DeclineAction.Handle(Unit.Default);
     }
 }

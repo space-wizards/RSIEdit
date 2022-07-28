@@ -2,24 +2,23 @@
 using Editor;
 using Editor.Views;
 
-namespace Test
+namespace Test;
+
+public class TestApp : App
 {
-    public class TestApp : App
+    public ClassicDesktopStyleApplicationLifetime Lifetime()
     {
-        public ClassicDesktopStyleApplicationLifetime Lifetime()
-        {
-            return (ClassicDesktopStyleApplicationLifetime) ApplicationLifetime;
-        }
+        return (ClassicDesktopStyleApplicationLifetime) ApplicationLifetime;
+    }
 
-        public void Shutdown()
-        {
-            Lifetime().Shutdown();
-            Lifetime().Dispose();
-        }
+    public void Shutdown()
+    {
+        Lifetime().Shutdown();
+        Lifetime().Dispose();
+    }
 
-        public MainWindow MainWindow()
-        {
-            return (MainWindow) Lifetime().MainWindow;
-        }
+    public MainWindow MainWindow()
+    {
+        return (MainWindow) Lifetime().MainWindow;
     }
 }

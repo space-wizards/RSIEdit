@@ -1,9 +1,8 @@
 ﻿using Avalonia.Interactivity;
 
-namespace Editor.Views.Events
+namespace Editor.Views.Events;
+
+public class GetMainWindowEvent : RoutedEventArgs
 {
-    public class GetMainWindowEvent : RoutedEventArgs
-    {
-        public MainWindow MainWindow { get; set; } = default!;
-    }
+    public MainWindow MainWindow { get; set; } = default!;
 }

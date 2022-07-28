@@ -5,38 +5,37 @@ using Avalonia.ReactiveUI;
 using Editor.ViewModels;
 using ReactiveUI;
 
-namespace Editor.Views
+namespace Editor.Views;
+
+public class ConfirmationWindow : ReactiveWindow<ConfirmationWindowViewModel>
 {
-    public class ConfirmationWindow : ReactiveWindow<ConfirmationWindowViewModel>
+    public ConfirmationWindow()
     {
-        public ConfirmationWindow()
-        {
-            InitializeComponent();
+        InitializeComponent();
 #if DEBUG
-            this.AttachDevTools();
+        this.AttachDevTools();
 #endif
-            this.WhenActivated(d =>
-            {
-                d.Add(ViewModel!.ConfirmAction.RegisterHandler(Confirm));
-                d.Add(ViewModel!.DeclineAction.RegisterHandler(Decline));
-            });
-        }
-
-        private void Confirm(InteractionContext<Unit, Unit> interaction)
+        this.WhenActivated(d =>
         {
-            Close(true);
-            interaction.SetOutput(Unit.Default);
-        }
+            d.Add(ViewModel!.ConfirmAction.RegisterHandler(Confirm));
+            d.Add(ViewModel!.DeclineAction.RegisterHandler(Decline));
+        });
+    }
 
-        private void Decline(InteractionContext<Unit, Unit> interaction)
-        {
-            Close(false);
-            interaction.SetOutput(Unit.Default);
-        }
+    private void Confirm(InteractionContext<Unit, Unit> interaction)
+    {
+        Close(true);
+        interaction.SetOutput(Unit.Default);
+    }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+    private void Decline(InteractionContext<Unit, Unit> interaction)
+    {
+        Close(false);
+        interaction.SetOutput(Unit.Default);
+    }
+
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
     }
 }

@@ -5,49 +5,48 @@ using Editor.ViewModels;
 using Editor.Views;
 using NUnit.Framework;
 
-namespace Test
+namespace Test;
+
+public class AvaloniaTest
 {
-    public class AvaloniaTest
+    protected static TestApp App => GlobalSetup.App ?? throw new NullReferenceException();
+
+    protected static MainWindow Window => App.MainWindow();
+
+    protected static MainWindowViewModel Vm => Window.ViewModel ?? throw new NullReferenceException();
+
+    [TearDown]
+    public async Task TearDown()
     {
-        protected static TestApp App => GlobalSetup.App ?? throw new NullReferenceException();
-
-        protected static MainWindow Window => App.MainWindow();
-
-        protected static MainWindowViewModel Vm => Window.ViewModel ?? throw new NullReferenceException();
-
-        [TearDown]
-        public async Task TearDown()
+        if (GlobalSetup.App == null)
         {
-            if (GlobalSetup.App == null)
-            {
-                return;
-            }
+            return;
+        }
 
-            await Post(() =>
+        await Post(() =>
+        {
+            var lifetime = App.Lifetime();
+            foreach (var window in lifetime.Windows)
             {
-                var lifetime = App.Lifetime();
-                foreach (var window in lifetime.Windows)
+                if (window is MainWindow)
                 {
-                    if (window is MainWindow)
-                    {
-                        continue;
-                    }
-                    
-                    window.Close();
+                    continue;
                 }
+                    
+                window.Close();
+            }
                 
-                App.MainWindow().ViewModel!.Reset();
-            });
-        }
+            App.MainWindow().ViewModel!.Reset();
+        });
+    }
 
-        public static async Task Post(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
-        {
-            await Dispatcher.UIThread.InvokeAsync(action, priority);
-        }
+    public static async Task Post(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+    {
+        await Dispatcher.UIThread.InvokeAsync(action, priority);
+    }
 
-        public static async Task Post(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Normal)
-        {
-            await Dispatcher.UIThread.InvokeAsync(action, priority);
-        }
+    public static async Task Post(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Normal)
+    {
+        await Dispatcher.UIThread.InvokeAsync(action, priority);
     }
 }
