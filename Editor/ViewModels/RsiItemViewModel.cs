@@ -216,6 +216,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         var vm = new RsiStateViewModel(image);
 
         AddState(vm);
+        await vm.Image.State.LoadImage(bitmap, Item.Size);
         Modified = true;
     }
 
@@ -259,15 +260,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         }
 
         SelectedStates[0].Image.Preview = png;
-
-        await using var memoryStream = new MemoryStream();
-        png.Save(memoryStream);
-
-        memoryStream.Seek(0, SeekOrigin.Begin);
-
-        var frame = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(memoryStream);
-
-        SelectedStates[0].Image.State.LoadImage(frame, Item.Size);
+        await SelectedStates[0].Image.State.LoadImage(png, Item.Size);
 
         RefreshFrames();
         UpdateImageState(SelectedStates[0]);
