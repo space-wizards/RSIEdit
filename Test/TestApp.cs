@@ -8,7 +8,7 @@ public class TestApp : App
 {
     public ClassicDesktopStyleApplicationLifetime Lifetime()
     {
-        return (ClassicDesktopStyleApplicationLifetime) ApplicationLifetime;
+        return (ClassicDesktopStyleApplicationLifetime) ApplicationLifetime!;
     }
 
     public void Shutdown()
