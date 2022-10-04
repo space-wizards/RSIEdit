@@ -52,13 +52,13 @@ public class MainWindowViewModel : ViewModelBase
     }
     public Interaction<Unit, bool> NewRsiAction { get; } = new();
 
-    public Interaction<Unit, string> OpenRsiDialog { get; } = new();
+    public Interaction<Unit, string?> OpenRsiDialog { get; } = new();
 
-    public Interaction<Unit, string> SaveRsiDialog { get; } = new();
+    public Interaction<Unit, string?> SaveRsiDialog { get; } = new();
 
     public Interaction<Unit, string> ImportDmiDialog { get; } = new();
 
-    public Interaction<Unit, string> ImportDmiFolderDialog { get; } = new();
+    public Interaction<Unit, string?> ImportDmiFolderDialog { get; } = new();
 
     public Interaction<Unit, Unit> PreferencesAction { get; } = new();
 

@@ -107,7 +107,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         interaction.SetOutput(confirm);
     }
 
-    private async Task OpenRsi(InteractionContext<Unit, string> interaction)
+    private async Task OpenRsi(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog {Title = "Open RSI"};
         var folder = await dialog.ShowAsync(this);
@@ -115,7 +115,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         interaction.SetOutput(folder);
     }
 
-    private async Task SaveRsi(InteractionContext<Unit, string> interaction)
+    private async Task SaveRsi(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog {Title = "Save RSI"};
         var folder = await dialog.ShowAsync(this);
@@ -143,7 +143,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         interaction.SetOutput(files.Length > 0 ? files[0] : string.Empty);
     }
         
-    private async Task ImportDmiFolder(InteractionContext<Unit, string> interaction)
+    private async Task ImportDmiFolder(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog
         {
