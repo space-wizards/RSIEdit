@@ -35,7 +35,7 @@ public class App : Application
                 }
                 catch (Exception e)
                 {
-                    Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                    Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
                     preferences = new Preferences();
                     File.WriteAllText(filePath, string.Empty);
                 }

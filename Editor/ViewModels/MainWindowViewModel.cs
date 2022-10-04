@@ -282,7 +282,7 @@ public class MainWindowViewModel : ViewModelBase
             await rsi.SaveToFolder(path, GetOptions());
         }
 
-        Logger.Sink.Log(LogEventLevel.Information, "MAIN", null, $"Converted {rsis.Count} DMIs to RSIs");
+        Logger.Sink?.Log(LogEventLevel.Information, "MAIN", null, $"Converted {rsis.Count} DMIs to RSIs");
     }
 
     public async void Import()
@@ -457,7 +457,7 @@ public class MainWindowViewModel : ViewModelBase
         }
         catch (Exception e)
         {
-            Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+            Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
             await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading dmi at {filePath} image:\n{e.Message}"));
             return null;
         }
