@@ -56,7 +56,7 @@ public class MainWindowViewModel : ViewModelBase
 
     public Interaction<Unit, string?> SaveRsiDialog { get; } = new();
 
-    public Interaction<Unit, string> ImportDmiDialog { get; } = new();
+    public Interaction<Unit, string?> ImportDmiDialog { get; } = new();
 
     public Interaction<Unit, string?> ImportDmiFolderDialog { get; } = new();
 
