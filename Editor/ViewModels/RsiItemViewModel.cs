@@ -205,7 +205,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
             }
             catch (Exception e)
             {
-                Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
                 var errorVm = new ErrorWindowViewModel($"Error creating a state from file\n{pngFilePath}");
                 await ErrorDialog.Handle(errorVm);
                 return;
@@ -247,7 +247,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         }
         catch (Exception e)
         {
-            Logger.Sink.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+            Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
             var vm = new ErrorWindowViewModel($"Error opening file {path}");
             await ErrorDialog.Handle(vm);
             return;

@@ -107,7 +107,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         interaction.SetOutput(confirm);
     }
 
-    private async Task OpenRsi(InteractionContext<Unit, string> interaction)
+    private async Task OpenRsi(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog {Title = "Open RSI"};
         var folder = await dialog.ShowAsync(this);
@@ -115,7 +115,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         interaction.SetOutput(folder);
     }
 
-    private async Task SaveRsi(InteractionContext<Unit, string> interaction)
+    private async Task SaveRsi(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog {Title = "Save RSI"};
         var folder = await dialog.ShowAsync(this);
@@ -123,7 +123,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         interaction.SetOutput(folder);
     }
 
-    private async Task ImportDmi(InteractionContext<Unit, string> interaction)
+    private async Task ImportDmi(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFileDialog
         {
@@ -140,10 +140,10 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         };
         var files = await dialog.ShowAsync(this);
 
-        interaction.SetOutput(files.Length > 0 ? files[0] : string.Empty);
+        interaction.SetOutput(files?.Length > 0 ? files[0] : string.Empty);
     }
         
-    private async Task ImportDmiFolder(InteractionContext<Unit, string> interaction)
+    private async Task ImportDmiFolder(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog
         {
@@ -166,7 +166,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         var dialog = new PreferencesWindow() {DataContext = vm};
         var preferences = await dialog.ShowDialog<Preferences?>(this);
 
-        var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
+        var assets = AvaloniaLocator.Current.GetService<IAssetLoader>()!;
         if (preferences?.EasterEggs == true)
         {
             Icon = new WindowIcon(assets.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
@@ -269,7 +269,10 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     private void OnOpenFile(MainWindow window, OpenFileDialogEvent args)
     {
         var files = args.Dialog.ShowAsync(window).Result;
-        args.Files = files;
+        if (files != null)
+        {
+            args.Files = files;
+        }
     }
         
     private async void OnSaveFile(MainWindow window, SaveFileDialogEvent args)
