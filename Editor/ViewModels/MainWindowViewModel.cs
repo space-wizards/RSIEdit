@@ -270,7 +270,7 @@ public class MainWindowViewModel : ViewModelBase
 
         await LoadRSIs(directory, rsis);
 
-        foreach (var fn in Directory.GetDirectories(directory))
+        foreach (var fn in Directory.GetDirectories(directory, "*", SearchOption.AllDirectories))
         {
             await LoadRSIs(fn, rsis);
         }
