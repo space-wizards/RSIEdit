@@ -12,6 +12,16 @@ The latest release for your OS can be downloaded [here](https://github.com/space
 
 You can find every previous release [here](https://github.com/space-wizards/RSIEdit/releases).
 
+### Arch Linux
+You can find an (unofficial) installation package on the [AUR](https://aur.archlinux.org/packages/rsiedit-bin/):
+```
+paru -S rsiedit-bin
+```
+or
+```
+yay -S rsiedit-bin
+```
+Note that this package is not maintained by us. Read the PKGBUILD and then proceed at your own risk.
 
 ## Building
 1. Clone this repo.
