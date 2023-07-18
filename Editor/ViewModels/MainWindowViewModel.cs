@@ -95,7 +95,7 @@ public class MainWindowViewModel : ViewModelBase
         
     #region File
 
-    public async Task New()
+    public async void New()
     {
         if (await NewRsiAction.Handle(Unit.Default))
         {
@@ -156,7 +156,7 @@ public class MainWindowViewModel : ViewModelBase
         LastOpenedElement = folderPath;
     }
 
-    public async Task Open()
+    public async void Open()
     {
         var folder = await OpenRsiDialog.Handle(Unit.Default);
         if (string.IsNullOrEmpty(folder))
