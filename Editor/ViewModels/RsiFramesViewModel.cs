@@ -1,6 +1,6 @@
 ﻿using System;
 using Avalonia.Media.Imaging;
-using Importer.Directions;
+using SpaceWizards.RsiLib.Directions;
 using ReactiveUI;
 
 namespace Editor.ViewModels;

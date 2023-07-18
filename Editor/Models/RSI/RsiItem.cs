@@ -1,4 +1,4 @@
-﻿using Importer.RSI;
+﻿using SpaceWizards.RsiLib.RSI;
 
 namespace Editor.Models.RSI;
 

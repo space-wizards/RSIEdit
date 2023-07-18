@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Media.Imaging;
-using Importer.RSI;
+using SpaceWizards.RsiLib.RSI;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace Editor.Extensions;

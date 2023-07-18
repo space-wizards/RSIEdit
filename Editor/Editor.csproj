@@ -23,6 +23,6 @@
     <PackageReference Include="Splat" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../RSI.NET/Importer/Importer.csproj" />
+    <ProjectReference Include="..\RSI.NET\SpaceWizards.RsiLib\SpaceWizards.RsiLib.csproj" />
   </ItemGroup>
 </Project>

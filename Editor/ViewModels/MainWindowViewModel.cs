@@ -7,16 +7,14 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Avalonia.Logging;
 using Editor.Extensions;
 using Editor.Models;
 using Editor.Models.RSI;
-using Importer.Directions;
-using Importer.DMI.Metadata;
-using Importer.RSI;
+using SpaceWizards.RsiLib.Directions;
+using SpaceWizards.RsiLib.DMI.Metadata;
+using SpaceWizards.RsiLib.RSI;
 using ReactiveUI;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
@@ -130,9 +128,11 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var metaJson = metaJsonFiles.Single();
-        var stream = File.OpenRead(metaJson);
-        var rsi = await Rsi.FromMetaJson(stream);
+        Rsi rsi;
+        using (var stream = File.OpenRead(metaJsonFiles[0]))
+        {
+            rsi = Rsi.FromMetaJson(stream);
+        }
 
         if (rsi is not {Size: {}})
         {
@@ -140,7 +140,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        await rsi.TryLoadFolderImages(folderPath);
+        rsi.TryLoadFolderImages(folderPath);
 
         var rsiItem = new RsiItem(rsi);
         var name = Path.GetFileName(folderPath);
@@ -172,7 +172,7 @@ public class MainWindowViewModel : ViewModelBase
         await OpenRsi(folder);
     }
 
-    public async void Save()
+    public void Save()
     {
         if (CurrentOpenRsi == null)
         {
@@ -185,7 +185,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        await SaveRsiToPath(CurrentOpenRsi);
+        SaveRsiToPath(CurrentOpenRsi);
     }
 
     public void SaveAs()
@@ -208,8 +208,8 @@ public class MainWindowViewModel : ViewModelBase
 
         foreach (var rsi in _openRsis)
         {
-            rsi.SaveFolder = $"{path}{Path.DirectorySeparatorChar}{rsi.Title}";
-            await SaveRsi(rsi);
+            rsi.SaveFolder = Path.Combine(path, $"{rsi.Title}");
+            SaveRsi(rsi);
         }
     }
 
@@ -252,9 +252,7 @@ public class MainWindowViewModel : ViewModelBase
 
         if (rsi == null) return;
             
-        var options = GetOptions();
-
-        await rsi.SaveToFolder(targetPath, options);
+        rsi.SaveToFolder(targetPath);
     }
 
     public async void BulkConvertDMI()
@@ -284,7 +282,7 @@ public class MainWindowViewModel : ViewModelBase
 
         foreach (var (rsi, path) in rsis)
         {
-            await rsi.SaveToFolder(path, GetOptions());
+            rsi.SaveToFolder(path);
         }
 
         Logger.Sink?.Log(LogEventLevel.Information, "MAIN", null, $"Converted {rsis.Count} DMIs to RSIs");
@@ -444,7 +442,7 @@ public class MainWindowViewModel : ViewModelBase
 
         rsi.SaveFolder = path;
         rsi.Title = Path.GetFileName(path);
-        await SaveRsiToPath(rsi);
+        SaveRsiToPath(rsi);
     }
 
     private async Task<Rsi?> LoadDmi(string filePath)
@@ -469,30 +467,18 @@ public class MainWindowViewModel : ViewModelBase
 
         return metadata.ToRsi(dmi);
     }
-        
-    private JsonSerializerOptions GetOptions()
-    {
-        var minify = Locator.Current.GetService<Preferences>()!.MinifyJson;
-        return new JsonSerializerOptions
-        {
-            WriteIndented = !minify,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-    }
 
-    private async Task SaveRsiToPath(RsiItemViewModel rsi)
+    private void SaveRsiToPath(RsiItemViewModel rsi)
     {
         if (rsi.SaveFolder == null)
         {
             return;
         }
 
-        var options = GetOptions();
-            
-        await rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder, options);
+        rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder);
     }
 
-    private async Task SaveRsi(RsiItemViewModel rsi)
+    private void SaveRsi(RsiItemViewModel rsi)
     {
         if (rsi.SaveFolder == null)
         {
@@ -500,6 +486,6 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        await SaveRsiToPath(rsi);
+        SaveRsiToPath(rsi);
     }
 }

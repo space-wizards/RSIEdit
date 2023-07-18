@@ -4,9 +4,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RSI.NET", "RSI.NET", "{E672785F-8DCC-4F52-A23A-4BF88AE06EAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer", "RSI.NET\Importer\Importer.csproj", "{E67B73FB-A5C1-4BB3-8B9A-BC8ACCCC9C53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceWizards.RsiLib", "RSI.NET\SpaceWizards.RsiLib\SpaceWizards.RsiLib.csproj", "{E67B73FB-A5C1-4BB3-8B9A-BC8ACCCC9C53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Tests", "RSI.NET\Importer.Tests\Importer.Tests.csproj", "{15AA1A86-D41C-4EE3-8215-8A88565218BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceWizards.RsiLib.Tests", "RSI.NET\SpaceWizards.RsiLib.Tests\SpaceWizards.RsiLib.Tests.csproj", "{15AA1A86-D41C-4EE3-8215-8A88565218BC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{5DF038CC-947D-4934-B3FB-F396EE66818D}"
 EndProject

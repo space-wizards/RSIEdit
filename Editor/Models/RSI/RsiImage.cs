@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Avalonia.Media.Imaging;
-using Importer.RSI;
+using SpaceWizards.RsiLib.RSI;
 using JetBrains.Annotations;
 
 namespace Editor.Models.RSI;
