@@ -14,12 +14,12 @@
     <AvaloniaResource Include="Assets/**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.10.18" />
-    <PackageReference Include="Avalonia.Desktop" Version="0.10.18" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.18" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
-    <PackageReference Include="Microsoft.Toolkit.Diagnostics" Version="7.1.1" />
-    <PackageReference Include="Splat" Version="13.1.30" />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Diagnostics" />
+    <PackageReference Include="Avalonia.ReactiveUI" />
+    <PackageReference Include="Microsoft.Toolkit.Diagnostics" />
+    <PackageReference Include="Splat" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../RSI.NET/Importer/Importer.csproj" />
