@@ -11,7 +11,7 @@ public class JulianTests : AvaloniaTest
     {
         await Post(async () =>
         {
-            await Vm.New();
+            await Vm.NewAsync();
             Assert.That(Vm.CurrentOpenRsi, Is.Not.Null);
             Assert.That(Vm.OpenRsis.Count, Is.EqualTo(1));
         });

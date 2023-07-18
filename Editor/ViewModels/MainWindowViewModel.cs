@@ -97,6 +97,11 @@ public class MainWindowViewModel : ViewModelBase
 
     public async void New()
     {
+        await NewAsync();
+    }
+
+    public async Task NewAsync()
+    {
         if (await NewRsiAction.Handle(Unit.Default))
         {
             CurrentOpenRsi = new RsiItemViewModel
