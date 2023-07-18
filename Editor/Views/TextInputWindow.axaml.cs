@@ -7,7 +7,7 @@ using ReactiveUI;
 
 namespace Editor.Views;
 
-public class TextInputWindow : ReactiveWindow<TextInputWindowViewModel>
+public partial class TextInputWindow : ReactiveWindow<TextInputWindowViewModel>
 {
     public TextInputWindow()
     {

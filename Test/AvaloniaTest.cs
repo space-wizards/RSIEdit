@@ -11,9 +11,9 @@ public class AvaloniaTest
 {
     protected static TestApp App => GlobalSetup.App ?? throw new NullReferenceException();
 
-    protected static MainWindow Window => App.MainWindow();
+    protected static MainWindow? Window => App.MainWindow();
 
-    protected static MainWindowViewModel Vm => Window.ViewModel ?? throw new NullReferenceException();
+    protected static MainWindowViewModel Vm => Window?.ViewModel ?? throw new NullReferenceException();
 
     [TearDown]
     public async Task TearDown()
@@ -36,17 +36,17 @@ public class AvaloniaTest
                 window.Close();
             }
                 
-            App.MainWindow().ViewModel!.Reset();
+            App.MainWindow()?.ViewModel!.Reset();
         });
     }
 
-    public static async Task Post(Action action, DispatcherPriority priority = DispatcherPriority.Normal)
+    public static async Task Post(Action action, DispatcherPriority? priority = null)
     {
-        await Dispatcher.UIThread.InvokeAsync(action, priority);
+        await Dispatcher.UIThread.InvokeAsync(action, priority ?? DispatcherPriority.Normal);
     }
 
-    public static async Task Post(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Normal)
+    public static async Task Post(Func<Task> action, DispatcherPriority? priority)
     {
-        await Dispatcher.UIThread.InvokeAsync(action, priority);
+        await Dispatcher.UIThread.InvokeAsync(action, priority ?? DispatcherPriority.Normal);
     }
 }

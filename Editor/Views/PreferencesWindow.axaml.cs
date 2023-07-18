@@ -11,7 +11,7 @@ using ReactiveUI;
 
 namespace Editor.Views;
 
-public class PreferencesWindow : ReactiveWindow<PreferencesWindowViewModel>
+public partial class PreferencesWindow : ReactiveWindow<PreferencesWindowViewModel>
 {
     public PreferencesWindow()
     {

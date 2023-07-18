@@ -7,7 +7,7 @@ using ReactiveUI;
 
 namespace Editor.Views;
 
-public class ConfirmationWindow : ReactiveWindow<ConfirmationWindowViewModel>
+public partial class ConfirmationWindow : ReactiveWindow<ConfirmationWindowViewModel>
 {
     public ConfirmationWindow()
     {

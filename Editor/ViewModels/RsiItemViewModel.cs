@@ -160,7 +160,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-            var valueLicense = (string) value.Content;
+            var valueLicense = (string?) value.Content;
 
             if (valueLicense == "None")
             {

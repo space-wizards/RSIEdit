@@ -17,8 +17,8 @@ public class TestApp : App
         Lifetime().Dispose();
     }
 
-    public MainWindow MainWindow()
+    public MainWindow? MainWindow()
     {
-        return (MainWindow) Lifetime().MainWindow;
+        return (MainWindow?) Lifetime().MainWindow;
     }
 }

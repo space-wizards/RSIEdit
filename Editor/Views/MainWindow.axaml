@@ -69,7 +69,7 @@
             </MenuItem>
         </Menu>
         <Grid>
-            <TabControl Items="{Binding OpenRsis}" SelectedItem="{Binding CurrentOpenRsi}">
+            <TabControl ItemsSource="{Binding OpenRsis}" SelectedItem="{Binding CurrentOpenRsi}">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>

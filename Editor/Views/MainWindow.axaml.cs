@@ -166,15 +166,14 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         var dialog = new PreferencesWindow() {DataContext = vm};
         var preferences = await dialog.ShowDialog<Preferences?>(this);
 
-        var assets = AvaloniaLocator.Current.GetService<IAssetLoader>()!;
         if (preferences?.EasterEggs == true)
         {
-            Icon = new WindowIcon(assets.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
-            Background = new ImageBrush(new Bitmap(assets.Open(new Uri("avares://Editor/Assets/joke-background.png"))));
+            Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
+            Background = new ImageBrush(new Bitmap(AssetLoader.Open(new Uri("avares://Editor/Assets/joke-background.png"))));
         }
         else
         {
-            Icon = new WindowIcon(assets.Open(new Uri("avares://Editor/Assets/logo.ico")));
+            Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://Editor/Assets/logo.ico")));
             Background = null;
         }
 

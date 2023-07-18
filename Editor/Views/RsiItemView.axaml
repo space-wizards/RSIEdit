@@ -10,7 +10,7 @@
             <Panel Height="120">
                 <views:RsiFramesView Name="Frames" Content="{Binding Frames}"/>
             </Panel>
-            <ListBox Name="States" SelectionMode="Multiple" Items="{Binding States}" SelectedItems="{Binding SelectedStates}" Height="480">
+            <ListBox Name="States" SelectionMode="Multiple" ItemsSource="{Binding States}" SelectedItems="{Binding SelectedStates}" Height="480">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add new state" Command="{Binding CreateNewState}"/>

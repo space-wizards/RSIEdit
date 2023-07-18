@@ -24,10 +24,10 @@ public class GlobalSetup
             .UseReactiveUI()
             .AfterSetup(builder =>
             {
-                App = (TestApp) builder.Instance;
+                App = (TestApp?) builder.Instance;
                 tcs.SetResult(SynchronizationContext.Current!);
             })
-            .UseHeadless();
+            .UseHeadless(new AvaloniaHeadlessPlatformOptions());
 
         var thread = new Thread(() => app.StartWithClassicDesktopLifetime(Array.Empty<string>()))
         {
