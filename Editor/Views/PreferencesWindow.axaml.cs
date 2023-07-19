@@ -33,17 +33,13 @@ public partial class PreferencesWindow : ReactiveWindow<PreferencesWindowViewMod
         AvaloniaXamlLoader.Load(this);
     }
 
-    private async Task Save(InteractionContext<Preferences, Unit> arg)
+    private void Save(InteractionContext<Preferences, Unit> arg)
     {
         var filePath = "preferences.json";
-        await File.WriteAllTextAsync(filePath, string.Empty);
-
-        var metaJsonFile = File.OpenWrite(filePath);
+        using var metaJsonFile = File.Create(filePath);
         var preferences = arg.Input;
 
-        await JsonSerializer.SerializeAsync(metaJsonFile, preferences);
-        await metaJsonFile.FlushAsync();
-        await metaJsonFile.DisposeAsync();
+        JsonSerializer.Serialize(metaJsonFile, preferences, PreferencesJsonContext.Default.Preferences);
 
         Close(preferences);
         arg.SetOutput(Unit.Default);

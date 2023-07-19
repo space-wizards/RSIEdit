@@ -31,7 +31,7 @@ public class App : Application
                 try
                 {
                     var json = File.ReadAllText(filePath);
-                    preferences = JsonSerializer.Deserialize<Preferences>(json) ?? new Preferences();
+                    preferences = JsonSerializer.Deserialize(json, PreferencesJsonContext.Default.Preferences) ?? new Preferences();
                 }
                 catch (Exception e)
                 {

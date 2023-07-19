@@ -2,7 +2,7 @@
 
 namespace Editor.Models;
 
-public class Preferences
+public sealed class Preferences
 {
     private const int CurrentVersion = 1;
 
@@ -25,4 +25,11 @@ public class Preferences
 
     [JsonPropertyName("easterEggs")]
     public bool EasterEggs { get; set; }
+}
+
+[JsonSourceGenerationOptions]
+[JsonSerializable(typeof(Preferences))]
+internal sealed partial class PreferencesJsonContext : JsonSerializerContext
+{
+    
 }

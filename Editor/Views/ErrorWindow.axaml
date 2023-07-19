@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Editor.ViewModels"
         mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="100"
         x:Class="Editor.Views.ErrorWindow"
         Title="Error"
@@ -9,6 +10,7 @@
         Width="400"
         Height="200"
         CanResize="False"
-        Icon="/Assets/logo.ico">
+        Icon="/Assets/logo.ico"
+        x:DataType="vm:ErrorWindowViewModel">
     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Error}" TextWrapping="WrapWithOverflow"/>
 </Window>

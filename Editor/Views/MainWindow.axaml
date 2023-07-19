@@ -10,7 +10,8 @@
         Icon="/Assets/logo.ico"
         Title="RSI Editor"
         DragDrop.AllowDrop="True"
-        Height="776">
+        Height="776"
+        x:DataType="vm:MainWindowViewModel" >
     <Window.DataContext>
         <vm:MainWindowViewModel/>
     </Window.DataContext>

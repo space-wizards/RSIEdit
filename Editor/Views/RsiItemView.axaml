@@ -3,11 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:views="clr-namespace:Editor.Views"
+             xmlns:vm="clr-namespace:Editor.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Editor.Views.RsiItemView">
+             x:Class="Editor.Views.RsiItemView"
+             x:DataType="vm:RsiItemViewModel">
     <DockPanel>
         <Panel DockPanel.Dock="Top" Height="120">
-            <views:RsiFramesView Name="Frames" Content="{Binding Frames}"/>
+            <views:RsiFramesView Name="Frames" DataContext="{Binding Frames}"/>
         </Panel>
         <StackPanel DockPanel.Dock="Bottom" Name="Licensing" Orientation="Vertical" Spacing="10" Margin="0 10 ">
             <StackPanel Orientation="Horizontal">
@@ -41,6 +43,11 @@
                         <WrapPanel/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RsiStateViewModel">
+                        <views:RsiStateView DataContext="{Binding}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
             </ListBox>    
         </ScrollViewer>
     </DockPanel>
