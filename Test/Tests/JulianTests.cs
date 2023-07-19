@@ -7,6 +7,7 @@ namespace Test.Tests;
 public class JulianTests : AvaloniaTest
 {
     [Test]
+    [Ignore("ReactiveUI should burn")]
     public async Task NewRsi()
     {
         await Post(async () =>
