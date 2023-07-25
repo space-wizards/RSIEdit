@@ -17,6 +17,7 @@ using SpaceWizards.RsiLib.DMI.Metadata;
 using SpaceWizards.RsiLib.RSI;
 using ReactiveUI;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using Splat;
@@ -25,6 +26,7 @@ namespace Editor.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
+    private static readonly GifDecoder GifDecoder = new();
     private static readonly PngDecoder PngDecoder = new();
 
     private RsiItemViewModel? _currentOpenRsi;
@@ -53,6 +55,8 @@ public class MainWindowViewModel : ViewModelBase
     public Interaction<Unit, string?> OpenRsiDialog { get; } = new();
 
     public Interaction<Unit, string?> SaveRsiDialog { get; } = new();
+
+    public Interaction<Unit, string?> ImportImageDialog { get; } = new();
 
     public Interaction<Unit, string?> ImportDmiDialog { get; } = new();
 
@@ -213,9 +217,48 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
-    public async Task ImportDmi(string filePath)
+    public async Task ImportImage(string filePath)
     {
-        var rsi = await LoadDmi(filePath);
+        Rsi? rsi = null;
+        
+        if (filePath.EndsWith(".dmi"))
+        {
+            rsi = await LoadDmi(filePath);
+        }
+        else if (filePath.EndsWith(".gif"))
+        {
+            Image<Rgba32> gif;
+            try
+            {
+                gif = Image.Load<Rgba32>(filePath, GifDecoder);
+                rsi = new Rsi(x: gif.Width, y: gif.Height);
+                var state = new RsiState();
+                state.LoadGif(gif);
+                rsi.States.Add(state);
+            }
+            catch (Exception e)
+            {
+                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading gif at {filePath} image:\n{e.Message}"));
+            }
+        }
+        else if (filePath.EndsWith(".png"))
+        {
+            Image<Rgba32> png;
+            try
+            {
+                png = Image.Load<Rgba32>(filePath, GifDecoder);
+                rsi = new Rsi(x: png.Width, y: png.Height);
+                var state = new RsiState();
+                state.LoadImage(png, rsi.Size);
+                rsi.States.Add(state);
+            }
+            catch (Exception e)
+            {
+                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading gif at {filePath} image:\n{e.Message}"));
+            }
+        }
 
         if (rsi == null) return;
 
@@ -290,13 +333,13 @@ public class MainWindowViewModel : ViewModelBase
 
     public async void Import()
     {
-        var file = await ImportDmiDialog.Handle(Unit.Default);
+        var file = await ImportImageDialog.Handle(Unit.Default);
         if (string.IsNullOrEmpty(file))
         {
             return;
         }
 
-        await ImportDmi(file);
+        await ImportImage(file);
     }
 
     public async void ReOpenLast()
@@ -309,7 +352,7 @@ public class MainWindowViewModel : ViewModelBase
             }
             else
             {
-                await ImportDmi(LastOpenedElement);
+                await ImportImage(LastOpenedElement);
             }
         }
     }

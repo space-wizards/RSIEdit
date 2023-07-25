@@ -37,6 +37,12 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         Sampler = KnownResamplers.NearestNeighbor
     };
 
+    public static readonly List<string> ValidExtensions = new()
+    {
+        "gif",
+        "png"
+    };
+
     private readonly MemoryStream _emptyStream = new();
     private readonly Bitmap _blankFrame;
 
@@ -78,7 +84,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
     public string? SaveFolder { get; set; }
 
-    public Interaction<Unit, string> ImportPngInteraction { get; } = new();
+    public Interaction<Unit, string> ImportImageInteraction { get; } = new();
 
     public Interaction<Image<Rgba32>, Unit> ExportPngInteraction { get; } = new();
 
@@ -220,47 +226,86 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         Modified = true;
     }
 
-    public async Task ImportPng()
+    private bool IsExtensionValid(string filepath)
+    {
+        foreach (var ext in ValidExtensions)
+        {
+            if (filepath.EndsWith(ext))
+                return true;
+        }
+
+        return false;
+    }
+
+    public async Task ImportImage()
     {
         if (!HasOneStateSelected)
         {
             return;
         }
 
-        var path = await ImportPngInteraction.Handle(Unit.Default);
+        var path = await ImportImageInteraction.Handle(Unit.Default);
         if (string.IsNullOrEmpty(path))
         {
             return;
         }
 
-        if (!path.EndsWith(".png"))
+        if (!IsExtensionValid(path))
         {
-            var vm = new ErrorWindowViewModel($"File {path} is not a .png");
+            var vm = new ErrorWindowViewModel($"File {path} is not a valid image");
             await ErrorDialog.Handle(vm);
             return;
         }
 
-        Bitmap png;
-        try
+        if (path.EndsWith(".gif"))
         {
-            png = new Bitmap(path);
-        }
-        catch (Exception e)
-        {
-            Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-            var vm = new ErrorWindowViewModel($"Error opening file {path}");
-            await ErrorDialog.Handle(vm);
-            return;
-        }
+            Bitmap png;
+            try
+            {
+                png = new Bitmap(path);
+            }
+            catch (Exception e)
+            {
+                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                var vm = new ErrorWindowViewModel($"Error opening file {path}");
+                await ErrorDialog.Handle(vm);
+                return;
+            }
 
-        var oldBitmap = SelectedStates[0].Image.Preview;
-        if (oldBitmap != _blankFrame)
-        {
-            oldBitmap.Dispose();
-        }
+            var oldBitmap = SelectedStates[0].Image.Preview;
+            if (oldBitmap != _blankFrame)
+            {
+                oldBitmap.Dispose();
+            }
 
-        SelectedStates[0].Image.Preview = png;
-        await SelectedStates[0].Image.State.LoadImage(png, Item.Size);
+            SelectedStates[0].Image.Preview = png;
+            var gif = await SixLabors.ImageSharp.Image.LoadAsync<Rgba32>(path);
+            SelectedStates[0].Image.State.LoadGif(gif);
+        }
+        else if (path.EndsWith(".png"))
+        {
+            Bitmap png;
+            try
+            {
+                png = new Bitmap(path);
+            }
+            catch (Exception e)
+            {
+                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+                var vm = new ErrorWindowViewModel($"Error opening file {path}");
+                await ErrorDialog.Handle(vm);
+                return;
+            }
+
+            var oldBitmap = SelectedStates[0].Image.Preview;
+            if (oldBitmap != _blankFrame)
+            {
+                oldBitmap.Dispose();
+            }
+
+            SelectedStates[0].Image.Preview = png;
+            await SelectedStates[0].Image.State.LoadImage(png, Item.Size);
+        }
 
         RefreshFrames();
         UpdateImageState(SelectedStates[0]);

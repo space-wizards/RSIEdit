@@ -27,7 +27,7 @@ public partial class RsiItemView : ReactiveUserControl<RsiItemViewModel>
                 {
                     if (vm != null)
                     {
-                        d.Add(vm.ImportPngInteraction.RegisterHandler(ImportPng));
+                        d.Add(vm.ImportImageInteraction.RegisterHandler(ImportImage));
                         d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
                         d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
                         d.Add(vm.CloseInteraction.RegisterHandler(Close));
@@ -51,7 +51,7 @@ public partial class RsiItemView : ReactiveUserControl<RsiItemViewModel>
         interaction.SetOutput(Unit.Default);
     }
 
-    private void ImportPng(InteractionContext<Unit, string> interaction)
+    private void ImportImage(InteractionContext<Unit, string> interaction)
     {
         var dialog = new OpenFileDialog
         {
@@ -60,8 +60,8 @@ public partial class RsiItemView : ReactiveUserControl<RsiItemViewModel>
             {
                 new()
                 {
-                    Name = "PNG Files",
-                    Extensions = new List<string> {"png"}
+                    Name = "Image Files",
+                    Extensions = RsiItemViewModel.ValidExtensions,
                 }
             }
         };
