@@ -219,45 +219,15 @@ public class MainWindowViewModel : ViewModelBase
 
     public async Task ImportImage(string filePath)
     {
-        Rsi? rsi = null;
+        Rsi? rsi;
         
         if (filePath.EndsWith(".dmi"))
         {
             rsi = await LoadDmi(filePath);
         }
-        else if (filePath.EndsWith(".gif"))
+        else
         {
-            Image<Rgba32> gif;
-            try
-            {
-                gif = Image.Load<Rgba32>(filePath, GifDecoder);
-                rsi = new Rsi(x: gif.Width, y: gif.Height);
-                var state = new RsiState();
-                state.LoadGif(gif);
-                rsi.States.Add(state);
-            }
-            catch (Exception e)
-            {
-                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading gif at {filePath} image:\n{e.Message}"));
-            }
-        }
-        else if (filePath.EndsWith(".png"))
-        {
-            Image<Rgba32> png;
-            try
-            {
-                png = Image.Load<Rgba32>(filePath, GifDecoder);
-                rsi = new Rsi(x: png.Width, y: png.Height);
-                var state = new RsiState();
-                state.LoadImage(png, rsi.Size);
-                rsi.States.Add(state);
-            }
-            catch (Exception e)
-            {
-                Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading gif at {filePath} image:\n{e.Message}"));
-            }
+            rsi = await LoadImage(filePath);
         }
 
         if (rsi == null) return;
@@ -486,6 +456,41 @@ public class MainWindowViewModel : ViewModelBase
         rsi.SaveFolder = path;
         rsi.Title = Path.GetFileName(path);
         SaveRsiToPath(rsi);
+    }
+
+    private async Task<Rsi?> LoadImage(string filePath)
+    {
+        Rsi? rsi = null;
+        try
+        {
+            if (filePath.EndsWith(".gif"))
+            {
+                var image = Image.Load<Rgba32>(filePath, GifDecoder);
+                rsi = new Rsi(x: image.Width, y: image.Height);
+                var state = new RsiState();
+                state.LoadGif(image);
+                rsi.States.Add(state);
+            }
+            else if (filePath.EndsWith(".png"))
+            {
+                var image = Image.Load<Rgba32>(filePath, PngDecoder);
+                rsi = new Rsi(x: image.Width, y: image.Height);
+                var state = new RsiState();
+                state.LoadImage(image, rsi.Size);
+                rsi.States.Add(state);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Invalid file type specified!");
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading image at {filePath} image:\n{e.Message}"));
+        }
+
+        return rsi;
     }
 
     private async Task<Rsi?> LoadDmi(string filePath)
