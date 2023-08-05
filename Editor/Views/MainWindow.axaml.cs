@@ -37,6 +37,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             d.Add(vm.NewRsiAction.RegisterHandler(NewRsi));
             d.Add(vm.OpenRsiDialog.RegisterHandler(OpenRsi));
             d.Add(vm.SaveRsiDialog.RegisterHandler(SaveRsi));
+            d.Add(vm.ImportImageDialog.RegisterHandler(ImportImage));
             d.Add(vm.ImportDmiDialog.RegisterHandler(ImportDmi));
             d.Add(vm.ImportDmiFolderDialog.RegisterHandler(ImportDmiFolder));
             d.Add(vm.PreferencesAction.RegisterHandler(OpenPreferences));
@@ -134,7 +135,27 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
                 new()
                 {
                     Name = "DMI Files",
-                    Extensions = new List<string> {"dmi"}
+                    Extensions = new List<string> { "dmi"}
+                }
+            }
+        };
+        var files = await dialog.ShowAsync(this);
+
+        interaction.SetOutput(files?.Length > 0 ? files[0] : string.Empty);
+    }
+    
+    private async Task ImportImage(InteractionContext<Unit, string?> interaction)
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Import Image",
+            AllowMultiple = false,
+            Filters = new List<FileDialogFilter>
+            {
+                new()
+                {
+                    Name = "Image Files",
+                    Extensions = new List<string> { "dmi", "gif", "png" }
                 }
             }
         };
@@ -250,7 +271,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             switch (Path.GetExtension(rsiOrDmi))
             {
                 case ".dmi":
-                    await ViewModel.ImportDmi(rsiOrDmi);
+                    await ViewModel.ImportImage(rsiOrDmi);
                     break;
                 default:
                     await ViewModel.OpenRsi(rsiOrDmi);

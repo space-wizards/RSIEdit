@@ -33,7 +33,7 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add new state" Command="{Binding CreateNewState}"/>
-                        <MenuItem Header="Import PNG" IsEnabled="{Binding HasOneStateSelected}" Command="{Binding ImportPng}"/>
+                        <MenuItem Header="Import Image" IsEnabled="{Binding HasOneStateSelected}" Command="{Binding ImportImage}"/>
                         <MenuItem Header="Export PNG" IsEnabled="{Binding HasOneStateSelected}" Command="{Binding ExportPng}"/>
                         <MenuItem Header="Delete" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteSelectedStates}" InputGesture="Delete" />
                     </ContextMenu>

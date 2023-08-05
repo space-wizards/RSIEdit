@@ -51,7 +51,7 @@
                     <MenuItem Header="File" Command="{Binding SingleConvertDMI}"/>
                     <MenuItem Header="Folder" Command="{Binding BulkConvertDMI}"/>
                 </MenuItem>
-                <MenuItem Header="_Import DMI" Command="{Binding Import}" InputGesture="Ctrl+I"/>
+                <MenuItem Header="_Import..." Command="{Binding Import}" InputGesture="Ctrl+I"/>
                 <MenuItem Header="_Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
                 <MenuItem Header="_Open Current RSI Folder" Command="{Binding OpenCurrentRsi}"/>
                 <Separator/>
