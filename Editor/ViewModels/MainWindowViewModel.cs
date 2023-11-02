@@ -384,6 +384,16 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public void DeselectAll()
+    {
+        if (CurrentOpenRsi == null)
+        {
+            return;
+        }
+
+        CurrentOpenRsi.SelectedStates.Clear();
+    }
+
     public void Redo()
     {
         if (CurrentOpenRsi != null &&
