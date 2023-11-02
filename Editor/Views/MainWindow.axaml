@@ -64,6 +64,8 @@
                 <MenuItem Header="_Undo" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
                 <MenuItem Header="_Redo" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>
+                <MenuItem Header="_Undo All" Command="{Binding UndoAll}"/>
+                <Separator/>
                 <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.None}"/>
                 <MenuItem Header="4 Directions (cardinal)" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Cardinal}"/>
                 <MenuItem Header="8 Directions (diagonal)" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Diagonal}"/>

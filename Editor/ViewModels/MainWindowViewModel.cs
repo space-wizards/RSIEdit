@@ -371,6 +371,19 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public void UndoAll()
+    {
+        if (CurrentOpenRsi == null)
+        {
+            return;
+        }
+
+        while (CurrentOpenRsi.TryRestore(out var selected))
+        {
+            CurrentOpenRsi.SelectedStates.Add(selected);
+        }
+    }
+
     public void Redo()
     {
         if (CurrentOpenRsi != null &&
