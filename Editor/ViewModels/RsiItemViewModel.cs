@@ -26,8 +26,8 @@ namespace Editor.ViewModels;
 
 public class RsiItemViewModel : ViewModelBase, IDisposable
 {
-    private const int DeletedBufferSize = 50;
-    private const int RestoredBufferSize = 50;
+    private const int DeletedBufferSize = 200;
+    private const int RestoredBufferSize = 200;
 
     private static readonly ResizeOptions PreviewResizeOptions = new()
     {
@@ -416,7 +416,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         return true;
     }
 
-    public bool TryRedoDelete([NotNullWhen(true)] out int index)
+    public bool TryRedoDelete(out int index)
     {
         index = -1;
 
