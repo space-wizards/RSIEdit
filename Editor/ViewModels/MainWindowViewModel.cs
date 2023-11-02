@@ -80,7 +80,7 @@ public class MainWindowViewModel : ViewModelBase
         CurrentOpenRsi = null;
         LastOpenedElement = null;
     }
-        
+
     private void AddRsi(RsiItemViewModel vm)
     {
         _openRsis.Add(vm);
@@ -94,7 +94,7 @@ public class MainWindowViewModel : ViewModelBase
             CurrentOpenRsi = null;
         }
     }
-        
+
     #region File
 
     public async void New()
@@ -153,7 +153,7 @@ public class MainWindowViewModel : ViewModelBase
         var copyright = string.IsNullOrEmpty(rsiItem.Rsi.Copyright)
             ? Preferences.DefaultCopyright
             : rsiItem.Rsi.Copyright;
-            
+
         var rsiVm = new RsiItemViewModel(name, rsiItem)
         {
             SaveFolder = folderPath,
@@ -217,10 +217,16 @@ public class MainWindowViewModel : ViewModelBase
         }
     }
 
+    public void Close()
+    {
+        if (CurrentOpenRsi != null)
+            CloseRsi(CurrentOpenRsi);
+    }
+
     public async Task ImportImage(string filePath)
     {
         Rsi? rsi;
-        
+
         if (filePath.EndsWith(".dmi"))
         {
             rsi = await LoadDmi(filePath);
@@ -264,14 +270,14 @@ public class MainWindowViewModel : ViewModelBase
         var rsi = await LoadDmi(file);
 
         if (rsi == null) return;
-            
+
         rsi.SaveToFolder(targetPath);
     }
 
     public async void BulkConvertDMI()
     {
         var directory = await ImportDmiFolderDialog.Handle(Unit.Default);
-            
+
         if (string.IsNullOrEmpty(directory))
         {
             return;
@@ -350,7 +356,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         await PreferencesAction.Handle(Unit.Default);
     }
-        
+
     #endregion
 
     #region Edit
@@ -416,9 +422,9 @@ public class MainWindowViewModel : ViewModelBase
     {
         CurrentOpenRsi?.DeleteSelectedStates();
     }
-        
+
     #endregion
-        
+
     private async Task LoadRSIs(string directory, List<(Rsi, string)> rsis)
     {
         foreach (var (dmiPath, rsiPath) in GetDMIFiles(directory))
@@ -436,7 +442,7 @@ public class MainWindowViewModel : ViewModelBase
         foreach (var fn in Directory.GetFiles(directory))
         {
             if (Path.GetExtension(fn) != ".dmi") continue;
-                
+
             var targetPath = Path.ChangeExtension(fn, "rsi");
 
             if (Directory.Exists(targetPath)) continue;
@@ -444,7 +450,7 @@ public class MainWindowViewModel : ViewModelBase
             yield return (fn, targetPath);
         }
     }
-        
+
     private async void SaveRsiAs(RsiItemViewModel rsi)
     {
         var path = await SaveRsiDialog.Handle(Unit.Default);

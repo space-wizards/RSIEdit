@@ -24,6 +24,8 @@
                     Command="{Binding Save}"/>
         <KeyBinding Gesture="Ctrl+Shift+S"
                     Command="{Binding SaveAs}"/>
+        <KeyBinding Gesture="Ctrl+W"
+                    Command="{Binding Close}"/>
         <KeyBinding Gesture="Ctrl+I"
                     Command="{Binding Import}"/>
         <KeyBinding Gesture="Delete"
@@ -44,6 +46,7 @@
                 <MenuItem Header="_Open..." Command="{Binding Open}" InputGesture="Ctrl+O"/>
                 <MenuItem Header="_Save" Command="{Binding Save}" InputGesture="Ctrl+S"/>
                 <MenuItem Header="Save _As..." Command="{Binding SaveAs}" InputGesture="Ctrl+Shift+S"/>
+                <MenuItem Header="Close" Command="{Binding Close}" InputGesture="Ctrl+W"/>
                 <Separator/>
                 <MenuItem Header="Save All To" Command="{Binding SaveAll}"/>
                 <Separator/>
