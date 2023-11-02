@@ -325,13 +325,13 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
             return;
         }
 
+        var lastIndex = -1;
         foreach (var state in _selectedStates.ToArray())
         {
-            if (TryDelete(state, out var index))
-            {
-                ReselectState(index);
-            }
+            TryDelete(state, out lastIndex);
         }
+
+        ReselectState(lastIndex);
     }
 
     public async Task Close()
@@ -352,7 +352,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         Modified = true;
     }
 
-    public bool TryDelete(RsiStateViewModel stateVm, [NotNullWhen(true)] out int index)
+    public bool TryDelete(RsiStateViewModel stateVm, out int index)
     {
         Item.RemoveState(stateVm.Image.State);
 
