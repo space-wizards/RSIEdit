@@ -10,6 +10,6 @@
         <Panel>
             <Image Height="96" Width="96" Source="{Binding Image.Preview}" />
         </Panel>
-        <TextBox Text="{Binding Image.State.Name, Mode=TwoWay}" HorizontalAlignment="Center" MaxWidth="96" />
+        <TextBox Text="{Binding Image.State.Name, Mode=TwoWay}" HorizontalAlignment="Center" Width="96" />
     </StackPanel>
 </UserControl>
