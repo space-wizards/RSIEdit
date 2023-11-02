@@ -12,7 +12,7 @@ namespace Test;
 public class GlobalSetup
 {
     public static TestApp? App;
-        
+
     [OneTimeSetUp]
     public static void OneTimeSetUp()
     {
@@ -27,7 +27,7 @@ public class GlobalSetup
                 App = (TestApp?) builder.Instance;
                 tcs.SetResult(SynchronizationContext.Current!);
             })
-            .UseHeadless(new AvaloniaHeadlessPlatformOptions());
+            .UseHeadless();
 
         var thread = new Thread(() => app.StartWithClassicDesktopLifetime(Array.Empty<string>()))
         {

@@ -9,6 +9,6 @@
     -->
 
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme Mode="Dark" />
     </Application.Styles>
 </Application>

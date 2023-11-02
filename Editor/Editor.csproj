@@ -19,7 +19,6 @@
     <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Avalonia.ReactiveUI" />
-    <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Microsoft.Toolkit.Diagnostics" />
     <PackageReference Include="Splat" />
   </ItemGroup>

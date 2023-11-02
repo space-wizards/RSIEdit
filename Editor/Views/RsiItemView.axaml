@@ -29,7 +29,7 @@
             </StackPanel>
         </StackPanel>
         <ScrollViewer>
-            <ListBox Name="States" SelectionMode="Multiple" ItemsSource="{Binding States}" SelectedItems="{Binding SelectedStates}">
+            <ListBox Name="States" SelectionMode="Multiple" Items="{Binding States}" SelectedItems="{Binding SelectedStates}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add new state" Command="{Binding CreateNewState}"/>
@@ -48,7 +48,7 @@
                         <views:RsiStateView DataContext="{Binding}" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
-            </ListBox>    
+            </ListBox>
         </ScrollViewer>
     </DockPanel>
 </UserControl>

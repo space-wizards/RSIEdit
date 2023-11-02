@@ -13,7 +13,6 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.ReactiveUI;
-using Avalonia.Styling;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views.Events;
@@ -188,15 +187,16 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         var dialog = new PreferencesWindow() {DataContext = vm};
         var preferences = await dialog.ShowDialog<Preferences?>(this);
 
+        var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>()!;
         if (preferences?.EasterEggs == true)
         {
-            Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
-            Background = new ImageBrush(new Bitmap(AssetLoader.Open(new Uri("avares://Editor/Assets/joke-background.png"))));
+            Icon = new WindowIcon(assetLoader.Open(new Uri("avares://Editor/Assets/joke-logo.ico")));
+            Background = new ImageBrush(new Bitmap(assetLoader.Open(new Uri("avares://Editor/Assets/joke-background.png"))));
         }
         else
         {
-            Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://Editor/Assets/logo.ico")));
-            Background = ActualThemeVariant == ThemeVariant.Dark ? Brushes.Black : Brushes.White;
+            Icon = new WindowIcon(assetLoader.Open(new Uri("avares://Editor/Assets/logo.ico")));
+            Background = null;
         }
 
         arg.SetOutput(Unit.Default);
