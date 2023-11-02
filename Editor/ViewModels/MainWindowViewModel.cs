@@ -190,7 +190,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        SaveRsiToPath(CurrentOpenRsi);
+        CurrentOpenRsi.Save();
     }
 
     public void SaveAs()
@@ -462,7 +462,7 @@ public class MainWindowViewModel : ViewModelBase
 
         rsi.SaveFolder = path;
         rsi.Title = Path.GetFileName(path);
-        SaveRsiToPath(rsi);
+        rsi.Save();
     }
 
     private async Task<Rsi?> LoadImage(string filePath)
@@ -523,16 +523,6 @@ public class MainWindowViewModel : ViewModelBase
         return metadata.ToRsi(dmi);
     }
 
-    private void SaveRsiToPath(RsiItemViewModel rsi)
-    {
-        if (rsi.SaveFolder == null)
-        {
-            return;
-        }
-
-        rsi.Item.Rsi.SaveToFolder(rsi.SaveFolder);
-    }
-
     private void SaveRsi(RsiItemViewModel rsi)
     {
         if (rsi.SaveFolder == null)
@@ -541,6 +531,6 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        SaveRsiToPath(rsi);
+        rsi.Save();
     }
 }

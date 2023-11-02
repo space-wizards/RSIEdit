@@ -486,6 +486,16 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         return bitmap;
     }
 
+    public void Save()
+    {
+        if (SaveFolder == null)
+        {
+            return;
+        }
+
+        Item.Rsi.SaveToFolder(SaveFolder);
+    }
+
     public void Dispose()
     {
         _emptyStream.Dispose();
