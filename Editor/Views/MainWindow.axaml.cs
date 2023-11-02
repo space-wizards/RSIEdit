@@ -13,6 +13,7 @@ using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.ReactiveUI;
+using Avalonia.Styling;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views.Events;
@@ -143,7 +144,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 
         interaction.SetOutput(files?.Length > 0 ? files[0] : string.Empty);
     }
-    
+
     private async Task ImportImage(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFileDialog
@@ -163,14 +164,14 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 
         interaction.SetOutput(files?.Length > 0 ? files[0] : string.Empty);
     }
-        
+
     private async Task ImportDmiFolder(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog
         {
             Title = "Convert directory",
         };
-            
+
         var folder = await dialog.ShowAsync(this);
 
         interaction.SetOutput(folder);
@@ -195,7 +196,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         else
         {
             Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://Editor/Assets/logo.ico")));
-            Background = null;
+            Background = ActualThemeVariant == ThemeVariant.Dark ? Brushes.Black : Brushes.White;
         }
 
         arg.SetOutput(Unit.Default);
@@ -294,7 +295,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             args.Files = files;
         }
     }
-        
+
     private async void OnSaveFile(MainWindow window, SaveFileDialogEvent args)
     {
         var path = await args.Dialog.ShowAsync(window);
