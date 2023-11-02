@@ -16,6 +16,7 @@ public class RsiItem
     public void AddState(RsiImage image)
     {
         Rsi.States.Add(image.State);
+        Rsi.OriginalStateNames.Add(image.State.Name);
     }
 
     public void InsertState(int index, RsiImage image)
