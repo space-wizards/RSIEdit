@@ -35,10 +35,10 @@
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <Label VerticalAlignment="Center">Size X: </Label>
                     <NumericUpDown ShowButtonSpinner="False" Value="{Binding SizeX}"></NumericUpDown>
-                    <Label VerticalAlignment="Center">Size Y: </Label>
+                    <Label VerticalAlignment="Center" Margin="10 0 0 0">Size Y: </Label>
                     <NumericUpDown ShowButtonSpinner="False" Value="{Binding SizeY}"></NumericUpDown>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Spacing="10">
                     <Label VerticalAlignment="Center">Folder: </Label>
                     <TextBox DockPanel.Dock="Right" VerticalAlignment="Center" IsReadOnly="True"
                              Text="{Binding SaveFolder, Mode=TwoWay}"/>

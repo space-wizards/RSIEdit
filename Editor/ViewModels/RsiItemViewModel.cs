@@ -127,10 +127,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
     public ObservableCollection<RsiStateViewModel> SelectedStates
     {
         get => _selectedStates;
-        set
-        {
-            this.RaiseAndSetIfChanged(ref _selectedStates, value);
-        }
+        set => this.RaiseAndSetIfChanged(ref _selectedStates, value);
     }
 
     public bool HasStateSelected
