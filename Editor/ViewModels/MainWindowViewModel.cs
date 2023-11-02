@@ -138,6 +138,7 @@ public class MainWindowViewModel : ViewModelBase
             rsi = Rsi.FromMetaJson(stream);
         }
 
+        // ReSharper disable once RedundantAlwaysMatchSubpattern
         if (rsi is not {Size: {}})
         {
             await ErrorDialog.Handle(new ErrorWindowViewModel("Error loading meta.json:\nMissing size property."));

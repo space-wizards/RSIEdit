@@ -92,8 +92,35 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
     public Interaction<RsiItemViewModel, Unit> CloseInteraction { get; } = new();
 
-    // TODO encapsulate this further
     public RsiItem Item { get; }
+
+    public int SizeX
+    {
+        get => Item.Size.X;
+        set
+        {
+            if (Item.Size.X == value)
+                return;
+
+            this.RaisePropertyChanging();
+            Item.Rsi.Size = Item.Size with { X = value };
+            this.RaisePropertyChanged();
+        }
+    }
+
+    public int SizeY
+    {
+        get => Item.Size.Y;
+        set
+        {
+            if (Item.Size.Y == value)
+                return;
+
+            this.RaisePropertyChanging();
+            Item.Rsi.Size = Item.Size with { Y = value };
+            this.RaisePropertyChanged();
+        }
+    }
 
     public ObservableCollection<RsiStateViewModel> States { get; } = new();
 
