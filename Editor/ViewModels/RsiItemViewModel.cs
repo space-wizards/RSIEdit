@@ -355,6 +355,11 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
             TryDelete(state, out lastIndex);
         }
 
+        if (lastIndex == -1)
+        {
+            return;
+        }
+
         ReselectState(lastIndex);
     }
 
