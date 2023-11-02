@@ -79,7 +79,9 @@
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>
-                            <TextBlock DockPanel.Dock="Left" Margin="0 0 5 0" Text="{Binding Title}" Width="150"/>
+                            <TextBlock DockPanel.Dock="Left" Margin="0 0 5 0"
+                                       Text="{Binding Title}" Width="150"
+                                       FontStyle="{Binding TitleStyle}" />
                             <Button DockPanel.Dock="Right" Command="{Binding Close}" Content="X"/>
                         </DockPanel>
                     </DataTemplate>

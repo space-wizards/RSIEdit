@@ -11,6 +11,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Logging;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Editor.Extensions;
 using Editor.Models.RSI;
@@ -50,7 +51,9 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
     private bool _hasStateSelected;
     private bool _hasOneStateSelected;
     private string _title;
+    private FontStyle _titleStyle;
     private ComboBoxItem? _selectedLicense;
+    private bool _modified;
 
     public RsiItemViewModel(string title = "New Rsi", RsiItem? item = null)
     {
@@ -80,7 +83,21 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref _title, value);
     }
 
-    public bool Modified { get; private set; }
+    public FontStyle TitleStyle
+    {
+        get => _titleStyle;
+        set => this.RaiseAndSetIfChanged(ref _titleStyle, value);
+    }
+
+    public bool Modified
+    {
+        get => _modified;
+        private set
+        {
+            _modified = value;
+            TitleStyle = value ? FontStyle.Italic : FontStyle.Normal;
+        }
+    }
 
     public string? SaveFolder { get; set; }
 
@@ -123,6 +140,14 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
     }
 
     public ObservableCollection<RsiStateViewModel> States { get; } = new();
+
+    private HashSet<RsiStateViewModel> DeletedUnsaved { get; } = new();
+
+    private HashSet<RsiStateViewModel> RestoredUnsaved { get; } = new();
+
+    private HashSet<RsiStateViewModel> NewStates { get; } = new();
+
+    private HashSet<RsiStateViewModel> UpdatedImages { get; } = new();
 
     public ObservableCollection<RsiStateViewModel> SelectedStates
     {
@@ -170,7 +195,6 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
                 return;
             }
 
-
             this.RaisePropertyChanging();
             Item.Rsi.Copyright = value;
             this.RaisePropertyChanged();
@@ -202,7 +226,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         }
     }
 
-    private CircularBuffer<(RsiStateViewModel model, int index)> Deleted { get; } = new(DeletedBufferSize);
+    private CircularBuffer<DeletedState> Deleted { get; } = new(DeletedBufferSize);
 
     private CircularBuffer<RsiStateViewModel> Restored { get; } = new(RestoredBufferSize);
 
@@ -247,7 +271,6 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
         AddState(vm);
         await vm.Image.State.LoadImage(bitmap, Item.Size);
-        Modified = true;
     }
 
     private bool IsExtensionValid(string filepath)
@@ -368,17 +391,21 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         await CloseInteraction.Handle(this);
     }
 
-    public void AddState(RsiStateViewModel vm)
+    private void AddState(RsiStateViewModel vm)
     {
         Item.AddState(vm.Image);
         States.Add(vm);
-        Modified = true;
+
+        NewStates.Add(vm);
+        UpdateModified();
     }
 
     public void UpdateImageState(RsiStateViewModel vm)
     {
         Item.UpdateImageState(States.IndexOf(vm), vm.Image);
-        Modified = true;
+
+        UpdatedImages.Add(vm);
+        UpdateModified();
     }
 
     public bool TryDelete(RsiStateViewModel stateVm, out int index)
@@ -398,8 +425,16 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
             SelectedStates.Remove(stateVm);
         }
 
-        Deleted.PushFront((stateVm, index));
-        Modified = true;
+        var isNew = NewStates.Remove(stateVm);
+        if (!RestoredUnsaved.Remove(stateVm))
+        {
+            DeletedUnsaved.Add(stateVm);
+        }
+
+        UpdateModified();
+
+        Deleted.PushFront(new DeletedState(stateVm, index, isNew));
+
         return true;
     }
 
@@ -411,13 +446,25 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
             return false;
         }
 
-        var (model, index) = element;
+        var (model, index, isNew) = element;
 
         Item.InsertState(index, model.Image);
         States.Insert(index, model);
 
         Restored.PushFront(model);
         restored = model;
+
+        if (isNew)
+        {
+            NewStates.Add(model);
+        }
+
+        if (!DeletedUnsaved.Remove(model))
+        {
+            RestoredUnsaved.Add(model);
+        }
+
+        UpdateModified();
         return true;
     }
 
@@ -465,8 +512,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
         foreach (var state in SelectedStates)
         {
-            var image = state.Image;
-            var rsiState = image.State;
+            var rsiState = state.Image.State;
 
             for (var direction = 0; direction < (int) rsiState.Directions; direction++)
             {
@@ -499,6 +545,17 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         }
 
         Item.Rsi.SaveToFolder(SaveFolder);
+
+        DeletedUnsaved.Clear();
+        RestoredUnsaved.Clear();
+        NewStates.Clear();
+        UpdatedImages.Clear();
+        UpdateModified();
+    }
+
+    private void UpdateModified()
+    {
+        Modified = DeletedUnsaved.Count + RestoredUnsaved.Count + NewStates.Count + UpdatedImages.Count > 0;
     }
 
     public void Dispose()
@@ -506,4 +563,6 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         _emptyStream.Dispose();
         Item.Rsi.Dispose();
     }
+
+    private readonly record struct DeletedState(RsiStateViewModel Model, int Index, bool IsNew);
 }
