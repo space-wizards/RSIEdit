@@ -18,7 +18,7 @@ namespace Editor;
 
 public class App : Application
 {
-    private const string OnlineRepositoryLicenses = "https://github.com/space-wizards/RSIEdit/raw/master/Assets/repository-licenses.json";
+    private const string OnlineRepositoryLicenses = "https://github.com/space-wizards/RSIEdit/raw/master/Editor/Assets/repository-licenses.json";
 
     public override void Initialize()
     {
@@ -68,7 +68,7 @@ public class App : Application
             if (!response.IsSuccessStatusCode)
                 return null;
 
-            var stream = await http.GetStreamAsync(OnlineRepositoryLicenses);
+            var stream = await response.Content.ReadAsStreamAsync();
             return ParseRepositoryLicenses(stream);
         });
     }
