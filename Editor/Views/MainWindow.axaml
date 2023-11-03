@@ -78,7 +78,7 @@
             </MenuItem>
         </Menu>
         <Grid>
-            <TabControl Items="{Binding OpenRsis}" SelectedItem="{Binding CurrentOpenRsi}">
+            <TabControl Items="{Binding OpenRsis}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}">
                 <TabControl.ItemTemplate>
                     <DataTemplate>
                         <DockPanel>

@@ -38,6 +38,7 @@ public class MainWindowViewModel : ViewModelBase
     private static readonly ImmutableArray<string> ValidDownloadHosts =
         ImmutableArray.Create<string>("github.com", "www.github.com");
 
+    private int _selectedIndex;
     private RsiItemViewModel? _currentOpenRsi;
     private readonly ObservableCollection<RsiItemViewModel> _openRsis = new();
 
@@ -56,8 +57,23 @@ public class MainWindowViewModel : ViewModelBase
     public RsiItemViewModel? CurrentOpenRsi
     {
         get => _currentOpenRsi;
-        set => this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
+
+            if (value != null)
+            {
+                SelectedIndex = _openRsis.IndexOf(value);
+            }
+        }
     }
+
+    public int SelectedIndex
+    {
+        get => _selectedIndex;
+        set => this.RaiseAndSetIfChanged(ref _selectedIndex, value);
+    }
+
     public Interaction<Unit, bool> NewRsiAction { get; } = new();
 
     public Interaction<Unit, string?> OpenRsiDialog { get; } = new();
