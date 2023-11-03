@@ -31,5 +31,5 @@ public sealed class Preferences
 [JsonSerializable(typeof(Preferences))]
 internal sealed partial class PreferencesJsonContext : JsonSerializerContext
 {
-    
+
 }

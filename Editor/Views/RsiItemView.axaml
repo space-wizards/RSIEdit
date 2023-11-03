@@ -20,8 +20,8 @@
                     <ComboBox SelectedItem="{Binding SelectedLicense}">
                         <ComboBoxItem Content="None" />
                         <ComboBoxItem Content="CC-BY-SA-3.0" />
-                        <ComboBoxItem Content="CC-BY-NC-SA 3.0" />
-                        <ComboBoxItem Content="CC-BY-SA 4.0" />
+                        <ComboBoxItem Content="CC-BY-NC-SA-3.0" />
+                        <ComboBoxItem Content="CC-BY-SA-4.0" />
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">

@@ -1,10 +1,14 @@
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Logging;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform;
+using Editor.Converters;
 using Editor.Models;
 using Editor.ViewModels;
 using Editor.Views;
@@ -14,6 +18,8 @@ namespace Editor;
 
 public class App : Application
 {
+    private const string OnlineRepositoryLicenses = "https://github.com/space-wizards/RSIEdit/raw/master/Assets/repository-licenses.json";
+
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -47,6 +53,24 @@ public class App : Application
 
             return preferences;
         });
+
+        Locator.CurrentMutable.RegisterLazySingleton(() =>
+        {
+            var assetLoader = AvaloniaLocator.Current.GetService<IAssetLoader>()!;
+            var repoLicensesFile = assetLoader.Open(new Uri("avares://Editor/Assets/repository-licenses.json"));
+            return ParseRepositoryLicenses(repoLicensesFile);
+        });
+
+        Locator.CurrentMutable.RegisterLazySingleton(async () =>
+        {
+            var http = new HttpClient();
+            var response = await http.GetAsync(OnlineRepositoryLicenses);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var stream = await http.GetStreamAsync(OnlineRepositoryLicenses);
+            return ParseRepositoryLicenses(stream);
+        });
     }
 
     public override void OnFrameworkInitializationCompleted()
@@ -62,5 +86,23 @@ public class App : Application
         }
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private RepositoryLicenses? ParseRepositoryLicenses(Stream stream)
+    {
+        var options = new JsonSerializerOptions { Converters = { new ListStringTupleConverter() } };
+        var context = new RepoLicensesSourceGenerationContext(options);
+        var repoLicensesList = JsonSerializer.Deserialize(stream, context.ListValueTupleStringString);
+        if (repoLicensesList == null)
+            return null;
+
+        var repoLicenses = new RepositoryLicenses();
+        repoLicenses.Repositories.AddRange(repoLicensesList);
+        foreach (var (repo, license) in repoLicenses.Repositories)
+        {
+            repoLicenses.RepositoriesRegex.Add((new Regex(repo), license));
+        }
+
+        return repoLicenses;
     }
 }

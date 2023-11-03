@@ -55,9 +55,9 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
     private ComboBoxItem? _selectedLicense;
     private bool _modified;
 
-    public RsiItemViewModel(string title = "New Rsi", RsiItem? item = null)
+    public RsiItemViewModel(string? title = null, RsiItem? item = null)
     {
-        _title = title;
+        _title = title ?? "New Rsi";
         Item = item ?? new RsiItem();
 
         SelectedStates.CollectionChanged += OnStateModified;

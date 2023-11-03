@@ -26,6 +26,8 @@
                     Command="{Binding SaveAs}"/>
         <KeyBinding Gesture="Ctrl+W"
                     Command="{Binding Close}"/>
+        <KeyBinding Gesture="Ctrl+V"
+                    Command="{Binding Paste}"/>
         <KeyBinding Gesture="Ctrl+I"
                     Command="{Binding Import}"/>
         <KeyBinding Gesture="Delete"

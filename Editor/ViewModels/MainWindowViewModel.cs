@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Logging;
 using Editor.Extensions;
 using Editor.Models;
@@ -21,6 +25,7 @@ using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using Splat;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace Editor.ViewModels;
 
@@ -28,16 +33,19 @@ public class MainWindowViewModel : ViewModelBase
 {
     private static readonly GifDecoder GifDecoder = new();
     private static readonly PngDecoder PngDecoder = new();
+    private static readonly HttpClient Http = new();
+
+    private static readonly ImmutableArray<string> ValidDownloadHosts =
+        ImmutableArray.Create<string>("github.com", "www.github.com");
 
     private RsiItemViewModel? _currentOpenRsi;
     private readonly ObservableCollection<RsiItemViewModel> _openRsis = new();
 
-    public MainWindowViewModel()
-    {
-        Preferences = Locator.Current.GetRequiredService<Preferences>();
-    }
+    public Preferences Preferences { get; } = Locator.Current.GetRequiredService<Preferences>();
 
-    public Preferences Preferences { get; }
+    private RepositoryLicenses RepositoryLicenses { get; } = Locator.Current.GetRequiredService<RepositoryLicenses>();
+
+    private Task<RepositoryLicenses?> OnlineRepositoryLicenses { get; } = Locator.Current.GetRequiredService<Task<RepositoryLicenses?>>();
 
     private MetadataParser DmiParser { get; } = new();
 
@@ -105,15 +113,18 @@ public class MainWindowViewModel : ViewModelBase
     public async Task NewAsync()
     {
         if (await NewRsiAction.Handle(Unit.Default))
-        {
-            CurrentOpenRsi = new RsiItemViewModel
-            {
-                License = Preferences.DefaultLicense,
-                Copyright = Preferences.DefaultCopyright
-            };
+            CreateNewRsi();
+    }
 
-            AddRsi(CurrentOpenRsi);
-        }
+    private void CreateNewRsi(string? title = null, RsiItem? rsi = null)
+    {
+        CurrentOpenRsi = new RsiItemViewModel(title, rsi)
+        {
+            License = rsi?.Rsi.License ?? Preferences.DefaultLicense,
+            Copyright = rsi?.Rsi.Copyright ?? Preferences.DefaultCopyright,
+        };
+
+        AddRsi(CurrentOpenRsi);
     }
 
     public async Task OpenRsi(string folderPath)
@@ -222,6 +233,95 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (CurrentOpenRsi != null)
             CloseRsi(CurrentOpenRsi);
+    }
+
+    public async Task Paste()
+    {
+        if (Application.Current?.Clipboard?.GetTextAsync() is not { } task)
+            return;
+
+        var clipboard = await task;
+        if (string.IsNullOrWhiteSpace(clipboard) ||
+            !Uri.TryCreate(clipboard, UriKind.Absolute, out var url) ||
+            !ValidDownloadHosts.Contains(url.Host))
+        {
+            return;
+        }
+
+        var builder = new UriBuilder(url) { Port = -1 };
+        var pathStrings = builder.Path.Split('/');
+        if (pathStrings.Length < 4)
+            return;
+
+        pathStrings[3] = "raw";
+
+        var dmiExtensionIndex = pathStrings[^1].LastIndexOf(".dmi", StringComparison.Ordinal);
+        if (dmiExtensionIndex == -1)
+            return;
+
+        builder.Path = string.Join('/', pathStrings);
+        var downloadResponse = await Http.GetAsync(builder.ToString());
+        if (!downloadResponse.IsSuccessStatusCode)
+            return;
+
+        var stream = await downloadResponse.Content.ReadAsStreamAsync();
+        var rsi = await LoadDmi(stream, clipboard);
+        if (rsi == null)
+            return;
+
+        pathStrings[3] = "commits";
+
+        builder.Path = string.Join('/', pathStrings);
+        var response = await Http.GetAsync(builder.ToString());
+        if (!response.IsSuccessStatusCode)
+            return;
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        var owner = pathStrings[1];
+        var codebase = pathStrings[2];
+
+        // We aren't trying to match tags so we should be safe from Zalgo
+        var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)\"", RegexOptions.None, TimeSpan.FromSeconds(10));
+        var match = lastCommitRegex.Match(html);
+
+        if (match.Success)
+        {
+            pathStrings[3] = "blob";
+
+            // commit hash
+            pathStrings[4] = match.Groups[1].Value;
+
+            builder.Path = string.Join('/', pathStrings);
+
+            var link = builder.ToString();
+            rsi.Copyright = $"Taken from {codebase} at {link}";
+
+            var path = builder.Path;
+            if (path.StartsWith('/'))
+                path = path[1..];
+
+            var repositories = RepositoryLicenses.RepositoriesRegex;
+            if (OnlineRepositoryLicenses.IsCompletedSuccessfully &&
+                (await OnlineRepositoryLicenses)?.RepositoriesRegex is { } onlineRepositories)
+            {
+                repositories = onlineRepositories;
+            }
+
+            foreach (var (repo, license) in repositories)
+            {
+                if (repo.IsMatch(path))
+                {
+                    rsi.License = license;
+                    break;
+                }
+            }
+        }
+
+        var dmiName = pathStrings[^1];
+        var rsiName = $"{dmiName[..dmiExtensionIndex]}.rsi";
+
+        CreateNewRsi(rsiName, new RsiItem(rsi));
     }
 
     public async Task ImportImage(string filePath)
@@ -525,21 +625,28 @@ public class MainWindowViewModel : ViewModelBase
 
     private async Task<Rsi?> LoadDmi(string filePath)
     {
-        if (!DmiParser.TryGetFileMetadata(filePath, out var metadata, out var parseError))
+        await using var stream = File.OpenRead(filePath);
+        return await LoadDmi(stream, filePath);
+    }
+
+    private async Task<Rsi?> LoadDmi(Stream stream, string name)
+    {
+        if (!DmiParser.TryGetFileMetadata(stream, out var metadata, out var parseError))
         {
-            await ErrorDialog.Handle(new ErrorWindowViewModel(parseError.Message));
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading metadata for dmi {name}:\n{parseError.Message}"));
             return null;
         }
 
         Image<Rgba32> dmi;
         try
         {
-            dmi = Image.Load<Rgba32>(filePath, PngDecoder);
+            stream.Seek(0, SeekOrigin.Begin);
+            dmi = Image.Load<Rgba32>(stream, PngDecoder);
         }
         catch (Exception e)
         {
             Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading dmi at {filePath} image:\n{e.Message}"));
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading image for dmi {name}:\n{e.Message}"));
             return null;
         }
 

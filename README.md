@@ -27,3 +27,11 @@ Note that this package is not maintained by us. Read the PKGBUILD and then proce
 1. Clone this repo.
 2. Run `git submodule update --init` to init submodules and download the importer.
 3. Compile the solution.
+
+## Repository asset licenses
+When a GitHub url ending in .dmi is pasted into the editor it will try to import it.  
+The json at [Assets/repo-licenses](https://github.com/space-wizards/RSIEdit/Assets/repo-licenses.json) dictates which license it will use by default for that repository.  
+Matches closest to the top take preference.  
+This license is not guaranteed to be correct and should always be checked manually after importing, as some repositories use different licenses depending on which folder they are in, or the commit may specifically attribute a different license to that particular asset.  
+The editor will always try to fetch this file from the repository to read up-to-date repository and license pairings, but will fallback to the local copy if it is unable to.  
+These licenses should be one of the valid ones listed in [rsi-schema.json](https://github.com/space-wizards/space-station-14/blob/master/.github/rsi-schema.json)
