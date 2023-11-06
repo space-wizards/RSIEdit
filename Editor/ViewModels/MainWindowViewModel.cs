@@ -115,7 +115,7 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (_openRsis.Remove(vm) && CurrentOpenRsi == vm)
         {
-            CurrentOpenRsi = null;
+            CurrentOpenRsi = _openRsis.Count == 0 ? null : _openRsis[^1];
         }
     }
 
