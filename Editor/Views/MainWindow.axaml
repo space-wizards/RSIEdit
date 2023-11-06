@@ -75,6 +75,8 @@
                 <Separator/>
                 <MenuItem Header="Change All Licenses..." Command="{Binding ChangeAllLicenses}"/>
                 <MenuItem Header="Change All Copyrights..." Command="{Binding ChangeAllCopyrights}"/>
+                <Separator/>
+                <MenuItem Header="Reformat all names" Command="{Binding ReformatAllNames}"/>
             </MenuItem>
         </Menu>
         <Grid>

@@ -338,6 +338,7 @@ public class MainWindowViewModel : ViewModelBase
         var rsiName = $"{dmiName[..dmiExtensionIndex]}.rsi";
 
         CreateNewRsi(rsiName, new RsiItem(rsi));
+        ReformatAllNames();
     }
 
     public async Task ImportImage(string filePath)
@@ -555,6 +556,19 @@ public class MainWindowViewModel : ViewModelBase
         foreach (var rsi in _openRsis)
         {
             rsi.Copyright = copyright;
+        }
+    }
+
+    public void ReformatAllNames()
+    {
+        if (CurrentOpenRsi == null)
+        {
+            return;
+        }
+
+        foreach (var state in CurrentOpenRsi.States)
+        {
+            state.Name = state.Name.Replace(' ', '_').ToLowerInvariant();
         }
     }
 
