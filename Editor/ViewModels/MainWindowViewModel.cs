@@ -647,7 +647,7 @@ public class MainWindowViewModel : ViewModelBase
         catch (Exception e)
         {
             Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading image at {filePath} image:\n{e.Message}"));
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading image\n{filePath}\n{e.Message}"));
         }
 
         return rsi;
@@ -663,24 +663,22 @@ public class MainWindowViewModel : ViewModelBase
     {
         if (!DmiParser.TryGetFileMetadata(stream, out var metadata, out var parseError))
         {
-            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading metadata for dmi {name}:\n{parseError.Message}"));
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading metadata for dmi\n{name}\n{parseError.Message}"));
             return null;
         }
 
-        Image<Rgba32> dmi;
         try
         {
             stream.Seek(0, SeekOrigin.Begin);
-            dmi = Image.Load<Rgba32>(stream, PngDecoder);
+            var dmi = Image.Load<Rgba32>(stream, PngDecoder);
+            return metadata.ToRsi(dmi);
         }
         catch (Exception e)
         {
             Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
-            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading image for dmi {name}:\n{e.Message}"));
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading image for dmi\n{name}\n{e.Message}"));
             return null;
         }
-
-        return metadata.ToRsi(dmi);
     }
 
     private void SaveRsi(RsiItemViewModel rsi)
