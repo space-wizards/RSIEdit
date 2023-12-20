@@ -160,7 +160,7 @@ public class MainWindowViewModel : ViewModelBase
         }
 
         Rsi rsi;
-        using (var stream = File.OpenRead(metaJsonFiles[0]))
+        await using (var stream = File.OpenRead(metaJsonFiles[0]))
         {
             rsi = Rsi.FromMetaJson(stream);
         }
@@ -172,7 +172,16 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        rsi.TryLoadFolderImages(folderPath);
+        try
+        {
+            rsi.TryLoadFolderImages(folderPath);
+        }
+        catch (Exception e)
+        {
+            Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
+            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading .rsi images:\n{e.Message}"));
+            return;
+        }
 
         var rsiItem = new RsiItem(rsi);
         var name = Path.GetFileName(folderPath);
