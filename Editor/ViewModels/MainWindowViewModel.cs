@@ -602,7 +602,7 @@ public class MainWindowViewModel : ViewModelBase
 
     private IEnumerable<(string DMI, string RSI)> GetDMIFiles(string directory)
     {
-        foreach (var fn in Directory.GetFiles(directory))
+        foreach (var fn in Directory.GetFiles(directory, "*.dmi", SearchOption.AllDirectories))
         {
             if (Path.GetExtension(fn) != ".dmi") continue;
 
