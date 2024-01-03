@@ -391,6 +391,31 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         ReselectState(lastIndex);
     }
 
+    public void DeleteUnselectedStates()
+    {
+        if (_selectedStates.Count == 0)
+        {
+            return;
+        }
+
+        var selected = _selectedStates.ToHashSet();
+        var lastIndex = -1;
+        foreach (var state in _states.ToArray())
+        {
+            if (!selected.Contains(state))
+            {
+                TryDelete(state, out lastIndex);
+            }
+        }
+
+        if (lastIndex == -1)
+        {
+            return;
+        }
+
+        ReselectState(lastIndex);
+    }
+
     public async Task Close()
     {
         await CloseInteraction.Handle(this);

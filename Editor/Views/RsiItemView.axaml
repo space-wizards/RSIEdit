@@ -53,6 +53,7 @@
                         <MenuItem Header="Import Image" IsEnabled="{Binding HasOneStateSelected}" Command="{Binding ImportImage}"/>
                         <MenuItem Header="Export PNG" IsEnabled="{Binding HasOneStateSelected}" Command="{Binding ExportPng}"/>
                         <MenuItem Header="Delete" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteSelectedStates}" InputGesture="Delete" />
+                        <MenuItem Header="Delete all other states" IsEnabled="{Binding HasStateSelected}" Command="{Binding DeleteUnselectedStates}" InputGesture="Ctrl+Delete" />
                     </ContextMenu>
                 </ListBox.ContextMenu>
                 <ListBox.ItemsPanel>
