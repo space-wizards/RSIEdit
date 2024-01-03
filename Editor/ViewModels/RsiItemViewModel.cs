@@ -27,8 +27,8 @@ namespace Editor.ViewModels;
 
 public class RsiItemViewModel : ViewModelBase, IDisposable
 {
-    private const int DeletedBufferSize = 200;
-    private const int RestoredBufferSize = 200;
+    private const int DeletedBufferSize = 500;
+    private const int RestoredBufferSize = 500;
 
     private static readonly ResizeOptions PreviewResizeOptions = new()
     {
