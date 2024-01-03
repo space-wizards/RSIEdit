@@ -40,6 +40,9 @@ public class MainWindowViewModel : ViewModelBase
     private int _selectedIndex;
     private RsiItemViewModel? _currentOpenRsi;
     private readonly ObservableCollection<RsiItemViewModel> _openRsis = new();
+    private string? _lastOpenedElement;
+    private bool _hasLastOpenedElement;
+    private bool _isRsiOpen;
 
     public Preferences Preferences { get; } = Locator.Current.GetRequiredService<Preferences>();
 
@@ -49,7 +52,21 @@ public class MainWindowViewModel : ViewModelBase
 
     private MetadataParser DmiParser { get; } = new();
 
-    private string? LastOpenedElement { get; set; }
+    private string? LastOpenedElement
+    {
+        get => _lastOpenedElement;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _lastOpenedElement, value);
+            HasLastOpenedElement = value != null;
+        }
+    }
+
+    public bool HasLastOpenedElement
+    {
+        get => _hasLastOpenedElement;
+        set => this.RaiseAndSetIfChanged(ref _hasLastOpenedElement, value);
+    }
 
     public IReadOnlyList<RsiItemViewModel> OpenRsis => _openRsis;
 
@@ -71,6 +88,12 @@ public class MainWindowViewModel : ViewModelBase
     {
         get => _selectedIndex;
         set => this.RaiseAndSetIfChanged(ref _selectedIndex, value);
+    }
+
+    public bool IsRsiOpen
+    {
+        get => _isRsiOpen;
+        set => this.RaiseAndSetIfChanged(ref _isRsiOpen, value);
     }
 
     public Interaction<Unit, bool> NewRsiAction { get; } = new();
@@ -108,13 +131,22 @@ public class MainWindowViewModel : ViewModelBase
     {
         _openRsis.Add(vm);
         CurrentOpenRsi = vm;
+        IsRsiOpen = true;
     }
 
     public void CloseRsi(RsiItemViewModel vm)
     {
         if (_openRsis.Remove(vm) && CurrentOpenRsi == vm)
         {
-            CurrentOpenRsi = _openRsis.Count == 0 ? null : _openRsis[^1];
+            if (_openRsis.Count == 0)
+            {
+                CurrentOpenRsi = null;
+                IsRsiOpen = false;
+            }
+            else
+            {
+                CurrentOpenRsi = _openRsis[^1];
+            }
         }
     }
 

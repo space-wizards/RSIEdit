@@ -46,39 +46,39 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Command="{Binding New}" InputGesture="Ctrl+N"/>
                 <MenuItem Header="_Open..." Command="{Binding Open}" InputGesture="Ctrl+O"/>
-                <MenuItem Header="_Save" Command="{Binding Save}" InputGesture="Ctrl+S"/>
-                <MenuItem Header="Save _As..." Command="{Binding SaveAs}" InputGesture="Ctrl+Shift+S"/>
-                <MenuItem Header="Close" Command="{Binding Close}" InputGesture="Ctrl+W"/>
+                <MenuItem Header="_Save" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Save}" InputGesture="Ctrl+S"/>
+                <MenuItem Header="Save _As..." IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAs}" InputGesture="Ctrl+Shift+S"/>
+                <MenuItem Header="Close" Command="{Binding Close}" IsEnabled="{Binding IsRsiOpen}" InputGesture="Ctrl+W"/>
                 <Separator/>
-                <MenuItem Header="Save All To" Command="{Binding SaveAll}"/>
+                <MenuItem Header="Save All To" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAll}"/>
                 <Separator/>
                 <MenuItem Header="_Convert DMI...">
                     <MenuItem Header="File" Command="{Binding SingleConvertDMI}"/>
                     <MenuItem Header="Folder" Command="{Binding BulkConvertDMI}"/>
                 </MenuItem>
                 <MenuItem Header="_Import..." Command="{Binding Import}" InputGesture="Ctrl+I"/>
-                <MenuItem Header="_Re-Open Last Folder" Command="{Binding ReOpenLast}"/>
-                <MenuItem Header="_Open Current RSI Folder" Command="{Binding OpenCurrentRsi}"/>
+                <MenuItem Header="_Re-Open Last Folder" IsEnabled="{Binding HasLastOpenedElement}" Command="{Binding ReOpenLast}"/>
+                <MenuItem Header="_Open Current RSI Folder" IsEnabled="{Binding IsRsiOpen}" Command="{Binding OpenCurrentRsi}"/>
                 <Separator/>
                 <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
-                <MenuItem Header="_Redo" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
+                <MenuItem Header="_Undo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
+                <MenuItem Header="_Redo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>
-                <MenuItem Header="_Undo All" Command="{Binding UndoAll}"/>
-                <MenuItem Header="_Deselect All" Command="{Binding DeselectAll}"/>
+                <MenuItem Header="_Undo All" IsEnabled="{Binding IsRsiOpen}" Command="{Binding UndoAll}"/>
+                <MenuItem Header="_Deselect All" IsEnabled="{Binding IsRsiOpen}" Command="{Binding DeselectAll}"/>
                 <Separator/>
-                <MenuItem Header="1 Direction" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.None}"/>
-                <MenuItem Header="4 Directions (cardinal)" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Cardinal}"/>
-                <MenuItem Header="8 Directions (diagonal)" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Diagonal}"/>
+                <MenuItem Header="1 Direction" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.None}"/>
+                <MenuItem Header="4 Directions (cardinal)" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Cardinal}"/>
+                <MenuItem Header="8 Directions (diagonal)" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Directions}" CommandParameter="{x:Static directions:DirectionType.Diagonal}"/>
                 <Separator/>
-                <MenuItem Header="Change All Licenses..." Command="{Binding ChangeAllLicenses}"/>
-                <MenuItem Header="Change All Copyrights..." Command="{Binding ChangeAllCopyrights}"/>
+                <MenuItem Header="Change All Licenses..." IsEnabled="{Binding IsRsiOpen}" Command="{Binding ChangeAllLicenses}"/>
+                <MenuItem Header="Change All Copyrights..." IsEnabled="{Binding IsRsiOpen}" Command="{Binding ChangeAllCopyrights}"/>
                 <Separator/>
-                <MenuItem Header="Reformat all names" Command="{Binding ReformatAllNames}"/>
+                <MenuItem Header="Reformat all names" IsEnabled="{Binding IsRsiOpen}" Command="{Binding ReformatAllNames}"/>
                 <Separator/>
-                <MenuItem Header="Sort alphabetically" Command="{Binding SortAlphabetically}"/>
+                <MenuItem Header="Sort alphabetically" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SortAlphabetically}"/>
             </MenuItem>
         </Menu>
         <Grid>
