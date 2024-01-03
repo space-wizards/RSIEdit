@@ -528,7 +528,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
     private void RefreshFrames()
     {
-        if (SelectedStates.Count == 0)
+        if (SelectedStates.Count != 1)
         {
             for (var i = 0; i < 8; i++)
             {
@@ -540,19 +540,15 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
             return;
         }
 
-        foreach (var state in SelectedStates)
+        var state = SelectedStates[0].Image.State;
+
+        for (var direction = 0; direction < (int) state.Directions; direction++)
         {
-            var rsiState = state.Image.State;
-
-            for (var direction = 0; direction < (int) rsiState.Directions; direction++)
-            {
-                var frame = rsiState.Frames[direction, 0]?.ToBitmap(PreviewResizeOptions) ?? _blankFrame;
-                Frames.Set((Direction) direction, frame);
-            }
-
-            Frames.SetDirections(rsiState.Directions);
+            var frame = state.Frames[direction, 0]?.ToBitmap(PreviewResizeOptions) ?? _blankFrame;
+            Frames.Set((Direction) direction, frame);
         }
 
+        Frames.SetDirections(state.Directions);
     }
 
     private Bitmap CreateEmptyBitmap()
