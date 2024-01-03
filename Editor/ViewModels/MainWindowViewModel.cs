@@ -20,7 +20,6 @@ using SpaceWizards.RsiLib.Directions;
 using SpaceWizards.RsiLib.DMI.Metadata;
 using SpaceWizards.RsiLib.RSI;
 using ReactiveUI;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Gif;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -579,6 +578,18 @@ public class MainWindowViewModel : ViewModelBase
         {
             state.Name = state.Name.Replace(' ', '_').ToLowerInvariant();
         }
+    }
+
+    public void SortAlphabetically()
+    {
+        if (CurrentOpenRsi == null)
+        {
+            return;
+        }
+
+        var states = CurrentOpenRsi.States.ToList();
+        states.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.Ordinal));
+        CurrentOpenRsi.States = new ObservableCollection<RsiStateViewModel>(states);
     }
 
     public void Delete()

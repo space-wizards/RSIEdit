@@ -77,6 +77,8 @@
                 <MenuItem Header="Change All Copyrights..." Command="{Binding ChangeAllCopyrights}"/>
                 <Separator/>
                 <MenuItem Header="Reformat all names" Command="{Binding ReformatAllNames}"/>
+                <Separator/>
+                <MenuItem Header="Sort alphabetically" Command="{Binding SortAlphabetically}"/>
             </MenuItem>
         </Menu>
         <Grid>

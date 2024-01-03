@@ -47,6 +47,7 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
     private readonly MemoryStream _emptyStream = new();
     private readonly Bitmap _blankFrame;
 
+    private ObservableCollection<RsiStateViewModel> _states = new();
     private ObservableCollection<RsiStateViewModel> _selectedStates = new();
     private bool _hasStateSelected;
     private bool _hasOneStateSelected;
@@ -139,7 +140,11 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public ObservableCollection<RsiStateViewModel> States { get; } = new();
+    public ObservableCollection<RsiStateViewModel> States
+    {
+        get => _states;
+        set => this.RaiseAndSetIfChanged(ref _states, value);
+    }
 
     private HashSet<RsiStateViewModel> DeletedUnsaved { get; } = new();
 
