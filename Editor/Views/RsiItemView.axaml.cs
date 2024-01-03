@@ -83,10 +83,11 @@ public partial class RsiItemView : ReactiveUserControl<RsiItemViewModel>
             DefaultExtension = "png",
             InitialFileName = ViewModel?.SelectedStates[0].Image.State.Name ?? string.Empty,
         };
-            
+
         var args = new SaveFileDialogEvent(dialog, interaction.Input) { RoutedEvent = MainWindow.SaveFileEvent };
         RaiseEvent(args);
-            
+
+        interaction.SetOutput(Unit.Default);
     }
 
     private void Close(InteractionContext<RsiItemViewModel, Unit> interaction)
