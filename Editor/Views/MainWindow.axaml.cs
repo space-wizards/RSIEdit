@@ -92,19 +92,19 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         return confirmed;
     }
 
-    public async Task<bool> DoNewRsi()
+    public bool DoNewRsi()
     {
         if (ViewModel == null)
         {
             return false;
         }
 
-        return await TryOpenConfirmation("Are you sure you want to create a new RSI?");
+        return true;
     }
 
-    private async Task NewRsi(InteractionContext<Unit, bool> interaction)
+    private void NewRsi(InteractionContext<Unit, bool> interaction)
     {
-        var confirm = await DoNewRsi();
+        var confirm = DoNewRsi();
         interaction.SetOutput(confirm);
     }
 
