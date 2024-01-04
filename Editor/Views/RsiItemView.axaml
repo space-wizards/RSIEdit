@@ -37,8 +37,8 @@
                     <NumericUpDown ShowButtonSpinner="False" Value="{Binding SizeX}"></NumericUpDown>
                     <Label VerticalAlignment="Center" Margin="10 0 0 0">Size Y: </Label>
                     <NumericUpDown ShowButtonSpinner="False" Value="{Binding SizeY}"></NumericUpDown>
-                    <Label>Search: </Label>
-                    <TextBox Text="{Binding Search, Mode=TwoWay}"></TextBox>
+                    <Label VerticalAlignment="Center">Search: </Label>
+                    <TextBox Text="{Binding Search, Mode=TwoWay}" HorizontalAlignment="Stretch" Width="200"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <Label VerticalAlignment="Center">Folder: </Label>
