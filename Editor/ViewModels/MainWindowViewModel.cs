@@ -45,6 +45,8 @@ public class MainWindowViewModel : ViewModelBase
     private bool _isRsiOpen;
     private bool _hasCopiedStates;
     private readonly List<RsiImage> _copiedStates = new();
+    private string? _copiedLicense;
+    private string? _copiedCopyright;
 
     public Preferences Preferences { get; } = Locator.Current.GetRequiredService<Preferences>();
 
@@ -545,6 +547,9 @@ public class MainWindowViewModel : ViewModelBase
                 _copiedStates.Add(state.Image);
             }
 
+            _copiedLicense = CurrentOpenRsi.License;
+            _copiedCopyright = CurrentOpenRsi.Copyright;
+
             HasCopiedStates = true;
         }
     }
@@ -556,6 +561,30 @@ public class MainWindowViewModel : ViewModelBase
             foreach (var copy in _copiedStates)
             {
                 await CurrentOpenRsi.CreateNewState(copy);
+            }
+
+            if (_copiedLicense != null && string.IsNullOrWhiteSpace(CurrentOpenRsi.License))
+            {
+                CurrentOpenRsi.License = _copiedLicense;
+            }
+
+            if (_copiedCopyright != null)
+            {
+                if (string.IsNullOrWhiteSpace(CurrentOpenRsi.Copyright))
+                {
+                    CurrentOpenRsi.Copyright = _copiedCopyright;
+                }
+                else
+                {
+                    var copyright = _copiedCopyright;
+                    if (copyright.StartsWith("Taken from "))
+                    {
+                        var index = copyright.IndexOf(" at ", StringComparison.Ordinal);
+                        copyright = copyright[(index + 4)..];
+                    }
+
+                    CurrentOpenRsi.Copyright += $", {copyright}";
+                }
             }
         }
     }
