@@ -43,6 +43,7 @@ public class MainWindowViewModel : ViewModelBase
     private string? _lastOpenedElement;
     private bool _hasLastOpenedElement;
     private bool _isRsiOpen;
+    private bool _hasCopiedStates;
     private readonly List<RsiImage> _copiedStates = new();
 
     public Preferences Preferences { get; } = Locator.Current.GetRequiredService<Preferences>();
@@ -103,6 +104,12 @@ public class MainWindowViewModel : ViewModelBase
     {
         get => _isRsiOpen;
         set => this.RaiseAndSetIfChanged(ref _isRsiOpen, value);
+    }
+
+    public bool HasCopiedStates
+    {
+        get => _hasCopiedStates;
+        set => this.RaiseAndSetIfChanged(ref _hasCopiedStates, value);
     }
 
     public Interaction<Unit, bool> NewRsiAction { get; } = new();
@@ -528,7 +535,7 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Edit
 
-    public void Copy()
+    public void CopyStates()
     {
         if (CurrentOpenRsi?.SelectedStates.Count > 0)
         {
@@ -537,6 +544,8 @@ public class MainWindowViewModel : ViewModelBase
             {
                 _copiedStates.Add(state.Image);
             }
+
+            HasCopiedStates = true;
         }
     }
 
