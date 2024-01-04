@@ -31,7 +31,7 @@ public partial class RsiItemView : ReactiveUserControl<RsiItemViewModel>
                         d.Add(vm.ExportPngInteraction.RegisterHandler(ExportPng));
                         d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
                         d.Add(vm.CloseInteraction.RegisterHandler(Close));
-                        d.Add(vm.States.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
+                        d.Add(vm.VisibleStates.Subscribe(new AnonymousObserver<RsiStateViewModel>(s => d.Add(s.Image.Preview))));
                         d.Add(vm);
                     }
                 })));

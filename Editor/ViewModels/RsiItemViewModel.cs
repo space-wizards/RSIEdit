@@ -13,6 +13,7 @@ using Avalonia.Controls;
 using Avalonia.Logging;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using DynamicData;
 using Editor.Extensions;
 using Editor.Models.RSI;
 using SpaceWizards.RsiLib.Directions;
@@ -49,12 +50,14 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
     private ObservableCollection<RsiStateViewModel> _states = new();
     private ObservableCollection<RsiStateViewModel> _selectedStates = new();
+    private ObservableCollection<RsiStateViewModel> _visibleStates = new();
     private bool _hasStateSelected;
     private bool _hasOneStateSelected;
     private string _title;
     private FontStyle _titleStyle;
     private ComboBoxItem? _selectedLicense;
     private bool _modified;
+    private string? _search;
 
     public RsiItemViewModel(string? title = null, RsiItem? item = null)
     {
@@ -76,6 +79,8 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
             States.Add(new RsiStateViewModel(image));
         }
+
+        VisibleStates = new ObservableCollection<RsiStateViewModel>(States);
     }
 
     public string Title
@@ -97,6 +102,25 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         {
             _modified = value;
             TitleStyle = value ? FontStyle.Italic : FontStyle.Normal;
+        }
+    }
+
+    public string? Search
+    {
+        get => _search;
+        set
+        {
+            this.RaiseAndSetIfChanged(ref _search, value);
+
+            if (string.IsNullOrWhiteSpace(_search))
+            {
+                VisibleStates = new ObservableCollection<RsiStateViewModel>(_states);
+            }
+            else
+            {
+                var states = _states.Where(s => s.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)).ToList();
+                VisibleStates = new ObservableCollection<RsiStateViewModel>(states);
+            }
         }
     }
 
@@ -158,6 +182,12 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
     {
         get => _selectedStates;
         set => this.RaiseAndSetIfChanged(ref _selectedStates, value);
+    }
+
+    public ObservableCollection<RsiStateViewModel> VisibleStates
+    {
+        get => _visibleStates;
+        set => this.RaiseAndSetIfChanged(ref _visibleStates, value);
     }
 
     public bool HasStateSelected
@@ -435,6 +465,11 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         Item.AddState(vm.Image);
         States.Add(vm);
 
+        if (string.IsNullOrWhiteSpace(_search) || vm.Name.Contains(_search))
+        {
+            VisibleStates.Add(vm);
+        }
+
         NewStates.Add(vm);
         UpdateModified();
     }
@@ -453,6 +488,12 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
         index = States.IndexOf(stateVm);
         var removed = States.Remove(stateVm);
+
+        var visibleIndex = VisibleStates.IndexOf(stateVm);
+        if (visibleIndex > -1)
+        {
+            VisibleStates.RemoveAt(visibleIndex);
+        }
 
         if (!removed)
         {
@@ -489,6 +530,11 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
 
         Item.InsertState(index, model.Image);
         States.Insert(index, model);
+
+        if (string.IsNullOrWhiteSpace(_search) || model.Name.Contains(_search, StringComparison.OrdinalIgnoreCase))
+        {
+            VisibleStates.Add(model);
+        }
 
         Restored.PushFront(model);
         restored = model;

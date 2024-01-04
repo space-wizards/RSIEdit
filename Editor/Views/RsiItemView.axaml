@@ -37,6 +37,8 @@
                     <NumericUpDown ShowButtonSpinner="False" Value="{Binding SizeX}"></NumericUpDown>
                     <Label VerticalAlignment="Center" Margin="10 0 0 0">Size Y: </Label>
                     <NumericUpDown ShowButtonSpinner="False" Value="{Binding SizeY}"></NumericUpDown>
+                    <Label>Search: </Label>
+                    <TextBox Text="{Binding Search, Mode=TwoWay}"></TextBox>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Spacing="10">
                     <Label VerticalAlignment="Center">Folder: </Label>
@@ -46,7 +48,7 @@
             </StackPanel>
         </DockPanel>
         <ScrollViewer>
-            <ListBox Name="States" SelectionMode="Multiple" Items="{Binding States}" SelectedItems="{Binding SelectedStates}">
+            <ListBox Name="States" SelectionMode="Multiple" Items="{Binding VisibleStates}" SelectedItems="{Binding SelectedStates}">
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Add new state" Command="{Binding CreateNewState}"/>
