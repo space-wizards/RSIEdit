@@ -32,6 +32,10 @@
                     Command="{Binding Import}"/>
         <KeyBinding Gesture="Delete"
                     Command="{Binding Delete}"/>
+        <KeyBinding Gesture="Ctrl+C"
+                    Command="{Binding Copy}"/>
+        <KeyBinding Gesture="Ctrl+Shift+V"
+                    Command="{Binding PasteStates}"/>
         <KeyBinding Gesture="Ctrl+Z"
                     Command="{Binding Undo}"/>
         <KeyBinding Gesture="Ctrl+Y"
@@ -63,6 +67,8 @@
                 <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
             </MenuItem>
             <MenuItem Header="_Edit">
+                <MenuItem Header="_Copy" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Copy}" InputGesture="Ctrl+C"/>
+                <MenuItem Header="_Paste" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Paste}" InputGesture="Ctrl+Shift+V"/>
                 <MenuItem Header="_Undo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
                 <MenuItem Header="_Redo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>

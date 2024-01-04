@@ -242,7 +242,14 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
         RefreshFrames();
     }
 
-    public async Task CreateNewState(string? pngFilePath = null)
+    public async Task<RsiStateViewModel?> CreateNewState(RsiImage image)
+    {
+        var vm = new RsiStateViewModel(image);
+        AddState(vm);
+        return vm;
+    }
+
+    public async Task<RsiStateViewModel?> CreateNewState(string pngFilePath)
     {
         var state = new RsiState
         {
@@ -267,15 +274,17 @@ public class RsiItemViewModel : ViewModelBase, IDisposable
                 Logger.Sink?.Log(LogEventLevel.Error, "MAIN", null, e.ToString());
                 var errorVm = new ErrorWindowViewModel($"Error creating a state from file\n{pngFilePath}");
                 await ErrorDialog.Handle(errorVm);
-                return;
+                return null;
             }
         }
 
-        var image = new RsiImage(state, bitmap);
-        var vm = new RsiStateViewModel(image);
+        var vm = await CreateNewState(new RsiImage(state, bitmap));
+        if (vm != null)
+        {
+            await vm.Image.State.LoadImage(bitmap, Item.Size);
+        }
 
-        AddState(vm);
-        await vm.Image.State.LoadImage(bitmap, Item.Size);
+        return vm;
     }
 
     private bool IsExtensionValid(string filepath)
