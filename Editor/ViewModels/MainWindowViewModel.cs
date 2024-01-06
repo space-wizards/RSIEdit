@@ -542,7 +542,8 @@ public class MainWindowViewModel : ViewModelBase
             _copiedStates.Clear();
             foreach (var state in CurrentOpenRsi.SelectedStates)
             {
-                _copiedStates.Add(state.Image);
+                var copiedState = new RsiState(state.Image.State);
+                _copiedStates.Add(new RsiImage(copiedState, state.Image.Preview));
             }
 
             _copiedLicense = CurrentOpenRsi.License;
@@ -558,7 +559,8 @@ public class MainWindowViewModel : ViewModelBase
         {
             foreach (var copy in _copiedStates)
             {
-                await CurrentOpenRsi.CreateNewState(copy);
+                var copiedState = new RsiState(copy.State);
+                await CurrentOpenRsi.CreateNewState(new RsiImage(copiedState, copy.Preview));
             }
 
             if (_copiedLicense != null && string.IsNullOrWhiteSpace(CurrentOpenRsi.License))
