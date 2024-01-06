@@ -183,13 +183,14 @@ public class MainWindowViewModel : ViewModelBase
 
     private void CreateNewRsi(string? title = null, RsiItem? rsi = null)
     {
-        CurrentOpenRsi = new RsiItemViewModel(title, rsi)
+        var newRsi = new RsiItemViewModel(title, rsi)
         {
             License = rsi?.Rsi.License ?? Preferences.DefaultLicense,
             Copyright = rsi?.Rsi.Copyright ?? Preferences.DefaultCopyright,
         };
+        CurrentOpenRsi = newRsi;
 
-        AddRsi(CurrentOpenRsi);
+        AddRsi(newRsi);
     }
 
     public async Task OpenRsi(string folderPath)
