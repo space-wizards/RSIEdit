@@ -574,7 +574,7 @@ public class MainWindowViewModel : ViewModelBase
                 {
                     CurrentOpenRsi.Copyright = _copiedCopyright;
                 }
-                else
+                else if (!CurrentOpenRsi.Copyright.Contains(_copiedCopyright))
                 {
                     var copyright = _copiedCopyright;
                     if (copyright.StartsWith("Taken from "))
