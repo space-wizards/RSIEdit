@@ -354,7 +354,7 @@ public class MainWindowViewModel : ViewModelBase
         var codebase = pathStrings[2];
 
         // We aren't trying to match tags so we should be safe from Zalgo
-        var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)\"", RegexOptions.None, TimeSpan.FromSeconds(10));
+        var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromSeconds(10));
         var match = lastCommitRegex.Match(html);
 
         if (match.Success)
