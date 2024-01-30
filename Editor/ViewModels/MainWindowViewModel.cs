@@ -30,6 +30,8 @@ namespace Editor.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase
 {
+    private const string StatesClipboard = "RSIEdit_States";
+
     private static readonly GifDecoder GifDecoder = new();
     private static readonly PngDecoder PngDecoder = new();
     private static readonly HttpClient Http = new();
@@ -106,12 +108,6 @@ public class MainWindowViewModel : ViewModelBase
     {
         get => _isRsiOpen;
         set => this.RaiseAndSetIfChanged(ref _isRsiOpen, value);
-    }
-
-    public bool HasCopiedStates
-    {
-        get => _hasCopiedStates;
-        set => this.RaiseAndSetIfChanged(ref _hasCopiedStates, value);
     }
 
     public Interaction<Unit, bool> NewRsiAction { get; } = new();
@@ -309,12 +305,18 @@ public class MainWindowViewModel : ViewModelBase
 
     public async Task Paste()
     {
-        if (Application.Current?.Clipboard?.GetTextAsync() is not { } task)
+        if (Application.Current?.Clipboard is not { } clipboard)
             return;
 
-        var clipboard = await task;
-        if (string.IsNullOrWhiteSpace(clipboard) ||
-            !Uri.TryCreate(clipboard, UriKind.Absolute, out var url) ||
+        var text = await clipboard.GetTextAsync();
+        if (text == StatesClipboard)
+        {
+            await PasteStates();
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(text) ||
+            !Uri.TryCreate(text, UriKind.Absolute, out var url) ||
             !ValidDownloadHosts.Contains(url.Host))
         {
             return;
@@ -337,7 +339,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
 
         var stream = await downloadResponse.Content.ReadAsStreamAsync();
-        var rsi = await LoadDmi(stream, clipboard);
+        var rsi = await LoadDmi(stream, text);
         if (rsi == null)
             return;
 
@@ -535,10 +537,13 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Edit
 
-    public void CopyStates()
+    public async Task CopyStates()
     {
         if (CurrentOpenRsi?.SelectedStates.Count > 0)
         {
+            if (Application.Current?.Clipboard is { } clipboard)
+                await clipboard.SetTextAsync(StatesClipboard);
+
             _copiedStates.Clear();
             foreach (var state in CurrentOpenRsi.SelectedStates)
             {
@@ -548,12 +553,10 @@ public class MainWindowViewModel : ViewModelBase
 
             _copiedLicense = CurrentOpenRsi.License;
             _copiedCopyright = CurrentOpenRsi.Copyright;
-
-            HasCopiedStates = true;
         }
     }
 
-    public async Task PasteStates()
+    private async Task PasteStates()
     {
         if (CurrentOpenRsi != null)
         {

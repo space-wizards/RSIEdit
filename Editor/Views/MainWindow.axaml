@@ -34,8 +34,6 @@
                     Command="{Binding Delete}"/>
         <KeyBinding Gesture="Ctrl+C"
                     Command="{Binding CopyStates}"/>
-        <KeyBinding Gesture="Ctrl+Shift+V"
-                    Command="{Binding PasteStates}"/>
         <KeyBinding Gesture="Ctrl+Z"
                     Command="{Binding Undo}"/>
         <KeyBinding Gesture="Ctrl+Y"
@@ -68,7 +66,7 @@
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Copy States" IsEnabled="{Binding IsRsiOpen}" Command="{Binding CopyStates}" InputGesture="Ctrl+C"/>
-                <MenuItem Header="_Paste States" IsEnabled="{Binding HasCopiedStates}" Command="{Binding PasteStates}" InputGesture="Ctrl+Shift+V"/>
+                <MenuItem Header="_Paste States or .dmi Link" Command="{Binding Paste}" InputGesture="Ctrl+V"/>
                 <MenuItem Header="_Undo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
                 <MenuItem Header="_Redo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>
