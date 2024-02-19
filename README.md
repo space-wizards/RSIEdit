@@ -17,11 +17,7 @@ You can find an (unofficial) installation package on the [AUR](https://aur.archl
 ```
 paru -S rsiedit-bin
 ```
-or
-```
-yay -S rsiedit-bin
-```
-Note that this package is not maintained by us. Read the PKGBUILD and then proceed at your own risk.
+or use your preferred AUR helper. As always, read the PKGBUILD yourself and then proceed at your own risk.
 
 ## Building
 1. Clone this repo.
