@@ -20,8 +20,6 @@ using SpaceWizards.RsiLib.Directions;
 using SpaceWizards.RsiLib.DMI.Metadata;
 using SpaceWizards.RsiLib.RSI;
 using ReactiveUI;
-using SixLabors.ImageSharp.Formats.Gif;
-using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using Splat;
 using Image = SixLabors.ImageSharp.Image;
@@ -32,8 +30,6 @@ public class MainWindowViewModel : ViewModelBase
 {
     private const string StatesClipboard = "RSIEdit_States";
 
-    private static readonly GifDecoder GifDecoder = new();
-    private static readonly PngDecoder PngDecoder = new();
     private static readonly HttpClient Http = new();
 
     private static readonly ImmutableArray<string> ValidDownloadHosts =
@@ -748,26 +744,24 @@ public class MainWindowViewModel : ViewModelBase
         Rsi? rsi = null;
         try
         {
+            var image = Image.Load<Rgba32>(filePath);
+            rsi = new Rsi(x: image.Width, y: image.Height);
+            var state = new RsiState();
+
             if (filePath.EndsWith(".gif"))
             {
-                var image = Image.Load<Rgba32>(filePath, GifDecoder);
-                rsi = new Rsi(x: image.Width, y: image.Height);
-                var state = new RsiState();
                 state.LoadGif(image);
-                rsi.States.Add(state);
             }
             else if (filePath.EndsWith(".png"))
             {
-                var image = Image.Load<Rgba32>(filePath, PngDecoder);
-                rsi = new Rsi(x: image.Width, y: image.Height);
-                var state = new RsiState();
                 state.LoadImage(image, rsi.Size);
-                rsi.States.Add(state);
             }
             else
             {
                 throw new InvalidOperationException($"Invalid file type specified!");
             }
+
+            rsi.States.Add(state);
         }
         catch (Exception e)
         {
@@ -795,7 +789,7 @@ public class MainWindowViewModel : ViewModelBase
         try
         {
             stream.Seek(0, SeekOrigin.Begin);
-            var dmi = Image.Load<Rgba32>(stream, PngDecoder);
+            var dmi = Image.Load<Rgba32>(stream);
             return metadata.ToRsi(dmi);
         }
         catch (Exception e)
