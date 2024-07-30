@@ -1,6 +1,24 @@
 {
+  "^Aurorastation/Aurora.3": "CC-BY-SA-3.0",
+  "^Baystation12/Baystation12": "CC-BY-SA-3.0",
+  "^BeeStation/BeeStation-Hornet/blob/\\S+/goon/icons": "CC-BY-NC-SA-3.0",
+  "^BeeStation/BeeStation-Hornet": "CC-BY-SA-3.0",
+  "^Bubberstation/Bubberstation/blob/\\S+/goon/icons": "CC-BY-NC-SA-3.0",
+  "^Bubberstation/Bubberstation": "CC-BY-SA-3.0",
+  "^Citadel-Station-13/Citadel-Station-13/blob/\\S+/goon/icons": "CC-BY-NC-SA-3.0",
+  "^Citadel-Station-13/Citadel-Station-13": "CC-BY-SA-3.0",
   "^cmss13-devs/cmss13": "CC-BY-SA-3.0",
+  "^discordia-space/CEV-Eris": "CC-BY-SA-3.0",
   "^ParadiseSS13/Paradise/blob/\\S+/icons/goonstation": "CC-BY-NC-SA-3.0",
   "^ParadiseSS13/Paradise": "CC-BY-SA-3.0",
-  "^tgstation/tgstation": "CC-BY-SA-3.0"
+  "^shiptest-ss13/Shiptest": "CC-BY-SA-3.0",
+  "^SPLURT-Station/S.P.L.U.R.T-Station-13/blob/\\S+/goon/icons": "CC-BY-NC-SA-3.0",
+  "^SPLURT-Station/S.P.L.U.R.T-Station-13": "CC-BY-SA-3.0",
+  "^tgstation/tgstation": "CC-BY-SA-3.0",
+  "^vgstation-coders/vgstation13/blob/\\S+/goon/icons": "CC-BY-NC-SA-3.0",
+  "^vgstation-coders/vgstation13": "CC-BY-SA-3.0",
+  "^VOREStation/VOREStation/blob/\\S+/icons/goonstation": "CC-BY-NC-SA-3.0",
+  "^VOREStation/VOREStation": "CC-BY-SA-3.0",
+  "^yogstation13/Yogstation/blob/\\S+/goon/icons": "CC-BY-NC-SA-3.0",
+  "^yogstation13/Yogstation": "CC-BY-SA-3.0"
 }
