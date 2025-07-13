@@ -780,14 +780,14 @@ public class MainWindowViewModel : ViewModelBase
 
     private async Task<Rsi?> LoadDmi(Stream stream, string name)
     {
-        if (!DmiParser.TryGetFileMetadata(stream, out var metadata, out var parseError))
-        {
-            await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading metadata for dmi\n{name}\n{parseError.Message}"));
-            return null;
-        }
-
         try
         {
+            if (!DmiParser.TryGetFileMetadata(stream, out var metadata, out var parseError))
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"Error loading metadata for dmi\n{name}\n{parseError.Message}"));
+                return null;
+            }
+            
             stream.Seek(0, SeekOrigin.Begin);
             var dmi = Image.Load<Rgba32>(stream);
             return metadata.ToRsi(dmi);
