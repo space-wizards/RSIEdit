@@ -12,6 +12,7 @@
     <PackageVersion Include="Avalonia.Diagnostics" Version="0.10.22" />
     <PackageVersion Include="Avalonia.ReactiveUI" Version="0.10.22" />
     <PackageVersion Include="Microsoft.Toolkit.Diagnostics" Version="7.1.2" />
+    <PackageVersion Include="Octokit" Version="14.0.0" />
     <PackageVersion Include="Splat" Version="14.6.37" />
   </ItemGroup>
 </Project>

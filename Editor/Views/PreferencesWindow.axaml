@@ -6,7 +6,7 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Editor.Views.PreferencesWindow"
         WindowStartupLocation="CenterOwner"
-        Width="400"
+        Width="600"
         Height="300"
         Title="Preferences"
         Icon="/Assets/logo.ico"
@@ -19,6 +19,15 @@
         <StackPanel Orientation="Horizontal" Spacing="10">
             <TextBlock Text="Default Copyright:" VerticalAlignment="Center" Width="125" />
             <TextBox Text="{Binding DefaultCopyright}" Width="250" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBlock Text="GitHub Token:&#x0a;(Hover for details)" VerticalAlignment="Center" Width="125"
+                       ToolTip.Tip="This is used to use the GitHub API when converting .dmi links from GitHub, instead of directly downloading the file.&#x0a;You will need to use this if the repository is private or requires logging into GitHub to access it.&#x0a;This token is saved in plain text to your computer in the .json file, if a malicious actor were to gain access to it, they would be able to steal your token and use the GitHub API with it.&#x0a;The token only needs repo scopes, to generate one, go to https://github.com/settings/tokens">
+            </TextBlock>
+            <TextBox Text="{Binding GitHubToken}" Width="250" PasswordChar="*"
+                     RevealPassword="{Binding RevealGitHubToken}" />
+            <TextBlock Text="Show token:" VerticalAlignment="Center" />
+            <CheckBox IsChecked="{Binding RevealGitHubToken}" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="10">
             <TextBlock Text="Minify JSON:" VerticalAlignment="Center" Width="125" />

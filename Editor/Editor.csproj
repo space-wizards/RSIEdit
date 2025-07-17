@@ -11,7 +11,6 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Models/" />
     <AvaloniaResource Include="Assets/**" />
   </ItemGroup>
   <ItemGroup>
@@ -20,6 +19,7 @@
     <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Avalonia.ReactiveUI" />
     <PackageReference Include="Microsoft.Toolkit.Diagnostics" />
+    <PackageReference Include="Octokit" />
     <PackageReference Include="Splat" />
   </ItemGroup>
   <ItemGroup>

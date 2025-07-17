@@ -10,14 +10,17 @@ public class PreferencesWindowViewModel : ViewModelBase
 {
     private string? _defaultLicense;
     private string? _defaultCopyright;
-    private bool _easterEggs;
+    private string? _gitHubToken;
+    private bool _revealGitHubToken;
     private bool _minifyJson;
+    private bool _easterEggs;
 
     public PreferencesWindowViewModel(Preferences preferences)
     {
         Preferences = preferences;
         DefaultLicense = Preferences.DefaultLicense;
         DefaultCopyright = Preferences.DefaultCopyright;
+        GitHubToken = Preferences.GitHubToken;
         MinifyJson = Preferences.MinifyJson;
         EasterEggs = Preferences.EasterEggs;
     }
@@ -56,6 +59,26 @@ public class PreferencesWindowViewModel : ViewModelBase
         }
     }
 
+    public string? GitHubToken
+    {
+        get => _gitHubToken;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                value = null;
+            }
+
+            this.RaiseAndSetIfChanged(ref _gitHubToken, value);
+        }
+    }
+
+    public bool RevealGitHubToken
+    {
+        get => _revealGitHubToken;
+        set => this.RaiseAndSetIfChanged(ref _revealGitHubToken, value);
+    }
+
     public bool MinifyJson
     {
         get => _minifyJson;
@@ -72,6 +95,7 @@ public class PreferencesWindowViewModel : ViewModelBase
     {
         Preferences.DefaultLicense = DefaultLicense;
         Preferences.DefaultCopyright = DefaultCopyright;
+        Preferences.GitHubToken = GitHubToken;
         Preferences.MinifyJson = MinifyJson;
         Preferences.EasterEggs = EasterEggs;
 

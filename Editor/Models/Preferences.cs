@@ -20,6 +20,9 @@ public sealed class Preferences
     [JsonPropertyName("defaultCopyright")]
     public string? DefaultCopyright { get; set; }
 
+    [JsonPropertyName("githubToken")]
+    public string? GitHubToken { get; set; }
+
     [JsonPropertyName("minifyJson")]
     public bool MinifyJson { get; set; } = false;
 

@@ -11,18 +11,20 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Logging;
 using Editor.Extensions;
 using Editor.Models;
 using Editor.Models.RSI;
+using Octokit;
 using SpaceWizards.RsiLib.Directions;
 using SpaceWizards.RsiLib.DMI.Metadata;
 using SpaceWizards.RsiLib.RSI;
 using ReactiveUI;
 using SixLabors.ImageSharp.PixelFormats;
 using Splat;
+using Application = Avalonia.Application;
 using Image = SixLabors.ImageSharp.Image;
+using ProductHeaderValue = Octokit.ProductHeaderValue;
 
 namespace Editor.ViewModels;
 
@@ -31,6 +33,7 @@ public class MainWindowViewModel : ViewModelBase
     private const string StatesClipboard = "RSIEdit_States";
 
     private static readonly HttpClient Http = new();
+    private static readonly GitHubClient GitHub = new(new ProductHeaderValue("RSIEdit"));
 
     private static readonly ImmutableArray<string> ValidDownloadHosts =
         ImmutableArray.Create<string>("github.com", "www.github.com");
@@ -330,11 +333,42 @@ public class MainWindowViewModel : ViewModelBase
             return;
 
         builder.Path = string.Join('/', pathStrings);
-        var downloadResponse = await Http.GetAsync(builder.ToString());
-        if (!downloadResponse.IsSuccessStatusCode)
-            return;
 
-        var stream = await downloadResponse.Content.ReadAsStreamAsync();
+        var owner = pathStrings[1];
+        var codebase = pathStrings[2];
+        var filePath = string.Join("/", pathStrings[5..]);
+        var usingApi = false;
+        Stream stream;
+        if (!string.IsNullOrWhiteSpace(Preferences.GitHubToken))
+        {
+            GitHub.Credentials = new Credentials(token: Preferences.GitHubToken);
+            var content = await GitHub.Repository.Content.GetRawContent(owner, codebase, filePath);
+        
+            stream = new MemoryStream();
+            stream.Write(content);
+            stream.Position = 0;
+            usingApi = true;
+        }
+        else
+        {
+            var link = builder.ToString();
+            var downloadResponse = await Http.GetAsync(link);
+            if (!downloadResponse.IsSuccessStatusCode)
+                return;
+
+            if (downloadResponse.RequestMessage?.RequestUri is { } uri &&
+                uri.Host == "github.com" &&
+                uri.AbsolutePath == "/login")
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"The given GitHub link requires an access token to access.\n" +
+                                                                  $"See preferences for more details.\n" +
+                                                                  $"If you are already using a token, check that it has access to the pasted repository:\n{link}"));
+                return;
+            }
+
+            stream = await downloadResponse.Content.ReadAsStreamAsync();
+        }
+        
         var rsi = await LoadDmi(stream, text);
         if (rsi == null)
             return;
@@ -342,25 +376,32 @@ public class MainWindowViewModel : ViewModelBase
         pathStrings[3] = "commits";
 
         builder.Path = string.Join('/', pathStrings);
-        var response = await Http.GetAsync(builder.ToString());
-        if (!response.IsSuccessStatusCode)
-            return;
 
-        var html = await response.Content.ReadAsStringAsync();
+        string? commitHash = null;
+        if (usingApi)
+        {
+            var commits = await GitHub.Repository.Commit.GetAll(owner, codebase, new CommitRequest { Path = filePath });
+            commitHash = commits.FirstOrDefault()?.Sha;
+        }
+        else
+        {
+            var response = await Http.GetAsync(builder.ToString());
+            if (!response.IsSuccessStatusCode)
+                return;
 
-        var owner = pathStrings[1];
-        var codebase = pathStrings[2];
+            var html = await response.Content.ReadAsStringAsync();
 
-        // We aren't trying to match tags so we should be safe from Zalgo
-        var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromSeconds(10));
-        var match = lastCommitRegex.Match(html);
+            // We aren't trying to match tags so we should be safe from Zalgo
+            var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromSeconds(10));
+            var match = lastCommitRegex.Match(html);
+            if (match.Success)
+                commitHash = match.Groups[1].Value;
+        }
 
-        if (match.Success)
+        if (commitHash != null)
         {
             pathStrings[3] = "blob";
-
-            // commit hash
-            pathStrings[4] = match.Groups[1].Value;
+            pathStrings[4] = commitHash;
 
             builder.Path = string.Join('/', pathStrings);
 
@@ -372,7 +413,9 @@ public class MainWindowViewModel : ViewModelBase
                 path = path[1..];
 
             var repositories = RepositoryLicenses.RepositoriesRegex;
-            if (OnlineRepositoryLicenses.IsCompletedSuccessfully &&
+            var useLocalLicenses = Environment.GetEnvironmentVariable("USE_LOCAL_LICENSES");
+            if (useLocalLicenses is null or "0" &&
+                OnlineRepositoryLicenses.IsCompletedSuccessfully &&
                 (await OnlineRepositoryLicenses)?.RepositoriesRegex is { } onlineRepositories)
             {
                 repositories = onlineRepositories;
