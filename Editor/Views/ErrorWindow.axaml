@@ -12,5 +12,6 @@
         CanResize="False"
         Icon="/Assets/logo.ico"
         x:DataType="vm:ErrorWindowViewModel">
-    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Error}" TextWrapping="WrapWithOverflow"/>
+    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Error}"
+               TextWrapping="WrapWithOverflow" Margin="5"/>
 </Window>
