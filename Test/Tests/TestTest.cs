@@ -12,7 +12,7 @@ public class TestTest : AvaloniaTest
         var executed = false;
         await Post(() =>
         {
-            Assert.DoesNotThrow(() => Assert.NotNull(App));
+            Assert.DoesNotThrow(() => Assert.That(App, Is.Not.Null));
             executed = true;
         });
             
@@ -25,7 +25,7 @@ public class TestTest : AvaloniaTest
         var executed = false;
         await Post(() =>
         {
-            Assert.DoesNotThrow(() => Assert.NotNull(App));
+            Assert.DoesNotThrow(() => Assert.That(App, Is.Not.Null));
             executed = true;
         });
             
