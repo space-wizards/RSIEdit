@@ -41,7 +41,7 @@
         inherit pname;
         inherit version;
 
-	src = ./.;
+        src = ./.;
 
         dotnet-sdk = dotnetCorePackages.sdk_9_0;
         dotnet-runtime = dotnetCorePackages.sdk_9_0;
