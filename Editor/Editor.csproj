@@ -4,7 +4,7 @@
     <ApplicationIcon>Assets/logo.ico</ApplicationIcon>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <Version>0.7.1</Version>
+    <Version>0.7.0</Version>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <LangVersion>11</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
