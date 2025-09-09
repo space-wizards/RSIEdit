@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -12,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia.Logging;
+using CommunityToolkit.Mvvm.Input;
 using Editor.Extensions;
 using Editor.Models;
 using Editor.Models.RSI;
@@ -28,7 +31,7 @@ using ProductHeaderValue = Octokit.ProductHeaderValue;
 
 namespace Editor.ViewModels;
 
-public class MainWindowViewModel : ViewModelBase
+public partial class MainWindowViewModel : ViewModelBase
 {
     private const string StatesClipboard = "RSIEdit_States";
 
@@ -44,7 +47,6 @@ public class MainWindowViewModel : ViewModelBase
     private string? _lastOpenedElement;
     private bool _hasLastOpenedElement;
     private bool _isRsiOpen;
-    private bool _hasCopiedStates;
     private readonly List<RsiImage> _copiedStates = new();
     private string? _copiedLicense;
     private string? _copiedCopyright;
@@ -80,12 +82,19 @@ public class MainWindowViewModel : ViewModelBase
         get => _currentOpenRsi;
         set
         {
+            if (_currentOpenRsi != null)
+                _currentOpenRsi.SelectedStates.CollectionChanged -= OnSelectedStatesChanged;
+
             this.RaiseAndSetIfChanged(ref _currentOpenRsi, value);
 
             if (value != null)
             {
                 SelectedIndex = _openRsis.IndexOf(value);
+                value.SelectedStates.CollectionChanged -= OnSelectedStatesChanged;
+                value.SelectedStates.CollectionChanged += OnSelectedStatesChanged;
             }
+
+            CopyStatesCommand.NotifyCanExecuteChanged();
         }
     }
 
@@ -302,6 +311,43 @@ public class MainWindowViewModel : ViewModelBase
             CloseRsi(CurrentOpenRsi);
     }
 
+    private bool TryGetPasteInformation(
+        string text,
+        [NotNullWhen(true)] out UriBuilder? builder,
+        [NotNullWhen(true)] out string[]? pathStrings,
+        out int dmiExtensionIndex)
+    {
+        builder = null;
+        pathStrings = null;
+        dmiExtensionIndex = 0;
+        if (string.IsNullOrWhiteSpace(text) ||
+            !Uri.TryCreate(text, UriKind.Absolute, out var url) ||
+            !ValidDownloadHosts.Contains(url.Host))
+        {
+            return false;
+        }
+
+        builder = new UriBuilder(url) { Port = -1 };
+        pathStrings = builder.Path.Split('/');
+        if (pathStrings.Length < 4)
+            return false;
+
+        pathStrings[3] = "raw";
+
+        dmiExtensionIndex = pathStrings[^1].LastIndexOf(".dmi", StringComparison.Ordinal);
+        return dmiExtensionIndex != -1;
+    }
+
+    private bool CanPaste()
+    {
+        if (Application.Current?.Clipboard is not { } clipboard)
+            return false;
+
+        var text = clipboard.GetTextAsync().Result;
+        return text == StatesClipboard || TryGetPasteInformation(text, out _, out _, out _);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanPaste))]
     public async Task Paste()
     {
         if (Application.Current?.Clipboard is not { } clipboard)
@@ -314,22 +360,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(text) ||
-            !Uri.TryCreate(text, UriKind.Absolute, out var url) ||
-            !ValidDownloadHosts.Contains(url.Host))
-        {
-            return;
-        }
-
-        var builder = new UriBuilder(url) { Port = -1 };
-        var pathStrings = builder.Path.Split('/');
-        if (pathStrings.Length < 4)
-            return;
-
-        pathStrings[3] = "raw";
-
-        var dmiExtensionIndex = pathStrings[^1].LastIndexOf(".dmi", StringComparison.Ordinal);
-        if (dmiExtensionIndex == -1)
+        if (!TryGetPasteInformation(text, out var builder, out var pathStrings, out var dmiExtensionIndex))
             return;
 
         builder.Path = string.Join('/', pathStrings);
@@ -576,23 +607,35 @@ public class MainWindowViewModel : ViewModelBase
 
     #region Edit
 
+    private bool CanCopyStatesRsi([NotNullWhen(true)] out RsiItemViewModel? model)
+    {
+        model = CurrentOpenRsi;
+        return model?.SelectedStates.Count > 0;
+    }
+
+    public bool CanCopyStates()
+    {
+        return CanCopyStatesRsi(out _);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCopyStates))]
     public async Task CopyStates()
     {
-        if (CurrentOpenRsi?.SelectedStates.Count > 0)
+        if (!CanCopyStatesRsi(out var rsi))
+            return;
+
+        if (Application.Current?.Clipboard is { } clipboard)
+            await clipboard.SetTextAsync(StatesClipboard);
+
+        _copiedStates.Clear();
+        foreach (var state in rsi.SelectedStates)
         {
-            if (Application.Current?.Clipboard is { } clipboard)
-                await clipboard.SetTextAsync(StatesClipboard);
-
-            _copiedStates.Clear();
-            foreach (var state in CurrentOpenRsi.SelectedStates)
-            {
-                var copiedState = new RsiState(state.Image.State);
-                _copiedStates.Add(new RsiImage(copiedState, state.Image.Preview));
-            }
-
-            _copiedLicense = CurrentOpenRsi.License;
-            _copiedCopyright = CurrentOpenRsi.Copyright;
+            var copiedState = new RsiState(state.Image.State);
+            _copiedStates.Add(new RsiImage(copiedState, state.Image.Preview));
         }
+
+        _copiedLicense = rsi.License;
+        _copiedCopyright = rsi.Copyright;
     }
 
     private async Task PasteStates()
@@ -852,5 +895,10 @@ public class MainWindowViewModel : ViewModelBase
         }
 
         rsi.Save();
+    }
+
+    private void OnSelectedStatesChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        CopyStatesCommand.NotifyCanExecuteChanged();
     }
 }

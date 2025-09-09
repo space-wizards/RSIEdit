@@ -27,13 +27,13 @@
         <KeyBinding Gesture="Ctrl+W"
                     Command="{Binding Close}"/>
         <KeyBinding Gesture="Ctrl+V"
-                    Command="{Binding Paste}"/>
+                    Command="{Binding PasteCommand}"/>
         <KeyBinding Gesture="Ctrl+I"
                     Command="{Binding Import}"/>
         <KeyBinding Gesture="Delete"
                     Command="{Binding Delete}"/>
         <KeyBinding Gesture="Ctrl+C"
-                    Command="{Binding CopyStates}"/>
+                    Command="{Binding CopyStatesCommand}"/>
         <KeyBinding Gesture="Ctrl+Z"
                     Command="{Binding Undo}"/>
         <KeyBinding Gesture="Ctrl+Y"
@@ -65,8 +65,8 @@
                 <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
             </MenuItem>
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Copy States" IsEnabled="{Binding IsRsiOpen}" Command="{Binding CopyStates}" InputGesture="Ctrl+C"/>
-                <MenuItem Header="_Paste States or .dmi Link" Command="{Binding Paste}" InputGesture="Ctrl+V"/>
+                <MenuItem Header="_Copy States" IsEnabled="{Binding IsRsiOpen}" Command="{Binding CopyStatesCommand}" InputGesture="Ctrl+C"/>
+                <MenuItem Header="_Paste States or .dmi Link" Command="{Binding PasteCommand}" InputGesture="Ctrl+V"/>
                 <MenuItem Header="_Undo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Undo}" InputGesture="Ctrl+Z"/>
                 <MenuItem Header="_Redo" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Redo}" InputGesture="Ctrl+Y"/>
                 <Separator/>

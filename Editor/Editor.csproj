@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <Version>0.7.0</Version>
     <WarningsAsErrors>nullable</WarningsAsErrors>
-    <LangVersion>11</LangVersion>
+    <LangVersion>13</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
@@ -18,6 +18,7 @@
     <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Avalonia.ReactiveUI" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="Microsoft.Toolkit.Diagnostics" />
     <PackageReference Include="Octokit" />
     <PackageReference Include="Splat" />
