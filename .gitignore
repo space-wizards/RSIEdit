@@ -22,3 +22,6 @@ _ReSharper*/
 *.userosscache
 *.sln.docstates
 *.dtbcache.v2
+
+# RSIEdit files
+preferences.json
