@@ -61,6 +61,7 @@
                 <MenuItem Header="_Import..." Command="{Binding Import}" InputGesture="Ctrl+I"/>
                 <MenuItem Header="_Re-Open Last Folder" IsEnabled="{Binding HasLastOpenedElement}" Command="{Binding ReOpenLast}"/>
                 <MenuItem Header="_Open Current RSI Folder" IsEnabled="{Binding IsRsiOpen}" Command="{Binding OpenCurrentRsi}"/>
+                <MenuItem Header="_Re-import Copyright .dmi's" IsEnabled="{Binding IsRsiOpen}" Command="{Binding ReImportCurrentDmis}"/>
                 <Separator/>
                 <MenuItem Header="_Preferences..." Command="{Binding OpenPreferences}" InputGesture="Ctrl+,"/>
             </MenuItem>

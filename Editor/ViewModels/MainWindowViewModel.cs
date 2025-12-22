@@ -360,113 +360,7 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        if (!TryGetPasteInformation(text, out var builder, out var pathStrings, out var dmiExtensionIndex))
-            return;
-
-        builder.Path = string.Join('/', pathStrings);
-
-        var owner = pathStrings[1];
-        var codebase = pathStrings[2];
-        var filePath = string.Join("/", pathStrings[5..]);
-        var usingApi = false;
-        Stream stream;
-        if (!string.IsNullOrWhiteSpace(Preferences.GitHubToken))
-        {
-            GitHub.Credentials = new Credentials(token: Preferences.GitHubToken);
-            var content = await GitHub.Repository.Content.GetRawContent(owner, codebase, filePath);
-        
-            stream = new MemoryStream();
-            stream.Write(content);
-            stream.Position = 0;
-            usingApi = true;
-        }
-        else
-        {
-            var link = builder.ToString();
-            var downloadResponse = await Http.GetAsync(link);
-            if (!downloadResponse.IsSuccessStatusCode)
-                return;
-
-            if (downloadResponse.RequestMessage?.RequestUri is { } uri &&
-                uri.Host == "github.com" &&
-                uri.AbsolutePath == "/login")
-            {
-                await ErrorDialog.Handle(new ErrorWindowViewModel($"The given GitHub link requires an access token to access.\n" +
-                                                                  $"See preferences for more details.\n" +
-                                                                  $"If you are already using a token, check that it has access to the pasted repository:\n{link}"));
-                return;
-            }
-
-            stream = await downloadResponse.Content.ReadAsStreamAsync();
-        }
-        
-        var rsi = await LoadDmi(stream, text);
-        if (rsi == null)
-            return;
-
-        pathStrings[3] = "commits";
-
-        builder.Path = string.Join('/', pathStrings);
-
-        string? commitHash = null;
-        if (usingApi)
-        {
-            var commits = await GitHub.Repository.Commit.GetAll(owner, codebase, new CommitRequest { Path = filePath });
-            commitHash = commits.FirstOrDefault()?.Sha;
-        }
-        else
-        {
-            var response = await Http.GetAsync(builder.ToString());
-            if (!response.IsSuccessStatusCode)
-                return;
-
-            var html = await response.Content.ReadAsStringAsync();
-
-            // We aren't trying to match tags so we should be safe from Zalgo
-            var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromSeconds(10));
-            var match = lastCommitRegex.Match(html);
-            if (match.Success)
-                commitHash = match.Groups[1].Value;
-        }
-
-        if (commitHash != null)
-        {
-            pathStrings[3] = "blob";
-            pathStrings[4] = commitHash;
-
-            builder.Path = string.Join('/', pathStrings);
-
-            var link = builder.ToString();
-            rsi.Copyright = $"Taken from {codebase} at {link}";
-
-            var path = builder.Path;
-            if (path.StartsWith('/'))
-                path = path[1..];
-
-            var repositories = RepositoryLicenses.RepositoriesRegex;
-            var useLocalLicenses = Environment.GetEnvironmentVariable("USE_LOCAL_LICENSES");
-            if (useLocalLicenses is null or "0" &&
-                OnlineRepositoryLicenses.IsCompletedSuccessfully &&
-                (await OnlineRepositoryLicenses)?.RepositoriesRegex is { } onlineRepositories)
-            {
-                repositories = onlineRepositories;
-            }
-
-            foreach (var (repo, license) in repositories)
-            {
-                if (repo.IsMatch(path))
-                {
-                    rsi.License = license;
-                    break;
-                }
-            }
-        }
-
-        var dmiName = pathStrings[^1];
-        var rsiName = $"{dmiName[..dmiExtensionIndex]}.rsi";
-
-        CreateNewRsi(rsiName, new RsiItem(rsi));
-        ReformatAllNames();
+        TryPasteDmiUrl(text);
     }
 
     public async Task ImportImage(string filePath)
@@ -595,6 +489,20 @@ public partial class MainWindowViewModel : ViewModelBase
             {
                 Process.Start("open", CurrentOpenRsi.SaveFolder);
             }
+        }
+    }
+
+    public void ReImportCurrentDmis()
+    {
+        if (CurrentOpenRsi?.Copyright is not { } copyright)
+            return;
+
+        var span = copyright.AsSpan();
+        var regex = new Regex("(https://github.com/.*?/.*?\\.dmi)", RegexOptions.None, TimeSpan.FromSeconds(10));
+        foreach (var match in regex.EnumerateMatches(span))
+        {
+            var matchSpan = span.Slice(match.Index, match.Length).ToString();
+            TryPasteDmiUrl(matchSpan);
         }
     }
 
@@ -900,5 +808,116 @@ public partial class MainWindowViewModel : ViewModelBase
     private void OnSelectedStatesChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         CopyStatesCommand.NotifyCanExecuteChanged();
+    }
+
+    private async void TryPasteDmiUrl(string text)
+    {
+        if (!TryGetPasteInformation(text, out var builder, out var pathStrings, out var dmiExtensionIndex))
+            return;
+
+        builder.Path = string.Join('/', pathStrings);
+
+        var owner = pathStrings[1];
+        var codebase = pathStrings[2];
+        var filePath = string.Join("/", pathStrings[5..]);
+        var usingApi = false;
+        Stream stream;
+        if (!string.IsNullOrWhiteSpace(Preferences.GitHubToken))
+        {
+            GitHub.Credentials = new Credentials(token: Preferences.GitHubToken);
+            var content = await GitHub.Repository.Content.GetRawContent(owner, codebase, filePath);
+
+            stream = new MemoryStream();
+            stream.Write(content);
+            stream.Position = 0;
+            usingApi = true;
+        }
+        else
+        {
+            var link = builder.ToString();
+            var downloadResponse = await Http.GetAsync(link);
+            if (!downloadResponse.IsSuccessStatusCode)
+                return;
+
+            if (downloadResponse.RequestMessage?.RequestUri is { } uri &&
+                uri.Host == "github.com" &&
+                uri.AbsolutePath == "/login")
+            {
+                await ErrorDialog.Handle(new ErrorWindowViewModel($"The given GitHub link requires an access token to access.\n" +
+                                                                  $"See preferences for more details.\n" +
+                                                                  $"If you are already using a token, check that it has access to the pasted repository:\n{link}"));
+                return;
+            }
+
+            stream = await downloadResponse.Content.ReadAsStreamAsync();
+        }
+
+        var rsi = await LoadDmi(stream, text);
+        if (rsi == null)
+            return;
+
+        pathStrings[3] = "commits";
+
+        builder.Path = string.Join('/', pathStrings);
+
+        string? commitHash = null;
+        if (usingApi)
+        {
+            var commits = await GitHub.Repository.Commit.GetAll(owner, codebase, new CommitRequest { Path = filePath });
+            commitHash = commits.FirstOrDefault()?.Sha;
+        }
+        else
+        {
+            var response = await Http.GetAsync(builder.ToString());
+            if (!response.IsSuccessStatusCode)
+                return;
+
+            var html = await response.Content.ReadAsStringAsync();
+
+            // We aren't trying to match tags so we should be safe from Zalgo
+            var lastCommitRegex = new Regex($"\"/{owner}/{codebase}/commit/([a-zA-Z0-9]+)", RegexOptions.None, TimeSpan.FromSeconds(10));
+            var match = lastCommitRegex.Match(html);
+            if (match.Success)
+                commitHash = match.Groups[1].Value;
+        }
+
+        if (commitHash != null)
+        {
+            pathStrings[3] = "blob";
+            pathStrings[4] = commitHash;
+
+            builder.Path = string.Join('/', pathStrings);
+
+            var link = builder.ToString();
+            rsi.Copyright = $"Taken from {codebase} at {link}";
+
+            var path = builder.Path;
+            if (path.StartsWith('/'))
+                path = path[1..];
+
+            var repositories = RepositoryLicenses.RepositoriesRegex;
+            var useLocalLicenses = Environment.GetEnvironmentVariable("USE_LOCAL_LICENSES");
+            if (useLocalLicenses is null or "0" &&
+                OnlineRepositoryLicenses.IsCompletedSuccessfully &&
+                (await OnlineRepositoryLicenses)?.RepositoriesRegex is { } onlineRepositories)
+            {
+                repositories = onlineRepositories;
+            }
+
+            foreach (var (repo, license) in repositories)
+            {
+                if (repo.IsMatch(path))
+                {
+                    rsi.License = license;
+                    break;
+                }
+            }
+        }
+
+        var dmiName = pathStrings[^1];
+        var rsiName = $"{dmiName[..dmiExtensionIndex]}.rsi";
+
+        CreateNewRsi(rsiName, new RsiItem(rsi));
+        ReformatAllNames();
     }
 }
