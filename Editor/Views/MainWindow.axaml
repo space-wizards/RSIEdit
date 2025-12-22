@@ -52,6 +52,7 @@
                 <MenuItem Header="Save _As..." IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAs}" InputGesture="Ctrl+Shift+S"/>
                 <MenuItem Header="Close" Command="{Binding Close}" IsEnabled="{Binding IsRsiOpen}" InputGesture="Ctrl+W"/>
                 <Separator/>
+                <MenuItem Header="_Open All In..." Command="{Binding OpenAllIn}"/>
                 <MenuItem Header="Save All To" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAll}"/>
                 <Separator/>
                 <MenuItem Header="_Convert DMI...">

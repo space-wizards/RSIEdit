@@ -36,6 +36,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
 
             d.Add(vm.NewRsiAction.RegisterHandler(NewRsi));
             d.Add(vm.OpenRsiDialog.RegisterHandler(OpenRsi));
+            d.Add(vm.OpenAllInDialog.RegisterHandler(OpenAllIn));
             d.Add(vm.SaveRsiDialog.RegisterHandler(SaveRsi));
             d.Add(vm.ImportImageDialog.RegisterHandler(ImportImage));
             d.Add(vm.ImportDmiDialog.RegisterHandler(ImportDmi));
@@ -111,6 +112,14 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
     private async Task OpenRsi(InteractionContext<Unit, string?> interaction)
     {
         var dialog = new OpenFolderDialog {Title = "Open RSI"};
+        var folder = await dialog.ShowAsync(this);
+
+        interaction.SetOutput(folder);
+    }
+
+    private async Task OpenAllIn(InteractionContext<Unit, string?> interaction)
+    {
+        var dialog = new OpenFolderDialog { Title = "Open All RSIs" };
         var folder = await dialog.ShowAsync(this);
 
         interaction.SetOutput(folder);

@@ -122,6 +122,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public Interaction<Unit, string?> OpenRsiDialog { get; } = new();
 
+    public Interaction<Unit, string?> OpenAllInDialog { get; } = new();
+
     public Interaction<Unit, string?> SaveRsiDialog { get; } = new();
 
     public Interaction<Unit, string?> ImportImageDialog { get; } = new();
@@ -253,6 +255,14 @@ public partial class MainWindowViewModel : ViewModelBase
         LastOpenedElement = folderPath;
     }
 
+    public async Task OpenAllRsiIn(string folderPath)
+    {
+        foreach (var directory in Directory.GetDirectories(folderPath, "*.rsi", SearchOption.AllDirectories))
+        {
+            await OpenRsi(directory);
+        }
+    }
+
     public async void Open()
     {
         var folder = await OpenRsiDialog.Handle(Unit.Default);
@@ -262,6 +272,17 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         await OpenRsi(folder);
+    }
+
+    public async void OpenAllIn()
+    {
+        var folder = await OpenAllInDialog.Handle(Unit.Default);
+        if (string.IsNullOrEmpty(folder))
+        {
+            return;
+        }
+
+        await OpenAllRsiIn(folder);
     }
 
     public void Save()
