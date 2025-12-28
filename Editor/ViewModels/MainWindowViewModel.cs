@@ -840,13 +840,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
         var owner = pathStrings[1];
         var codebase = pathStrings[2];
+        var branch = string.Join("/", pathStrings[4]);
         var filePath = string.Join("/", pathStrings[5..]);
         var usingApi = false;
         Stream stream;
         if (!string.IsNullOrWhiteSpace(Preferences.GitHubToken))
         {
             GitHub.Credentials = new Credentials(token: Preferences.GitHubToken);
-            var content = await GitHub.Repository.Content.GetRawContent(owner, codebase, filePath);
+            var content = await GitHub.Repository.Content.GetRawContentByRef(owner, codebase, filePath, branch);
 
             stream = new MemoryStream();
             stream.Write(content);
@@ -884,7 +885,11 @@ public partial class MainWindowViewModel : ViewModelBase
         string? commitHash = null;
         if (usingApi)
         {
-            var commits = await GitHub.Repository.Commit.GetAll(owner, codebase, new CommitRequest { Path = filePath });
+            var commits = await GitHub.Repository.Commit.GetAll(owner, codebase, new CommitRequest
+            {
+                Sha = branch,
+                Path = filePath
+            });
             commitHash = commits.FirstOrDefault()?.Sha;
         }
         else
