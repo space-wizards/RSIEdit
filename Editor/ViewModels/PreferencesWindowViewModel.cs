@@ -14,6 +14,7 @@ public class PreferencesWindowViewModel : ViewModelBase
     private bool _revealGitHubToken;
     private bool _minifyJson;
     private bool _easterEggs;
+    private int _indentation;
 
     public PreferencesWindowViewModel(Preferences preferences)
     {
@@ -23,6 +24,7 @@ public class PreferencesWindowViewModel : ViewModelBase
         GitHubToken = Preferences.GitHubToken;
         MinifyJson = Preferences.MinifyJson;
         EasterEggs = Preferences.EasterEggs;
+        Indentation = Preferences.Indentation;
     }
 
     public Preferences Preferences { get; }
@@ -89,6 +91,12 @@ public class PreferencesWindowViewModel : ViewModelBase
     {
         get => _easterEggs;
         set => this.RaiseAndSetIfChanged(ref _easterEggs, value);
+    }
+
+    public int Indentation
+    {
+        get => _indentation;
+        set => this.RaiseAndSetIfChanged(ref _indentation, value);
     }
 
     public async Task Save()

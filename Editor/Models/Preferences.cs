@@ -28,6 +28,9 @@ public sealed class Preferences
 
     [JsonPropertyName("easterEggs")]
     public bool EasterEggs { get; set; }
+
+    [JsonPropertyName("indentation")]
+    public int Indentation { get; set; } = 4;
 }
 
 [JsonSourceGenerationOptions]
