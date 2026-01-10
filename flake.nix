@@ -2,7 +2,8 @@
   description = "C# GUI application for manipulation of RSI files used in SS14.";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-22.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/release-25.05";
+    self.submodules = true;
   };
 
   outputs = { self, nixpkgs }: {
@@ -34,26 +35,18 @@
       }:
 
       let
-        version = "0.2.5";
+        version = "0.7.1";
         pname = "rsiedit";
       in buildDotnetModule rec {
         inherit pname;
         inherit version;
 
-        # Yes, this is entirely redundant but I don't trust submodules...
-        # And also I don't trust anyone to actually maintain this flake lmao
-        src = fetchFromGitHub {
-          owner = "space-wizards";
-          repo = "RSIEdit";
-          rev = "v${version}";
-          hash = "sha256-oHX764t58e4jcGjjgd9ncIbyWjZi3ZqlencsnxOTfDo=";
-          fetchSubmodules = true;
-        };
+        src = ./.;
 
-        dotnet-sdk = dotnetCorePackages.sdk_6_0;
-        dotnet-runtime = dotnetCorePackages.sdk_6_0;
+        dotnet-sdk = dotnetCorePackages.sdk_9_0;
+        dotnet-runtime = dotnetCorePackages.sdk_9_0;
 
-        nugetDeps = ./deps.nix; # File generated with `nix run .#fetch-deps`
+        nugetDeps = ./deps.json; # File generated with `nix run .#fetch-deps`
 
         buildType = "Release";
         selfContainedBuild = false;
@@ -105,7 +98,6 @@
             startupWMClass = meta.mainProgram;
           })
         ];
-
 
         meta = with lib; {
           description = "C# GUI application for manipulation of RSI files used in SS14.";
