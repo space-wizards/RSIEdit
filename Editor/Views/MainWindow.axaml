@@ -50,10 +50,11 @@
                 <MenuItem Header="_Open..." Command="{Binding Open}" InputGesture="Ctrl+O"/>
                 <MenuItem Header="_Save" IsEnabled="{Binding IsRsiOpen}" Command="{Binding Save}" InputGesture="Ctrl+S"/>
                 <MenuItem Header="Save _As..." IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAs}" InputGesture="Ctrl+Shift+S"/>
+                <MenuItem Header="Save All" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAll}" />
                 <MenuItem Header="Close" Command="{Binding Close}" IsEnabled="{Binding IsRsiOpen}" InputGesture="Ctrl+W"/>
                 <Separator/>
                 <MenuItem Header="_Open All In..." Command="{Binding OpenAllIn}"/>
-                <MenuItem Header="Save All To" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAll}"/>
+                <MenuItem Header="Save All To" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SaveAllTo}"/>
                 <Separator/>
                 <MenuItem Header="_Convert DMI...">
                     <MenuItem Header="File" Command="{Binding SingleConvertDMI}"/>
@@ -85,6 +86,9 @@
                 <MenuItem Header="Reformat all names" IsEnabled="{Binding IsRsiOpen}" Command="{Binding ReformatAllNames}"/>
                 <Separator/>
                 <MenuItem Header="Sort alphabetically" IsEnabled="{Binding IsRsiOpen}" Command="{Binding SortAlphabetically}"/>
+                <Separator/>
+                <MenuItem Header="Replace all state names" IsEnabled="{Binding IsRsiOpen}" Command="{Binding ReplaceAllStateNames}"/>
+                <MenuItem Header="Replace all state names In All RSIs" IsEnabled="{Binding IsRsiOpen}" Command="{Binding ReplaceAllStateNamesAllRsis}"/>
             </MenuItem>
         </Menu>
         <Grid>

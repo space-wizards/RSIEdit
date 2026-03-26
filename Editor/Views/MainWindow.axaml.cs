@@ -45,6 +45,7 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
             d.Add(vm.ErrorDialog.RegisterHandler(ShowError));
             d.Add(vm.ChangeAllLicensesAction.RegisterHandler(ChangeAllLicenses));
             d.Add(vm.ChangeAllCopyrightsAction.RegisterHandler(ChangeAllCopyrights));
+            d.Add(vm.ReplaceAllStateNamesAction.RegisterHandler(ReplaceAllStateNames));
         });
 
         ShowErrorEvent.AddClassHandler<MainWindow>(OnShowError);
@@ -244,6 +245,20 @@ public partial class MainWindow : ReactiveWindow<MainWindowViewModel>
         }
 
         arg.SetOutput(vm.SubmittedText);
+    }
+
+    private async Task ReplaceAllStateNames(InteractionContext<string, (string, string)?> arg)
+    {
+        var vm = new TextReplaceWindowViewModel(arg.Input);
+        var dialog = new TextReplaceWindow {DataContext = vm};
+
+        if (!await dialog.ShowDialog<bool>(this))
+        {
+            arg.SetOutput(null);
+            return;
+        }
+
+        arg.SetOutput((vm.Replace, vm.With));
     }
 
     private async void DropEvent(object? sender, DragEventArgs e)

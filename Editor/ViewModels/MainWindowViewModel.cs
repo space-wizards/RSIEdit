@@ -140,6 +140,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public Interaction<Unit, string?> ChangeAllCopyrightsAction { get; } = new();
 
+    public Interaction<string, (string Replace, string With)?> ReplaceAllStateNamesAction { get; } = new();
+
     public void Reset()
     {
         foreach (var rsi in _openRsis.ToArray())
@@ -160,17 +162,20 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void CloseRsi(RsiItemViewModel vm)
     {
-        if (_openRsis.Remove(vm) && CurrentOpenRsi == vm)
+        if (!_openRsis.Remove(vm))
+            return;
+
+        if (CurrentOpenRsi != vm)
+            return;
+
+        if (_openRsis.Count == 0)
         {
-            if (_openRsis.Count == 0)
-            {
-                CurrentOpenRsi = null;
-                IsRsiOpen = false;
-            }
-            else
-            {
-                CurrentOpenRsi = _openRsis[^1];
-            }
+            CurrentOpenRsi = null;
+            IsRsiOpen = false;
+        }
+        else
+        {
+            CurrentOpenRsi = _openRsis[^1];
         }
     }
 
@@ -301,17 +306,26 @@ public partial class MainWindowViewModel : ViewModelBase
         CurrentOpenRsi.Save();
     }
 
-    public void SaveAs()
+    public async void SaveAs()
     {
         if (CurrentOpenRsi == null)
         {
             return;
         }
 
-        SaveRsiAs(CurrentOpenRsi);
+        await SaveRsiAs(CurrentOpenRsi);
     }
 
     public async void SaveAll()
+    {
+        foreach (var rsi in _openRsis)
+        {
+            if (!await SaveInternal(rsi))
+                return; // Stop early if one dialog is cancelled, to avert the Notepad++ curse of 100 save dialogs
+        }
+    }
+
+    public async void SaveAllTo()
     {
         var path = await SaveRsiDialog.Handle(Unit.Default);
         if (string.IsNullOrEmpty(path))
@@ -708,6 +722,45 @@ public partial class MainWindowViewModel : ViewModelBase
         CurrentOpenRsi.States = new ObservableCollection<RsiStateViewModel>(states);
     }
 
+    public async void ReplaceAllStateNames()
+    {
+        if (CurrentOpenRsi == null)
+        {
+            return;
+        }
+
+        if (await ReplaceAllStateNamesAction.Handle("Replace all state names") is not { } replace)
+        {
+            return;
+        }
+
+        foreach (var state in CurrentOpenRsi.States)
+        {
+            state.Name = state.Name.Replace(replace.Replace, replace.With);
+        }
+    }
+
+    public async void ReplaceAllStateNamesAllRsis()
+    {
+        if (CurrentOpenRsi == null)
+        {
+            return;
+        }
+
+        if (await ReplaceAllStateNamesAction.Handle("Replace all state names in all RSIs") is not { } replace)
+        {
+            return;
+        }
+
+        foreach (var openRsi in OpenRsis)
+        {
+            foreach (var state in openRsi.States)
+            {
+                state.Name = state.Name.Replace(replace.Replace, replace.With);
+            }
+        }
+    }
+
     public void Delete()
     {
         CurrentOpenRsi?.DeleteSelectedStates();
@@ -741,17 +794,35 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    private async void SaveRsiAs(RsiItemViewModel rsi)
+    private async Task<bool> SaveInternal(RsiItemViewModel? rsi)
+    {
+        if (rsi == null)
+        {
+            return false;
+        }
+
+        if (rsi.SaveFolder == null)
+        {
+            if (!await SaveRsiAs(rsi))
+                return false;
+        }
+
+        rsi.Save();
+        return true;
+    }
+
+    private async Task<bool> SaveRsiAs(RsiItemViewModel rsi)
     {
         var path = await SaveRsiDialog.Handle(Unit.Default);
         if (string.IsNullOrEmpty(path))
         {
-            return;
+            return false;
         }
 
         rsi.SaveFolder = path;
         rsi.Title = Path.GetFileName(path);
         rsi.Save();
+        return true;
     }
 
     private async Task<Rsi?> LoadImage(string filePath)
