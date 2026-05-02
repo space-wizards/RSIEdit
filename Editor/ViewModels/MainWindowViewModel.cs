@@ -12,6 +12,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Logging;
 using CommunityToolkit.Mvvm.Input;
@@ -378,7 +379,14 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.Clipboard is not { } clipboard)
             return false;
 
-        var text = clipboard.GetTextAsync().Result;
+        // Did you know that RelayCommand does not let you return a task in CanExecute
+        // And that simply doing clipboard.GetTextAsync().Result locks up the program
+        // But only on Linux!
+        // Fantastic.
+        var task = Task.Run(() => clipboard.GetTextAsync());
+        task.Wait(); 
+
+        var text = task.Result;
         return text == StatesClipboard || TryGetPasteInformation(text, out _, out _, out _);
     }
 
